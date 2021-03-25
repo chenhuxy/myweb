@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+<h2 align="center">Register</h2>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ uf.as_p }}
+    <input type="submit" value="upload">
+</form>
+</body>
+</html>

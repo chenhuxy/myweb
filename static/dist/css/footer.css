@@ -1,0 +1,9 @@
+.footer {
+    display: inline-block;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+    position: fixed;
+    bottom: 0px;
+    left: 600px;
+    font-family: cursive;
+}

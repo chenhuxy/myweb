@@ -1,0 +1,106 @@
+{% extends "master/layout.html" %}
+{% block formTitle %}
+<form method="post" action="/cmdb/index/table/user/add/">
+{% endblock %}
+{% block content %}
+
+        <div class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div class="card-header bg-light">
+                                添加用户<label style="color: red;">{{status}}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="username" class="form-control-label require">用户名</label>
+                                            <input type="text" id="username" class="form-control" placeholder="用户名" name="user">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="password" class="form-control-label require">密码</label>
+                                            <input type="password" id="password" class="form-control" placeholder="密码" name="pwd">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="email" class="require">邮箱</label>
+                                            <input type="email" id="email" class="form-control" placeholder="邮箱" name="email">
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select" class="require">用户类型</label>
+                                            <select id="single-select" class="form-control" name="usertype">
+                                                {% for item in usertype %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select-2" class="require">用户组</label>
+                                            <select id="single-select-2" class="form-control" name="group">
+                                                {% for item in usergroup %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                <!--
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select">用户组</label>
+                                            <select id="multi-select" class="form-control" multiple="">
+                                                <option>1</option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                            </select>
+                                        </div>
+                                    </div>-->
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">备注</label>
+                                            <textarea id="textarea" class="form-control" rows="6" name="memo"></textarea>
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">添加</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/table/user/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
+{% block formFooter %}
+</form>
+{% endblock %}

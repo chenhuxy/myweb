@@ -1,0 +1,149 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/wf/add/">
+        {% endblock %}
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+                            <div>
+                               <a href="/cmdb/index/wf/" class="btn btn-outline-primary px-5">返回</a>
+                            </div>
+
+                            <div class="card-header bg-light">
+                               流程进度
+                            </div>
+
+                            <div class="card-body">
+                                <div class="col-md-7">
+                                   1.xxx提交申请，待审批--> 2.审批中-->3.已完成
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div class="card-header bg-light">
+                                流程详情<label style="color: red;">{{status}}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="sponsor" class="form-control-label require">发起人</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="sponsor" class="form-control" readonly value="{{item.sponsor}}" name="sponsor">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            {% for item in wf_info %}
+                                            <label for="title" class="form-control-label require">标题</label>
+                                            <input type="text" id="title" class="form-control" readonly value="{{item.title}}" name="title">
+                                        {% endfor %}
+                                        </div>
+                                    </div>
+
+                                   <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="types" class="form-control-label require">请求类型</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="types" class="form-control" readonly value="{{item.type.name}}" name="type">
+                                                {% endfor %}
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="content" class="require form-control-label">请求内容</label>
+                                            {% for item in wf_info %}
+                                            <textarea id="content" class="form-control" name="content" readonly>{{item.content}}</textarea>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="sponsor" class="form-control-label require">审批人</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="approval" class="form-control" readonly value="{{item.approval.leader}}" name="approval">
+                                                {% endfor %}
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">备注</label>
+                                            {% for item in wf_info %}
+                                            <textarea id="textarea" class="form-control" readonly rows="6">{{item.memo}}</textarea>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <!--
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">同意</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/wf/" class="btn btn-outline-primary px-5">驳回</a>
+                                    </div>
+                                </div>
+                            </div>-->
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+                            <div class="card-header bg-light">
+                                流程信息
+                            </div>
+
+                            <div class="card-body">
+                                {% for item in wf_info %}
+                                <div class="col-md-7">
+                                   {{item.create_time}}{{item.sponsor}}提交申请，待审批。。
+                                </div>
+                                <div class="col-md-7">
+                                   {{item.update_time}}{{item.approval.name}}处理中，当前处理人{{item.approval.leader}}。
+                                </div>
+                                <div class="col-md-7">
+                                   {{item.update_time}}{{item.approval.name}}处理完成，流程结束。
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+    {% block formFooter %}
+        </form>
+    {% endblock %}
+        </div>
+{% endblock %}

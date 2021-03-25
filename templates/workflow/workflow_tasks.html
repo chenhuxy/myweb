@@ -1,0 +1,174 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <!--<form method="post" action="/cmdb/index/wf/process/">-->
+        {% endblock %}
+<div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                                <div class="col-md-12 mb-4">
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" data-toggle="tab" href="#profile4" role="tab" aria-controls="profile" aria-expanded="true">
+                                                <i class="icon-basket-loaded"></i> 待审批 &nbsp;<span class="badge badge-pill badge-danger">{{ number }}</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-toggle="tab" href="#home4" role="tab" aria-controls="home" aria-expanded="false">
+                                                <i class="icon-calculator"></i> 已审批 &nbsp;<span class="badge badge-success">{{ number_process }}</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+
+                                        <div class="tab-pane active" id="profile4" role="tabpanel" aria-expanded="true">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover table-bordered" id="tab">
+                                                    <thead>
+                                                    <tr>
+                                                        <th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>
+                                                        <th>id</th>
+                                                        <th>请求编号</th>
+                                                        <th>标题</th>
+                                                        <th>发起人</th>
+                                                        <th>请求类型</th>
+                                                        <th>当前状态</th>
+                                                        <th>创建时间</th>
+                                                        <th>动作</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for item in wf_info %}
+                                                    <tr>
+                                                        <td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>
+                                                        <td>{{item.id}}</td>
+                                                        <!--<td><a style="color:blue" href="/cmdb/index/wf/detail?sn={{item.sn}}">{{item.sn}}</a></td>-->
+                                                        <td>{{item.sn}}</td>
+                                                        <td>{{item.title}}</td>
+                                                        <td>{{item.sponsor}}</td>
+                                                        <td>{{item.type.name}}</td>
+                                                        <td>{{item.status}}</td>
+                                                        <!--<td>{{item.approval.username}}</td>-->
+                                                        <td>{{item.create_time}}</td>
+
+                                                        <td>
+                                                            <button class="btn btn-primary" data-toggle="modal" onclick="workflowApprove(this)">
+                                                                <i class="fa fa-cut"></i> 审批
+                                                            </button>
+                                                            <button class="btn btn-primary" data-toggle="modal" onclick="workflowDetail(this)">
+                                                                <i class="fa fa-pencil-alt"></i> 详情
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane" id="home4" role="tabpanel" aria-expanded="false">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover table-bordered" id="tab2">
+                                                    <thead>
+                                                    <tr>
+                                                        <th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>
+                                                        <th>id</th>
+                                                        <th>请求编号</th>
+                                                        <th>标题</th>
+                                                        <th>发起人</th>
+                                                        <th>请求类型</th>
+                                                        <th>当前状态</th>
+                                                        <th>创建时间</th>
+                                                        <th>动作</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for item in wf_info_process %}
+                                                    <tr>
+                                                        <td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>
+                                                        <td>{{item.id}}</td>
+                                                        <!--<td><a style="color:blue" href="/cmdb/index/wf/detail?sn={{item.sn}}">{{item.sn}}</a></td>-->
+                                                        <td>{{item.sn}}</td>
+                                                        <td>{{item.title}}</td>
+                                                        <td>{{item.sponsor}}</td>
+                                                        <td>{{item.type.name}}</td>
+                                                        <td>{{item.status}}</td>
+                                                        <!--<td>{{item.approval.username}}</td>-->
+                                                        <td>{{item.create_time}}</td>
+
+                                                        <td>
+                                                            <!--<button class="btn btn-primary" data-toggle="modal" onclick="workflowApprove(this)">
+                                                                <i class="fa fa-cut"></i> 审批
+                                                            </button>-->
+                                                            <button class="btn btn-primary" data-toggle="modal" onclick="workflowDetail(this)">
+                                                                <i class="fa fa-pencil-alt"></i> 详情
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+     {% block formFooter %}
+        <!--</form>-->
+     {% endblock %}
+        </div>
+{% endblock %}
+{% block javascript %}
+<script>
+    function workflowDetail(obj) {
+        var tr = obj.parentNode.parentNode;
+        var sn = tr.cells[2].innerText;
+        console.log(sn)
+        location.href='/cmdb/index/wf/tasks/detail/?sn='+sn;
+    }
+
+    function workflowApprove(obj) {
+        var tr = obj.parentNode.parentNode;
+        var sn = tr.cells[2].innerText;
+        console.log(sn)
+        location.href='/cmdb/index/wf/tasks/approve/?sn='+sn;
+    }
+
+    function update(obj) {
+        //obj.preventDefault();
+        var tr = obj.parentNode.parentNode;
+        //var userid = tr.firstElementChild.innerHTML;
+        var id = tr.cells[1].innerHTML;
+        //var username = tr.cells[1].innerHTML;
+        //var password = tr.cells[2].innerHTML;
+        //var email = tr.cells[3].innerHTML;
+        //var usertype = tr.cells[4].innerHTML;
+        location.href='/cmdb/index/wf/form_update/id='+id;
+        //alert(userid);
+ /*            $.ajax({
+               url: '/cmdb/index/table/user/form_update/',
+               data: {userid:id,username:username,password:password,email:email,usertype:usertype},
+               type: 'POST',
+                success: function (data) {
+                    //window.parent.location.href='/cmdb/index/table/user/form_update/'
+                    //alert('更新成功')
+                    //window.parent.location.reload();
+                   //$(body).html(data);
+              },
+               error: function () {
+                 alert('服务器异常');
+              }
+          });
+        //window.parent.location.href='/cmdb/index/table/user/form_update/'
+*/
+    }
+</script>
+{% endblock %}

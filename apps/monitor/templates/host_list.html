@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>我的监控</title>
+</head>
+<body>
+<div class="header">
+    <h1 align="center">我的监控</h1>
+</div>
+<a href="http://localhost:8000/admin" target="_blank" >跳转到后台</a>
+<h3 style="margin-bottom: -50px;font-size: x-large;">主机列表
+</h3>
+<hr/>
+<br/>
+
+<div align="center" class="host">
+{% for host in hosts %}
+
+    <a href="{% url 'get_host_detail' host.hostid %}"><h4 align="left">{{ host.ip }}</h4></a>
+</div>
+
+{% endfor %}
+
+
+
+</body>
+</html>

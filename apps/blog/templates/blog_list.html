@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>我的博客</title>
+</head>
+<body>
+<div>
+<h3 align="center">我的博客</h3>
+<h3>博客列表</h3>
+{% for item in blogs %}
+<a href="{% url 'blog_get_detail' item.id %}"><h3>{{item.title}}</h3></a>
+<div style="color: #ff9900;">分类-{{item.category.name}}</div>
+<div style="color: #4a86e8;">作者-{{item.author}}</div>
+<div style="color: #6aa84e">发布时间-{{item.publish}}</div>
+<div style="color: #6aa84e">最后修改-{{item.last_modify}}</div>
+        内容-{{item.content | truncatechars:10}}
+{% endfor %}
+</div>
+</body>
+</html>

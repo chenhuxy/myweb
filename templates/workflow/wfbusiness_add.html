@@ -1,0 +1,66 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/wf/wfbusiness/add/">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div class="card-header bg-light">
+                                添加业务单元<label style="color: red;">{{status}}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="wfbusiness" class="form-control-label require">业务单元</label>
+                                            <input type="text" id="wfbusiness" class="form-control" placeholder="业务单元" name="wfbusiness">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select" class="require">业务负责人</label>
+                                            <select id="single-select" class="form-control" name="director">
+                                                {% for item in userinfo %}
+                                                <option value={{item.id}}>{{item.username}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select-2" class="require">所属部门</label>
+                                            <select id="single-select-2" class="form-control" name="group">
+                                                {% for item in usergroup %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">添加</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/wf/wfbusiness/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% block formFooter %}
+                </form>
+            {% endblock %}
+        </div>
+{% endblock %}

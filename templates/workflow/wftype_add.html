@@ -1,0 +1,46 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/wf/wftype/add/">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div class="card-header bg-light">
+                                添加工单类型<label style="color: red;">{{status}}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="wftype" class="form-control-label require">工单类型</label>
+                                            <input type="text" id="wftype" class="form-control" placeholder="工单类型" name="wftype">
+                                        </div>
+                                    </div>
+
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">添加</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/wf/wftype/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% block formFooter %}
+                </form>
+            {% endblock %}
+        </div>
+{% endblock %}

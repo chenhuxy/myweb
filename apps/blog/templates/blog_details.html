@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{blog.title}}</title>
+</head>
+<body>
+<div>
+
+    <a href="#" style="text-decoration:none;"><h3>{{blog.title}}</h3></a>
+    <span style="color:#ff9900 ;">{{blog.category.name}}</span>
+    <span style="color: #4a86e8">{{blog.author}}</span>
+    <span style="color: #6aa84f">{{blog.publish}}</span>
+    <div>{{blog.content}}</div>
+    <h3>评论</h3>
+    {% for comment in comments %}
+    <div>{{comment.name}}在{{comment.publish}}说:{{comment.content}}</div>
+    {% endfor %}
+    <h3>提交评论</h3>
+    <form action="{% url 'blog_get_detail' blog.id %}" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>{{field.label}}:{{field}}</div>
+        <div>{{field.errors}}</div>
+        {% endfor %}
+                <button type="submit" style="margin-top:10px ">提交</button>
+                <a href="/blog/"><button type="button">返回</button></a>
+    </form>
+</div>
+</body>
+</html>

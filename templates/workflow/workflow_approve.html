@@ -1,0 +1,218 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/wf/tasks/process/">
+        {% endblock %}
+            <div class="container-fluid">
+
+<!--                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+                            <div>
+                               <a href="/cmdb/index/wf/" class="btn btn-outline-primary px-5">返回</a>
+                            </div>
+
+                            <div class="card-header bg-light">
+                               流程进度
+                            </div>
+
+                            <div class="card-body">
+                                <div class="col-md-7">
+                                    {% if status|lower == "success"  %}
+
+                                   1.xxx提交申请，待审批-> 2.审批中->
+                                    {% else %}
+                                    1.xxx提交申请，待审批->
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div> -->
+
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div>
+                               <a href="../list/" class="btn btn-outline-primary px-5">返回</a>
+                            </div>
+
+                            <div class="card-header bg-light">
+                                流程审批<label style="color: red;">{{status}}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="sponsor" class="form-control-label require">流程编号</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="sn" class="form-control" readonly value="{{item.sn}}" name="sn">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="sponsor" class="form-control-label require">发起人</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="sponsor" class="form-control" readonly value="{{item.sponsor}}" name="sponsor">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            {% for item in wf_info %}
+                                            <label for="title" class="form-control-label require">标题</label>
+                                            <input type="text" id="title" class="form-control" readonly value="{{item.title}}" name="title">
+                                        {% endfor %}
+                                        </div>
+                                    </div>
+
+                                   <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="types" class="form-control-label require">请求类型</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="types" class="form-control" readonly value="{{item.type.name}}" name="type">
+                                                {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="business" class="form-control-label require">业务单元</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="business" class="form-control" readonly value="{{item.business.name}}" name="business">
+                                                {% endfor %}
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="content" class="require form-control-label">请求内容</label>
+                                            {% for item in wf_info %}
+                                            <textarea id="content" class="form-control" name="content" readonly>{{item.content}}</textarea>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="approval" class="require form-control-label">审批人</label>
+                                            {% for item in approval_selected %}
+                                            <input type="text" id="approval" class="form-control" name="approval" readonly value="{{item.username}}">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+
+<!--
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select" class="require">审批人</label>
+                                            <select id="single-select" class="form-control" name="approval">
+                                                {% for item in approval_selected %}
+                                                <option value={{item.id}}>{{item.username}}</option>
+                                                {% endfor %}
+                                                {% for item in approval %}
+                                                <option value={{item.id}}>{{item.username}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>-->
+
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">备注</label>
+                                            {% for item in wf_info %}
+                                            <textarea id="textarea" class="form-control" readonly rows="6">{{item.memo}}</textarea>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                            </div>
+
+
+                            <div class="card-footer p-4">
+                                <div class="row form-group">
+                                    <div class="col-md-7">
+                                        意见：<input type="text" name="suggest_agree" class="form-control"  placeholder="请输入意见（可选）">
+                                    </div>
+                                    <div class="col-md-7">
+                                        <input type="submit" class="btn btn-primary px-5" name="suggest" value="同意">
+                                    </div>
+
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-md-7">
+                                        意见：<input type="text" name="suggest_reject" class="form-control" placeholder="请输入意见（必填）">
+                                    </div>
+                                    <div class="col-md-7">
+                                        <input type="submit" class="btn btn-outline-primary px-5" name="suggest" value="拒绝">
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+<!--
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            流程信息
+                        </div>
+
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <tbody>
+                                    {% for item in wf_info_commit %}
+                                    <tr>
+                                        <td>{{item.create_time}}</td>
+                                        <td class="text-nowrap">{{item.sponsor}}提交申请，待审批。</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% for item in wf_info_process %}
+                                    <tr>
+                                        <td>{{item.update_time}}</td>
+                                        <td class="text-nowrap">{{item.assignee}}处理中。</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{item.finish_time}}</td>
+                                        <td>处理意见：{{item.suggest}},{{item.suggest_content}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% for item in wf_info_complete %}
+                                    <tr>
+                                        <td>{{item.update_time}}</td>
+                                        <td class="text-nowrap">{{item.assignee}}处理完成，流程结束。</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+
+
+            </div>
+    {% block formFooter %}
+        </form>
+    {% endblock %}
+        </div>
+{% endblock %}

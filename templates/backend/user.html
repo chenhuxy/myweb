@@ -1,0 +1,194 @@
+!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>CMDB Demo</title>
+	<link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.7.0/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.7.0/themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="/static/jquery-easyui-1.7.0/demo/demo.css">
+	<script type="text/javascript" src="/static/jquery-easyui-1.7.0/jquery.min.js"></script>
+	<script type="text/javascript" src="/static/jquery-easyui-1.7.0/jquery.easyui.min.js"></script>
+    <style>
+        table { border-collapse:collapse;width:80%;}
+        table,td,th {border:2px solid #E0ECFF;}
+    </style>
+</head>
+<body class="easyui-layout">
+	<div data-options="region:'north',border:false" style="height:60px;background:#E0ECFF;padding:10px;overflow:visible;">
+		<span style="float:left;font-size:">
+            <a style="text-decoration:none;color:black;" href="/cmdb">
+                <h2>主机管理系统</h2>
+            </a>
+        </span>
+        <span style="float:right">help | profile | login | register</span>
+        <div class="easyui-panel" style="width:10%;max-width:400px;float:right;position:fixed;right:10px;top:28px;">
+		    <input class="easyui-searchbox" data-options="prompt:'Please Input Value',searcher:doSearch" style="width:100%;">
+	    </div>
+	</div>
+	<div data-options="region:'south',border:false" style="height:50px;background:#E0ECFF;padding:10px;text-align:center;">
+		copyright by noohle @2017-2019
+	</div>
+	<div data-options="region:'west'" style="width:200px;background:#E0ECFF;">
+			<div class="easyui-accordion" data-options="multiple:true,border:false,selected:100">
+                <div title="用户管理" data-options="iconCls:'icon-ok'"style="overflow:auto;padding:10px;background:#E0ECFF;">
+                    <p><a style="text-decoration:none;color:black;" href="/cmdb/user/list">用户列表</a></p>
+                    <p><a style="text-decoration:none;color:black;" href="/cmdb/group/list">用户组</a></p>
+                </div>
+                <div title="资产管理" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;background:#E0ECFF;">
+                    <p><a style="text-decoration:none;color:black;" href="/cmdb/asset/list">资产列表</a></p>
+                    <p>网域列表</p>
+                    <p>管理用户</p>
+                    <p>系统用户</p>
+                    <p>标签管理</p>
+                    <p>命令过滤</p>
+                </div>
+                <div title="权限管理" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;background:#E0ECFF;">
+                    <p>资产授权</p>
+                </div>
+                <div title="会话管理" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;background:#E0ECFF;">
+                    <p>在线会话</p>
+                    <p>历史会话</p>
+                    <p>命令记录</p>
+                    <p>web终端</p>
+                    <p>文件管理</p>
+                    <p>终端管理</p>
+                </div>
+                <div title="作业中心" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;background:#E0ECFF;">
+                    <p>任务列表</p>
+                    <p>命令执行</p>
+                </div>
+                <div title="日志审计" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;background:#E0ECFF;">
+                    <p>登录日志</p>
+                    <p>FTP日志</p>
+                    <p>操作日志</p>
+                    <p>改密日志</p>
+                    <p>命令执行</p>
+                </div>
+                <div title="系统设置" data-options="iconCls:'icon-ok'" style="overflow:auto;padding:10px;background:#E0ECFF;"></div>
+			</div>
+	</div>
+	<div data-options="region:'center',title:'Center'"style="overflow:scroll;">
+        <span style="float:right;">
+            <button><a style="text-decoration:none;color:black;" href="/cmdb/user/forms/">新增用户</a></button>
+        </span>
+        <div style="margin:20px 0;">
+		<table id="tb1">
+            <tr>
+                <th>id</th>
+                <th>用户名</th>
+                <th>密码</th>
+                <th>邮箱</th>
+                <th>用户类型</th>
+                <th>动作</th>
+            </tr>
+		    {% for item in user %}
+            <tr>
+                <td></td>
+                <td>{{item.username}}</td>
+                <td>{{item.password}}</td>
+                <td>{{item.email}}</td>
+                <td>{{item.usertype.role}}</td>
+                <td><button><a class="action-update" style="text-decoration:none;color:black;" href="${dynamicDomain}/member/deleteTr/1/${eh.objectId }">更新</a></button>
+                    <button><a class="action-delete" style="text-decoration:none;color:black;" href="#">删除</a></button>
+                </td>
+            </tr>
+            {% endfor %}
+		</table>
+        </div>
+        <div class="easyui-pagination" data-options="
+					total:114,
+					layout:['list','sep','first','prev','links','next','last','sep','refresh','info']
+				" style="margin:20px 0;position:fixed;bottom:50px;right:20px;">
+        </div>
+
+	</div>
+
+
+<p>当前登录用户：{{username}}</p>
+
+<script type="text/javascript">
+		function doSearch(value){
+			alert('You input: ' + value);
+		}
+		function update(){
+		    alert('update');
+		}
+		function del(){
+            alert('delete');
+		}
+		$(function(){
+		    $("#del").dialog();
+		});
+
+//表格前加序号
+/*	$(function(){
+        //$('table tr:not(:first)').remove();
+        var len = $('table tr').length;
+        for(var i = 1;i<len;i++){
+            $('table tr:eq('+i+') td:first').text(i);
+        }
+       });
+/*
+//获取表格行列数据
+    function load(){
+        var tab=document.getElementById("tb1");
+        var rows=tab.rows;
+        console.log(rows.length);//获取表格的行数
+
+        for(var i=0;i<rows.length;i++){ //遍历表格的行
+           for(var j=0;j<rows[i].cells.length;j++){  //遍历每行的列
+           console.log("第"+(i+1)+"行，第"+(j+1)+"列的值是:"+rows[i].cells[j].innerHTML);
+           }
+        }
+     }
+    load();//函数调用
+*/
+
+//ajax 删除
+
+/*$.ajax({
+    type:"POST",
+    data:$.param({username:'test1'}),
+    url:"/cmdb/user/del/", //后台提供的删除接口
+    dataType:'json',
+    success:function(data){
+        var html = '';
+        if(data.status == 1){
+            alert('删除成功');
+            window.location.reload();
+        } else {
+            alert('删除失败，请稍后重试'); return false;
+        }
+    }
+  });*/
+
+/*
+//gfdg
+$("#action-delete").click(function () {
+        {#json数据#}
+        var post_data={
+            "name":"test2",
+        };
+
+        $.ajax({
+            url:"/cmdb/user/del/",
+            type:"POST",
+            {#发送json数据到服务器#}
+            data:post_data,
+
+            {#请求成功回调函数#}
+            success:function (data) {
+                alert(data)
+                alert("请求成功")
+            },
+            {#请求失败回调函数#}
+            error:function () {
+                alert("服务器请求超时,请重试!")
+            }
+
+        });
+    });
+*/
+</script>
+</body>
+</html>

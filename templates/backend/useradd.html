@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>CMDB</title>
+</head>
+<body>
+<div style="margin:20px 0;"></div>
+
+		<form method="post" action="http://127.0.0.1:8000/cmdb/user/add/">
+			<div style="margin-bottom:20px">用户名：<input name="user" placeholder="用户名"/></div>
+			<div style="margin-bottom:20px">密码：<input name="pwd" placeholder="密码"/></div>
+            <div style="margin-bottom:20px">邮箱：<input name="email" placeholder="邮箱"/></div>
+            <div style="margin-bottom:20px">用户类型：<select name="usertype">
+                {% for item in usertype %}
+                <option value={{item.id}}>{{item.role}}</option>
+                {% endfor %}
+                </select>
+            </div>
+			<div style="margin-bottom:20px"><input type="submit" value="提交"/><label style=color:red;>{{status}}</label></div>
+		</form>
+</body>
+</html>

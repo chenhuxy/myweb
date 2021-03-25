@@ -1,0 +1,57 @@
+{% extends "master/layout.html" %}
+{% block formTitle %}
+{% endblock %}
+{% block content %}
+
+        <div class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                prometheus报警<label style="color: red;">{{ status }}</label>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>labels</th>
+                                <th>annotations</th>
+                                <th>state</th>
+                                <th>activeAt</th>
+                                <th>value</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in msg %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{item.labels}}</td>
+                                <td>{{item.annotations}}</td>
+                                <td>{{item.state}}</td>
+                                <td>{{item.activeAt}}</td>
+                                <td>{{item.value}}</td>
+                            </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                            </div>
+                            <div>总计：{{count}}条</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+{% endblock %}
+{% block formFooter %}
+{% endblock %}
+{% block javascript %}
+    <script>
+
+
+    </script>
+{% endblock %}

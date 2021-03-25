@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Carbon - Admin Template</title>
+    <link rel="stylesheet" href="/static/dist/vendor/simple-line-icons/css/simple-line-icons.css">
+    <link rel="stylesheet" href="/static/dist/vendor/font-awesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="/static/dist/css/styles.css">
+</head>
+<body>
+    <div>
+        亲爱的{{username}}：</br>
+        感谢您的注册！请点击下方链接激活账号：</br>
+        <a href="http://127.0.0.1:8000/cmdb/register/active/token={{token}}">
+            http://127.0.0.1:8000/cmdb/register/active/token={{token}}
+        </a></br>
+        如果链接无法点击，请将它复制到你的浏览器地址栏中进入访问，该链接10分钟内有效。
+    </div>
+</body>
+</html>

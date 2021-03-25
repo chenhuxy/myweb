@@ -1,0 +1,57 @@
+{% extends "master/layout.html" %}
+{% block formTitle %}
+{% endblock %}
+{% block content %}
+
+        <div class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                zabbix报警<label style="color: red;">{{ status }}</label>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>triggerid</th>
+                                <th>priority</th>
+                                <th>groups</th>
+                                <th>hosts</th>
+                                <th>description</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in msg %}
+                                <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{item.triggerid}}</td>
+                                <td>{{item.priority}}</td>
+                                <td>{{item.groups}}</td>
+                                <td>{{item.hosts}}</td>
+                                <td>{{item.description|linebreaksbr}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                            </div>
+                            <div>总计：{{count}}条</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+{% endblock %}
+{% block formFooter %}
+{% endblock %}
+{% block javascript %}
+    <script>
+
+
+    </script>
+{% endblock %}
