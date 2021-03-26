@@ -4,9 +4,10 @@
 
 1.准备环境：centos7.x Python3.5+ MySQL5.7+ Redis3.x+
 
-2.安装python开发包
+2.安装python模块
 
   yum install python-devel -y
+  pip install -r requirements/require.txt
   
 3.安装MySQL
 
