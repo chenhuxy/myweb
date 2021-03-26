@@ -32,6 +32,7 @@
    nohup python manage.py runserver 0.0.0.0:8000 &
    
 9.启动成功，浏览器访问ip：8000
+
    
 二. Docker安装（待更新。。）
 
