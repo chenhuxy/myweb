@@ -18,6 +18,7 @@
   
 5. 修改settings.py中数据库及Redis配置
 
+
 6. 初始化数据库
 
   python manage.py makemigrations && python manage.py migrate
