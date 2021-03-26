@@ -7,6 +7,7 @@
 2.安装python模块
 
   yum install python-devel -y
+  
   pip install -r requirements/require.txt
   
 3.安装MySQL
