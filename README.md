@@ -16,22 +16,22 @@
 
   yum install redis -y && systemctl start redis
   
-5. 修改settings.py中数据库及Redis配置
+5.修改settings.py中数据库及Redis配置
 
 
-6. 初始化数据库
+6.初始化数据库
 
   python manage.py makemigrations && python manage.py migrate
   
-7. 启动celery
+7.启动celery
 
    nohup celery worker -A myweb -P eventlet -l info &
    
-8. 启动server
+8.启动server
 
    nohup python manage.py runserver 0.0.0.0:8000 &
    
-   启动成功，浏览器访问ip：8000
+9.启动成功，浏览器访问ip：8000
    
 二. Docker安装（待更新。。）
 
