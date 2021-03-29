@@ -12,7 +12,7 @@
   
   source venv/bin/active
   
-  pip install -r requirements/require.txt
+  pip3 install -r requirements/require.txt
   
 3.安装MySQL
 
