@@ -8,6 +8,10 @@
 
   yum install python-devel -y
   
+  python3 -m venv venv
+  
+  source venv/bin/active
+  
   pip install -r requirements/require.txt
   
 3.安装MySQL
@@ -23,7 +27,7 @@
 
 6.初始化数据库
 
-  python manage.py makemigrations && python manage.py migrate
+  python3 manage.py makemigrations && python3 manage.py migrate
   
 7.启动celery
 
@@ -31,7 +35,7 @@
    
 8.启动server
 
-   nohup python manage.py runserver 0.0.0.0:8000 &
+   nohup python3 manage.py runserver 0.0.0.0:8000 &
    
 9.启动成功，浏览器访问ip：8000
 
