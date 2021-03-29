@@ -116,7 +116,7 @@ DATABASES = {
         'NAME': 'django_test',
         'USER': 'root',
         'PASSWORD': 'redhat',
-        'HOST': 'localhost',
+        'HOST': '192.168.23.130',
         'PORT': '3306',
     }
 }
@@ -267,7 +267,6 @@ EMAIL_HOST_PASSWORD = 'mipzyypfdcpkbbih'         #发送邮件的邮箱密码(�
 ### cache
 # pip install django-redis-cache(Python 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (AMD64)] on win32
 # Django 2.1.7 #django-redis-cache  3.0.0 #redis:3.5.3)
-'''
 CACHES={
     'default': {
         #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', #缓存到本地内存中
@@ -295,10 +294,11 @@ CACHES={
             "PASSWORD":"",},
     }
 }
+'''
 
 
 ### celery
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://192.168.23.130:6379'
+CELERY_RESULT_BACKEND = 'redis://192.168.23.130:6379'
 CELERY_TASK_SERIALIZER = 'json'
 
