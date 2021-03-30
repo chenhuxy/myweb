@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.app01',
     'rest_framework',
     'apps.DjangoUeditor',
+    #'django_db_reconnect',
 
 
 ]
