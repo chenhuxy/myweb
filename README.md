@@ -44,5 +44,9 @@
 9.启动成功，浏览器访问ip：8000
 
    
-二. Docker安装（待更新。。）
+二. Docker安装
+
+        docker-compose up -d
+        
+        docker-compose restart myweb(unhealthy时需要重启一下)
 
