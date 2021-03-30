@@ -1,4 +1,4 @@
-version: '2.2'
+version: '2.3'
 
 services:
 
@@ -34,6 +34,13 @@ services:
     - myweb-net
     ports:
     - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhosti:8000/admin"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
 networks:
   myweb-net:
     driver: bridge
