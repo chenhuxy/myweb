@@ -9,28 +9,34 @@ services:
       TZ: "Asia/Shanghai"
     volumes:
     - ./data/mysql:/var/lib/mysql
+    - ./conf/mysql/:/docker-entrypoint-initdb.d
     networks:
-    - default
+    - myweb-net
     ports:
     - "3306:3306"
 
   redis:
     image: redis:3
     networks:
-    - default
+    - myweb-net
     ports:
     - "6379:6379"
 
   myweb:
     image: chenhuxy/myweb
     volumes:
-    - ./conf/settings.py:/myweb/myweb/settings.py
+    - ./conf/myweb/settings.py:/myweb/myweb/settings.py
     depends_on:
     - mysql
     - redis
     restart: always
     networks:
-    - default
+    - myweb-net
     ports:
     - "8000:8000"
-
+networks:
+  myweb-net:
+    driver: bridge
+    #enable_ipv6: true
+    ipam:
+      driver: default
