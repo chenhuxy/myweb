@@ -20,7 +20,7 @@
           
 3.安装MySQL
 
-        yum install mariadb -y && systemctl start mariadb
+        yum install mariadb-server -y && systemctl start mariadb
   
 4.安装Redis
 
