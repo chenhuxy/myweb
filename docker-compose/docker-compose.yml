@@ -22,9 +22,9 @@ services:
     - "6379:6379"
 
   myweb:
-    image: myweb
+    image: chenhuxy/myweb
     volumes:
-    - ./myweb/settings.py:/myweb/myweb/settings.py
+    - ./conf/settings.py:/myweb/myweb/settings.py
     depends_on:
     - mysql
     - redis

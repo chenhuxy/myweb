@@ -116,7 +116,7 @@ DATABASES = {
         'NAME': 'django_test',
         'USER': 'root',
         'PASSWORD': 'redhat',
-        'HOST': 'localhost',
+        'HOST': '192.168.209.128',
         'PORT': '3306',
     }
 }
@@ -271,7 +271,7 @@ CACHES={
     'default': {
         #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', #缓存到本地内存中
         "BACKEND": "redis_cache.cache.RedisCache",  #缓存到redis中
-        "LOCATION": "localhost:6379",               #默认database：1
+        "LOCATION": "192.168.209.128:6379",               #默认database：1
         'TIMEOUT': 600, #默认5分钟
         "OPTIONS": {
             "CLIENT_CLASS": "redis_cache.client.DefaultClient",
@@ -298,7 +298,7 @@ CACHES={
 
 
 ### celery
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://192.168.209.128:6379'
+CELERY_RESULT_BACKEND = 'redis://192.168.209.128:6379'
 CELERY_TASK_SERIALIZER = 'json'
 
