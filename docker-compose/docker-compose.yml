@@ -26,6 +26,7 @@ services:
     image: chenhuxy/myweb
     volumes:
     - ./conf/myweb/settings.py:/myweb/myweb/settings.py
+    - ./logs/:/myweb/logs
     depends_on:
     - mysql
     - redis
@@ -39,7 +40,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 60s
 
 networks:
   myweb-net:
