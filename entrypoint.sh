@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-python3 manage.py makemigrations && python3 manage.py migrate
+#python3 manage.py makemigrations && python3 manage.py migrate
 
 python3 -m celery worker -A myweb -P eventlet -l info &
 
