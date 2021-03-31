@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.app01',
     'rest_framework',
     'apps.DjangoUeditor',
+    #'django_db_reconnect',
 
 
 ]
@@ -114,8 +115,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'django_test',
-        'USER': 'root',
-        'PASSWORD': 'redhat',
+        'USER': 'myweb',
+        'PASSWORD': 'myweb',
         'HOST': 'localhost',
         'PORT': '3306',
     }

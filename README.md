@@ -31,7 +31,7 @@
         
 6.初始化数据库
 
-        python3 manage.py makemigrations && python3 manage.py migrate
+	执行scripts目录下sql脚本
   
 7.启动celery
 
@@ -41,12 +41,21 @@
 
         nohup python3 manage.py runserver 0.0.0.0:8000 &
    
-9.启动成功，浏览器访问ip：8000
+9.启动成功，浏览器访问ip：8000/cmdb
+	
+	用户名：admin
+
+	密码：admin
 
    
 二. Docker安装
 
+1.启动服务
+
         docker-compose up -d
         
-        docker-compose restart myweb(unhealthy时需要重启一下)
+2.启动成功，浏览器访问ip：8000/cmdb
 
+	用户名：admin
+
+	密码：admin
