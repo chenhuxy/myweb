@@ -6,7 +6,11 @@ from django.contrib import admin
 # Register your models here.
 from .models import *
 
+class scriptTypeAdmin(admin.ModelAdmin):
+    list_display = ('type',)
 
+class hostInfoAdmin(admin.ModelAdmin):
+    list_display = ('hostname','ip')
 
 class userGroupAdmin(admin.ModelAdmin):
     list_display = ('name','create_time','update_time',)
@@ -35,6 +39,12 @@ class wf_typeAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
 class wf_businessAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    list_filter = ('name',)
+    list_display_links = ('name',)
+
+class wf_business_deploy_historyAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
     list_filter = ('name',)
@@ -157,14 +167,15 @@ class HandleLogAdmin(admin.ModelAdmin):
     search_fields = ('handle_type',)
 
 
-
-
+admin.site.register(scriptType,scriptTypeAdmin)
+admin.site.register(hostInfo,hostInfoAdmin)
 admin.site.register(userGroup,userGroupAdmin)
 admin.site.register(userType,userTypeAdmin)
 admin.site.register(userInfo,userInfoAdmin)
 admin.site.register(wf_info,wf_infoAdmin)
 admin.site.register(wf_type,wf_typeAdmin)
 admin.site.register(wf_business,wf_businessAdmin)
+admin.site.register(wf_business_deploy_history,wf_business_deploy_historyAdmin)
 #admin.site.register(wf_status,wf_statusAdmin)
 admin.site.register(act_re_deployment,act_re_deploymentAdmin)
 admin.site.register(act_ge_bytearray,act_ge_bytearrayAdmin)

@@ -17,10 +17,20 @@
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="wfbusiness" class="form-control-label require">业务单元</label>
-                                            <input type="text" id="wfbusiness" class="form-control" placeholder="业务单元" name="wfbusiness">
+                                            <label for="wfbusiness" class="form-control-label require">项目名称</label>
+                                            <input type="text" id="wfbusiness" class="form-control" placeholder="项目名称" name="wfbusiness">
                                         </div>
                                     </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="wfbusiness" class="form-control-label require">项目地址</label>
+                                            <input type="text" id="repo" class="form-control" placeholder="项目地址" name="repo">
+                                        </div>
+                                    </div>
+
+
+
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="single-select" class="require">业务负责人</label>
@@ -63,4 +73,34 @@
                 </form>
             {% endblock %}
         </div>
+{% endblock %}
+{% block javascript %}
+<script>
+
+function repoChange(arg){
+        var wfbusiness=$(arg).val();
+        console.log(wfbusiness);
+        $.ajax({
+                url:'/cmdb/index/wf/wfbusiness/ajax/',
+                data:{wfbusiness:wfbusiness},
+                type:'POST',
+                success:function (data) {
+                    //window.parent.location.reload();
+                    //$(body).html(data);
+                    //alert('删除成功')
+                    console.log(data);
+                    var director=JSON.parse(data)['director'];
+                    var director_id=JSON.parse(data)['director_id'];
+                    console.log(director,director_id);
+                    target=document.getElementById('single-select');
+                    console.log(target);
+                    target.innerHTML='<option value='+director_id+'>'+director+'</option>';
+                },
+                error:function () {
+                    alert('服务器异常');
+                }
+            });
+    }
+
+</script>
 {% endblock %}

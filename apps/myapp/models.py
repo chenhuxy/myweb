@@ -6,6 +6,26 @@ from django.db import models
 
 # Create your models here
 
+class scriptType(models.Model):
+    SCRIPT_CHOICE = (
+        ('0', 'shell'),
+        ('1', 'python'),
+    )
+    type = models.CharField('脚本类型',max_length=200,choices=SCRIPT_CHOICE,default='0')
+    class Meta:
+        verbose_name = '脚本类型'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.type
+
+class hostInfo(models.Model):
+    hostname = models.CharField('主机名',max_length=200)
+    ip = models.GenericIPAddressField('ip地址',max_length=128)
+    class Meta:
+        verbose_name = '主机信息'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.hostname
 
 class userType(models.Model):
     name = models.CharField('用户类型',max_length=200,default='user')
@@ -68,6 +88,8 @@ class wf_type(models.Model):
 
 class wf_business(models.Model):
     name = models.CharField('业务单元', max_length=128, default='default', )
+    proj_id = models.CharField('项目id',max_length=128,default=183)
+    repo = models.CharField('项目地址',max_length=128,)
     director = models.ForeignKey('userInfo',on_delete=models.CASCADE)
     group = models.ForeignKey('userGroup',on_delete=models.CASCADE)
     create_time = models.DateTimeField('创建时间', auto_now_add=True)
@@ -78,6 +100,20 @@ class wf_business(models.Model):
     def __unicode__(self):
         return self.name
 
+class wf_business_deploy_history(models.Model):
+    name = models.CharField('业务单元', max_length=128, default='default', )
+    proj_id = models.CharField('项目id',max_length=128,default=183)
+    repo = models.CharField('项目地址',max_length=128,)
+    branch = models.CharField('项目分支', max_length=128, )
+    tag = models.CharField('项目tag', max_length=128, )
+    opertator = models.ForeignKey('userInfo',on_delete=models.CASCADE)
+    update_time = models.DateTimeField('发布时间', auto_now=True)
+    state = models.CharField('发布状态',max_length=128)
+    class Meta:
+        verbose_name = '发布历史'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
 
 
 class wf_info(models.Model):

@@ -24,6 +24,16 @@
                                             </select>
                                         </div>
                                     </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            {% for item in wfbusiness %}
+                                            <label for="repo" class="form-control-label require">项目地址</label>
+                                            <input type="text" id="repo" class="form-control" value="{{item.repo}}" name="repo">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="single-select-2" class="require">业务负责人</label>

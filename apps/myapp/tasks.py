@@ -18,6 +18,8 @@ from django.shortcuts import render
 from apps.myapp import models
 from django.shortcuts import render_to_response
 from django.utils import timezone
+import paramiko
+from apps.myapp import loop
 
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 30, 'countdown': 60})
@@ -154,3 +156,16 @@ def workflow_process(sn,title,username_sponsor,type,content,suggest,suggest_agre
                                                        suggest_content=suggest_reject,assignee=assignee,
                                                        business_id=business_id, flow_id=flow_id)
         return sn
+
+
+@shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 30, 'countdown': 60})
+def deploy(host,port,username,password,command):
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname=host, port=port, username=username, password=password)
+    stdin, stdout, stderr = ssh.exec_command(command)
+    result = stdout.read()
+    ssh.close()
+    #return result
+
+

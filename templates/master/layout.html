@@ -199,11 +199,10 @@
                             </a>
                         </li>
 
-                        <li class="nav-item  nav-dropdown" id="workflow">
+                        <li class="nav-item  nav-dropdown" id="user">
                             <a href="#" class="nav-link nav-dropdown-toggle">
                                 <i class="icon icon-grid"></i> 用户管理 <i class="fa fa-caret-left"></i>
                             </a>
-
                             <ul class="nav-dropdown-items">
                                 <li class="nav-item">
                                     <a href="/cmdb/index/table/user/" class="nav-link">
@@ -220,6 +219,20 @@
                                         <i class="icon icon-grid"></i> 用户组
                                     </a>
                                 </li>
+                                <!--
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/monitor/gitlab/" class="nav-link">
+                                        <i class="icon icon-grid"></i> 代码发布
+                                    </a>
+                                </li>-->
+                                </ul>
+                        </li>
+
+                        <li class="nav-item  nav-dropdown" id="monitor">
+                            <a href="#" class="nav-link nav-dropdown-toggle">
+                                <i class="icon icon-grid"></i> 监控 <i class="fa fa-caret-left"></i>
+                            </a>
+                            <ul class="nav-dropdown-items">
                                 <li class="nav-item">
                                     <a href="/cmdb/index/monitor/zabbix/" class="nav-link">
                                         <i class="icon icon-grid"></i> zabbix监控
@@ -230,16 +243,32 @@
                                         <i class="icon icon-grid"></i> prometheus监控
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/monitor/prometheus/" class="nav-link">
-                                        <i class="icon icon-grid"></i> ansible批量操作
-                                    </a>
-                                </li>
+                                </ul>
+                        </li>
+
+                        <li class="nav-item  nav-dropdown" id="task">
+                            <a href="#" class="nav-link nav-dropdown-toggle">
+                                <i class="icon icon-grid"></i> 任务发布 <i class="fa fa-caret-left"></i>
+                            </a>
+                            <ul class="nav-dropdown-items">
                                 <li class="nav-item">
                                     <a href="/cmdb/index/wf/wfbusiness/" class="nav-link">
                                         <i class="icon icon-grid"></i> 业务单元
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/wf/wfbusiness/deploy/list/" class="nav-link">
+                                        <i class="icon icon-grid"></i> 任务列表
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item  nav-dropdown" id="workflow">
+                            <a href="#" class="nav-link nav-dropdown-toggle">
+                                <i class="icon icon-grid"></i> 工单系统 <i class="fa fa-caret-left"></i>
+                            </a>
+                            <ul class="nav-dropdown-items">
                                 <li class="nav-item">
                                     <a href="/cmdb/index/wf/list/" class="nav-link">
                                         <i class="icon icon-grid"></i> 所有工单

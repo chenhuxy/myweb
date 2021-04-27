@@ -1,0 +1,113 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/wf/wfbusiness/deploy/id={{id}}">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+                            <div class="card-header bg-light">
+                                发布<label style="color: red;">{{ status }}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            {% for item in wfbusiness %}
+                                            <label for="repo" class="form-control-label require">项目名称</label>
+                                            <input type="text" id="name" class="form-control" value="{{item.name}}" name="name">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            {% for item in wfbusiness %}
+                                            <label for="repo" class="form-control-label require">项目地址</label>
+                                            <input type="text" id="repo" class="form-control" value="{{item.repo}}" name="repo">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select2" class="require">项目分支</label>
+                                            <select id="single-select2" class="form-control" name="branch">
+                                                {% for item in branches %}
+                                                <option value={{item.name}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select3" class="require">项目tag</label>
+                                            <select id="single-select3" class="form-control" name="tag">
+                                                {% for item in tags %}
+                                                <option value={{item.name}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select4" class="require">发布主机</label>
+                                            <select id="single-select4" class="form-control" name="host">
+                                                {% for item in hostInfo %}
+                                                <option value={{item.ip}}>{{item.ip}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select5" class="require">执行脚本类型</label>
+                                            <select id="single-select5" class="form-control" name="script_type">
+
+                                                <option value=0>shell</option>
+                                                <option value=1>python</option>
+
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">脚本内容</label>
+                                            <textarea id="textarea" class="form-control" rows="6" name="command"></textarea>
+                                        </div>
+                                    </div>
+
+
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">发布</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/wf/wfbusiness/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% block formFooter %}
+            </form>
+        {% endblock %}
+        </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+    </script>
+{% endblock %}

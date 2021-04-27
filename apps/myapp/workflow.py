@@ -14,6 +14,11 @@ from django.http import JsonResponse
 from django.core import serializers
 from celery import chord,group,chain
 from django.db.models import Q
+from apps.myapp.mygitlab import GitTools
+import gitlab
+import paramiko,subprocess
+from apps.myapp import loop
+
 
 
 @outer
@@ -97,7 +102,7 @@ def wfbusinessForm_add(request,*args,**kwargs):
     print(msg)
     return render_to_response('workflow/wfbusiness_add.html',msg)
 
-@outer
+
 def wfbusinessForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -110,6 +115,91 @@ def wfbusinessForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('workflow/wfbusiness_update.html',msg)
 
+
+@outer
+def wfbusinessForm_deploy(request,*args,**kwargs):
+    git_url = 'http://10.180.11.8'
+    git_token = 'F7nAGXozy4dsfJvxiLu_'
+    git_tools = gitlab.Gitlab(git_url,git_token)
+    #userid = request.GET.get('userid',None)
+    userDict = request.session.get('is_login', None)
+    id = kwargs['id']
+    userinfo = models.userInfo.objects.all()
+    usergroup = models.userGroup.objects.all()
+    wfbusiness = models.wf_business.objects.filter(id=id)
+    name = wfbusiness.values('name')[0]['name']
+    proj_id = wfbusiness.values('proj_id')[0]['proj_id']
+    proj = git_tools.projects.get(proj_id)
+    branches = proj.branches.list()
+    tags = proj.tags.list()
+    userDict = request.session.get('is_login', None)
+    hostInfo = models.hostInfo.objects.all()
+    scriptType = models.scriptType.objects.all()
+    print(scriptType,type(scriptType))
+    msg = {'id':id, 'login_user':userDict['user'],'status':'操作成功',
+           'wfbusiness':wfbusiness,'userinfo':userinfo,'usergroup':usergroup,
+           'branches':branches,'tags':tags,'hostInfo':hostInfo,
+           'scriptType':scriptType}
+    print(msg)
+    return render_to_response('workflow/wfbusiness_deploy.html',msg)
+
+
+def wfbusiness_deploy_query(job,name,proj_id,repo,branch,tag,opertator,update_time,):
+    state=job.state
+    if state == 'PENDING':
+        pass
+    else:
+        models.wf_business_deploy_history.objects.last().update(state=state)
+    #return result
+    return state
+    #print(state)
+
+
+@outer
+def wfbusiness_deploy(request,*args,**kwargs):
+    #userid = request.GET.get('userid',None)
+    userDict = request.session.get('is_login', None)
+    id = kwargs['id']
+    userinfo = models.userInfo.objects.all()
+    usergroup = models.userGroup.objects.all()
+    wfbusiness = models.wf_business.objects.filter(id=id)
+    host = request.POST.get('host')
+    port = 22
+    username = 'root'
+    password = 'Eo3C%k5j'
+    script_type = request.POST.get('script_type')
+    command = request.POST.get('command')
+    name = request.POST.get('name',None)
+    proj_id = wfbusiness.values('proj_id')[0]['proj_id']
+    repo = request.POST.get('repo',None)
+    branch = request.POST.get('branch',None)
+    tag = request.POST.get('tag','default')
+    opertator = models.userInfo.objects.get(username=userDict['user'])
+    update_time = timezone.now()
+    hostInfo = models.hostInfo.objects.all()
+    scriptType = models.scriptType.objects.all()
+    # print(scriptType,type(scriptType))
+
+    job = tasks.deploy.s(host, port, username, password, command).delay()
+    state = job.state
+    #print(job,job.status,job.result)
+    models.wf_business_deploy_history.objects.create(name=name, proj_id=proj_id, repo=repo,
+                                                     branch=branch, tag=tag, opertator=opertator,
+                                                     update_time=update_time, state=state)
+    t= loop.LoopTimer(3,wfbusiness_deploy_query,[job,name,proj_id,repo,branch,tag,opertator,update_time,])
+    t.start()
+    msg = {'id':id, 'login_user':userDict['user'],'wfbusiness':wfbusiness,'userinfo':userinfo,'usergroup':usergroup,
+           'hostInfo':hostInfo,'scriptType':scriptType,'status':'','login_user': userDict['user'],}
+    #print(msg)
+    return redirect('/cmdb/index/wf/wfbusiness/deploy/list/',msg)
+
+@outer
+def wfbusiness_deploy_list(request,*args,**kwargs):
+    userDict = request.session.get('is_login', None)
+    wfbusiness = models.wf_business_deploy_history.objects.all()
+    msg = {'wfbusiness':wfbusiness,'login_user': userDict['user'],}
+    return render_to_response('workflow/wfbusiness_deploy_result.html',msg)
+
 @outer
 def wfbusinessAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
@@ -119,14 +209,15 @@ def wfbusinessAdd(request,*args,**kwargs):
     #result = {'status': '','usertype':None}
     if request.method == 'POST':
         wfbusiness = request.POST.get('wfbusiness',None)
+        repo = request.POST.get('repo', None)
         director_id = request.POST.get('director',None)
         group_id = request.POST.get('group',None)
         is_exist = models.wf_business.objects.filter(name=wfbusiness)
         print(is_exist)
         if not (is_exist):
-            is_empty = all([wfbusiness,])
+            is_empty = all([wfbusiness,repo])
             if is_empty:
-                models.wf_business.objects.create(name=wfbusiness,director_id=director_id,group_id=group_id)
+                models.wf_business.objects.create(name=wfbusiness,repo=repo,director_id=director_id,group_id=group_id)
                 msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
                        'login_user': userDict['user'],'status':'添加业务单元成功', }
                 return redirect('/cmdb/index/wf/wfbusiness/')
@@ -179,10 +270,11 @@ def wfbusinessUpdate(request,*args,**kwargs):
     wfbusiness = models.wf_business.objects.filter(id=wfbusiness_id).values('name')[0]['name']
     director_id = request.POST.get('director')
     group_id = request.POST.get('group')
+    repo = request.POST.get('repo')
     update_time = timezone.now()
     userDict = request.session.get('is_login', None)
     models.wf_business.objects.filter(id=id).update(name=wfbusiness,
-        update_time=update_time,director_id=director_id,group_id=group_id,)
+        update_time=update_time,director_id=director_id,group_id=group_id,repo=repo)
     return redirect('/cmdb/index/wf/wfbusiness/')
 
 @outer

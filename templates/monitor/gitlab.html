@@ -1,0 +1,54 @@
+{% extends "master/layout.html" %}
+{% block formTitle %}
+{% endblock %}
+{% block content %}
+
+        <div class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                gitlab<label style="color: red;">{{ status }}</label>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>name</th>
+                                <th>repo</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                                <tr>
+
+                                <td>{{id}}</td>
+                                <td>{{name}}</td>
+                                <td>{{repo}}</td>
+
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                            </div>
+                            <div>总计：{{count}}条</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+{% endblock %}
+{% block formFooter %}
+{% endblock %}
+{% block javascript %}
+    <script>
+
+
+    </script>
+{% endblock %}

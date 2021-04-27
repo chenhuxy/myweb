@@ -6,6 +6,7 @@ from django.urls import path
 from django.conf.urls import url,include
 from apps.myapp import views
 from apps.myapp import zabbix
+from apps.myapp import mygitlab
 from apps.myapp import prometheus
 from apps.myapp import workflow
 from apps.myapp import example
@@ -80,6 +81,7 @@ path('index/table/usergroup/del/',views.usergroupDel),
     url('^index/table/user/search/',views.search),
 url('^index/table/user/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)',views.search_result),
     path('index/monitor/zabbix/',zabbix.zabbix_trigger),
+path('index/monitor/gitlab/', mygitlab.git_project),
     path('index/monitor/prometheus/', prometheus.prometheus_alert),
     #path('index/table/',views.tables),
     #url(r'^index/table/(\d*)',views.tables),
@@ -91,6 +93,7 @@ url(r'^index/wf/detail/',workflow.workflow_detail),
 path('index/wf/requests/form_add/',workflow.wrokflow_form_add),
 path('index/wf/requests/add/',workflow.workflow_add),
 url(r'^index/wf/requests/form_update/sn=(?P<sn>\w+)',workflow.workflow_form_update),
+
 url(r'^index/wf/requests/update/sn=(?P<sn>\w+)',workflow.workflow_update),
 path('index/wf/requests/list/',workflow.workflow_requests),
 url(r'^index/wf/requests/detail/',workflow.workflow_detail),
@@ -113,10 +116,12 @@ path('index/wf/wfbusiness/',workflow.wfbusiness),
 path('index/wf/wfbusiness/ajax/',workflow.wfbusiness_ajax),
 path('index/wf/wfbusiness/form_add/',workflow.wfbusinessForm_add),
 url(r'^index/wf/wfbusiness/form_update/id=(?P<id>\d*)',workflow.wfbusinessForm_update),
+url(r'^index/wf/wfbusiness/form_deploy/id=(?P<id>\d*)',workflow.wfbusinessForm_deploy),
 path('index/wf/wfbusiness/add/',workflow.wfbusinessAdd),
 url(r'^index/wf/wfbusiness/update/id=(?P<id>\d*)',workflow.wfbusinessUpdate),
 path('index/wf/wfbusiness/del/',workflow.wfbusinessDel),
-
+url(r'^index/wf/wfbusiness/deploy/id=(?P<id>\d*)',workflow.wfbusiness_deploy),
+path('index/wf/wfbusiness/deploy/list/',workflow.wfbusiness_deploy_list),
 
 
 ################################################################################################################################
