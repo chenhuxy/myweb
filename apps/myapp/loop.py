@@ -2,12 +2,25 @@
 #coding:utf-8
 
 from threading import Timer
+from apps.myapp import models
 
 
 '''
 def fun_timer():
     print('Hello Timer!')
 '''
+
+
+
+def wfbusiness_deploy_query(job,name,proj_id,repo,branch,tag,opertator,update_time,):
+    state=job.state
+    #return state
+    print(state,job.id,)
+    #obj = models.wf_business_deploy_history.objects.last().id
+    #print(obj, type(obj))
+    id = models.wf_business_deploy_history.objects.last().id
+    models.wf_business_deploy_history.objects.filter(id=id).update(state=state)
+
 
 class LoopTimer(Timer):
     """Call a function after a specified number of seconds:

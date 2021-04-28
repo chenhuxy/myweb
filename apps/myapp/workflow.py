@@ -144,17 +144,6 @@ def wfbusinessForm_deploy(request,*args,**kwargs):
     return render_to_response('workflow/wfbusiness_deploy.html',msg)
 
 
-def wfbusiness_deploy_query(job,name,proj_id,repo,branch,tag,opertator,update_time,):
-    state=job.state
-    if state == 'PENDING':
-        pass
-    else:
-        models.wf_business_deploy_history.objects.last().update(state=state)
-    #return result
-    return state
-    #print(state)
-
-
 @outer
 def wfbusiness_deploy(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
@@ -182,12 +171,13 @@ def wfbusiness_deploy(request,*args,**kwargs):
 
     job = tasks.deploy.s(host, port, username, password, command).delay()
     state = job.state
-    #print(job,job.status,job.result)
+    print(job,job.status,job.result,job.id)
+    t= loop.LoopTimer(10,loop.wfbusiness_deploy_query,[job,name,proj_id,repo,branch,tag,opertator,update_time,])
+    result = t.start()
+    #print(result,)
     models.wf_business_deploy_history.objects.create(name=name, proj_id=proj_id, repo=repo,
                                                      branch=branch, tag=tag, opertator=opertator,
                                                      update_time=update_time, state=state)
-    t= loop.LoopTimer(3,wfbusiness_deploy_query,[job,name,proj_id,repo,branch,tag,opertator,update_time,])
-    t.start()
     msg = {'id':id, 'login_user':userDict['user'],'wfbusiness':wfbusiness,'userinfo':userinfo,'usergroup':usergroup,
            'hostInfo':hostInfo,'scriptType':scriptType,'status':'','login_user': userDict['user'],}
     #print(msg)
@@ -198,7 +188,15 @@ def wfbusiness_deploy_list(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     wfbusiness = models.wf_business_deploy_history.objects.all()
     msg = {'wfbusiness':wfbusiness,'login_user': userDict['user'],}
-    return render_to_response('workflow/wfbusiness_deploy_result.html',msg)
+    return render_to_response('workflow/wfbusiness_deploy_list.html',msg)
+
+@outer
+def wfbusiness_deploy_del(request,*args,**kwargs):
+    id = request.POST.get('id')
+    models.wf_business_deploy_history.objects.filter(id=id).delete()
+    print('delete',id)
+    msg = {'code':1,'result':'删除发布id:'+id,}
+    return render_to_response('workflow/wfbusiness_deploy_list.html',msg)
 
 @outer
 def wfbusinessAdd(request,*args,**kwargs):

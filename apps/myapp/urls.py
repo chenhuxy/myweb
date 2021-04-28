@@ -120,6 +120,7 @@ url(r'^index/wf/wfbusiness/form_deploy/id=(?P<id>\d*)',workflow.wfbusinessForm_d
 path('index/wf/wfbusiness/add/',workflow.wfbusinessAdd),
 url(r'^index/wf/wfbusiness/update/id=(?P<id>\d*)',workflow.wfbusinessUpdate),
 path('index/wf/wfbusiness/del/',workflow.wfbusinessDel),
+path('index/wf/wfbusiness/deploy/del/',workflow.wfbusiness_deploy_del),
 url(r'^index/wf/wfbusiness/deploy/id=(?P<id>\d*)',workflow.wfbusiness_deploy),
 path('index/wf/wfbusiness/deploy/list/',workflow.wfbusiness_deploy_list),
 

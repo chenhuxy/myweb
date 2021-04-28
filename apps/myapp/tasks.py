@@ -20,6 +20,7 @@ from django.shortcuts import render_to_response
 from django.utils import timezone
 import paramiko
 from apps.myapp import loop
+import logging
 
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 30, 'countdown': 60})
@@ -73,7 +74,7 @@ def workflow_send_email(sn,username,email):
     fail_silently = False
     #token = token_helper.get_random_uuid()
     # 加载模板
-    template = loader.get_template('workflow/email_workflow.html')
+    template = loader.get_template('workflow/workflow_email.html')
     # 渲染模板
     # email_body = '亲爱的'+username+':<br/>感谢您的注册,请点击下方链接激活账号.<a href="/cmdb/index/table/user/" target="_blank"></a><br/>.'
     html_str = template.render({"username": username, 'sn': sn, })
@@ -165,7 +166,9 @@ def deploy(host,port,username,password,command):
     ssh.connect(hostname=host, port=port, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(command)
     result = stdout.read()
+
     ssh.close()
     #return result
+
 
 
