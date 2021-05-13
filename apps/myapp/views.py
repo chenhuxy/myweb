@@ -73,9 +73,17 @@ def logout(request):
 @outer
 def index(request):
     userinfo = models.userInfo.objects.all()
+    user_count = models.userInfo.objects.all().count()
+    deploy_count = models.wf_business_deploy_history.objects.all().count()
+    wf_count = models.wf_info_history_commit.objects.all().count()+models.wf_info_history_process.objects.all().count()+\
+               models.wf_info_history_complete.objects.all().count()+models.wf_info_history_withdraw.objects.all().count()
     usertype = models.userType.objects.all()
+    zabbix_alert_count = zabbix.zabbix_alert_count()
+    prometheus_alert_count = prometheus.prometheus_alert_count()
     userDict = request.session.get('is_login', None)
-    msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
+    msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'],
+           'user_count':user_count,'deploy_count':deploy_count,'wf_count':wf_count,
+           'zabbix_alert_count':zabbix_alert_count,'prometheus_alert_count':prometheus_alert_count,}
     return render_to_response('backend/index.html',msg,)
 
 #@csrf_protect

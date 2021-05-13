@@ -94,3 +94,12 @@ def zabbix_trigger(request,*args,**kwargs):
     res= {'msg':msg['result'],'login_user': userDict['user'],'count':len(msg['result']),}
     print(type(msg['result']),len(msg['result']))
     return render_to_response('monitor/zabbix.html',res)
+
+
+def zabbix_alert_count(*args,**kwargs):
+    address = 'http://10.180.10.84/zabbix'
+    username = 'hu.chen'
+    password = 'Qoros0507'
+    server = ZabbixTools(address, username, password)
+    msg = server.trigger_get()
+    return len(msg['result'])

@@ -45,3 +45,11 @@ def prometheus_alert(request,*args,**kwargs):
     res = {'msg':msg['data']['alerts'],'login_user': userDict['user'],'count':len(msg['data']['alerts']),}
     print(type(msg['data']['alerts']))
     return render_to_response('monitor/prometheus.html',res)
+
+def prometheus_alert_count(*args,**kwargs):
+    address = 'http://10.181.1.13/prometheus'
+    username = 'admin'
+    password = 'admin'
+    server = PromTools(address, username, password)
+    msg = json.loads(server.alert_get())
+    return len(msg['data']['alerts'])
