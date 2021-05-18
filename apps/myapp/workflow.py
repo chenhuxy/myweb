@@ -18,6 +18,7 @@ from apps.myapp.mygitlab import GitTools
 import gitlab
 import paramiko,subprocess
 from apps.myapp import loop
+from django.core.cache import cache
 
 
 
@@ -169,15 +170,16 @@ def wfbusiness_deploy(request,*args,**kwargs):
     scriptType = models.scriptType.objects.all()
     # print(scriptType,type(scriptType))
 
-    job = tasks.deploy.s(host, port, username, password, command).delay()
+    job = tasks.deploy.s(host, port, username, password, command,name).delay()
     state = job.state
+    logs = cache.get(name)
     print(job,job.status,job.result,job.id)
     t= loop.LoopTimer(10,loop.wfbusiness_deploy_query,[job,name,proj_id,repo,branch,tag,opertator,update_time,])
     result = t.start()
     #print(result,)
     models.wf_business_deploy_history.objects.create(name=name, proj_id=proj_id, repo=repo,
                                                      branch=branch, tag=tag, opertator=opertator,
-                                                     update_time=update_time, state=state)
+                                                     update_time=update_time, state=state,logs=logs,)
     msg = {'id':id, 'login_user':userDict['user'],'wfbusiness':wfbusiness,'userinfo':userinfo,'usergroup':usergroup,
            'hostInfo':hostInfo,'scriptType':scriptType,'status':'','login_user': userDict['user'],}
     #print(msg)
@@ -189,6 +191,14 @@ def wfbusiness_deploy_list(request,*args,**kwargs):
     wfbusiness = models.wf_business_deploy_history.objects.all()
     msg = {'wfbusiness':wfbusiness,'login_user': userDict['user'],}
     return render_to_response('workflow/wfbusiness_deploy_list.html',msg)
+
+@outer
+def wfbusiness_deploy_log(request,*args,**kwargs):
+    id = kwargs['id']
+    userDict = request.session.get('is_login', None)
+    wfbusiness = models.wf_business_deploy_history.objects.filter(id=id)
+    msg = {'wfbusiness':wfbusiness,'login_user': userDict['user'],}
+    return render_to_response('workflow/wfbusiness_deploy_log.html',msg)
 
 @outer
 def wfbusiness_deploy_del(request,*args,**kwargs):

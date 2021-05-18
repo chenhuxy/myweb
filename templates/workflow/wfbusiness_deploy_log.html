@@ -8,9 +8,14 @@
                     <div class="card-header bg-light">
                         发布日志<label style="color: red;">{{ status }}</label>
                     </div>
+
                     <div class="card-body">
-                        {{result}}
+                        {% for item in wfbusiness %}
+                        {{ item.logs }}
+                        {% endfor %}
+
                     </div>
+
             </div>
         </div>
     </div>

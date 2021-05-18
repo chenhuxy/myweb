@@ -109,6 +109,7 @@ class wf_business_deploy_history(models.Model):
     opertator = models.ForeignKey('userInfo',on_delete=models.CASCADE)
     update_time = models.DateTimeField('发布时间', auto_now=True)
     state = models.CharField('发布状态',max_length=128)
+    logs = models.TextField('发布日志',blank=True,null=True)
     class Meta:
         verbose_name = '发布历史'
         verbose_name_plural = verbose_name

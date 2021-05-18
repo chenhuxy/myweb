@@ -10,11 +10,11 @@ Target Server Type    : MYSQL
 Target Server Version : 50732
 File Encoding         : 65001
 
-Date: 2021-05-17 09:24:55
+Date: 2021-05-18 12:11:49
 */
 
 SET FOREIGN_KEY_CHECKS=0;
-use django_test
+
 -- ----------------------------
 -- Table structure for app01_admininfo
 -- ----------------------------
@@ -449,7 +449,7 @@ CREATE TABLE `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for django_session
@@ -1049,10 +1049,11 @@ CREATE TABLE `myapp_wf_business_deploy_history` (
   `update_time` datetime(6) NOT NULL,
   `state` varchar(128) NOT NULL,
   `opertator_id` int(11) NOT NULL,
+  `logs` longtext,
   PRIMARY KEY (`id`),
   KEY `myapp_wf_business_de_opertator_id_03157967_fk_myapp_use` (`opertator_id`),
   CONSTRAINT `myapp_wf_business_de_opertator_id_03157967_fk_myapp_use` FOREIGN KEY (`opertator_id`) REFERENCES `myapp_userinfo` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49497 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=49499 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for myapp_wf_info

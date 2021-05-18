@@ -95,10 +95,14 @@
 <script>
 
 
-    function deploy_log(arg){
+    function deploy_log(obj){
         //window.open ('workflow/wfbusiness_deploy_log.html', 'newwindow', 'height=100, width=400, top=0, left=0,
-        // toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no')
-        alert('null');
+         //toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no')
+        //alert('null');
+        var tr = obj.parentNode.parentNode;
+        //var userid = tr.firstElementChild.innerHTML;
+        var id = tr.cells[1].innerHTML;
+        location.href='/cmdb/index/wf/wfbusiness/deploy/log/id='+id
     }
 
 

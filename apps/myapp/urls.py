@@ -122,6 +122,7 @@ url(r'^index/wf/wfbusiness/update/id=(?P<id>\d*)',workflow.wfbusinessUpdate),
 path('index/wf/wfbusiness/del/',workflow.wfbusinessDel),
 path('index/wf/wfbusiness/deploy/del/',workflow.wfbusiness_deploy_del),
 url(r'^index/wf/wfbusiness/deploy/id=(?P<id>\d*)',workflow.wfbusiness_deploy),
+url(r'^index/wf/wfbusiness/deploy/log/id=(?P<id>\d*)',workflow.wfbusiness_deploy_log),
 path('index/wf/wfbusiness/deploy/list/',workflow.wfbusiness_deploy_list),
 
 

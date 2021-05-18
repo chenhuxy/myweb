@@ -160,13 +160,13 @@ def workflow_process(sn,title,username_sponsor,type,content,suggest,suggest_agre
 
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 30, 'countdown': 60})
-def deploy(host,port,username,password,command):
+def deploy(host,port,username,password,command,name):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(hostname=host, port=port, username=username, password=password)
     stdin, stdout, stderr = ssh.exec_command(command)
-    result = stdout.read()
-
+    logs = stdout.read()
+    cache.set(name,logs,600)
     ssh.close()
     #return result
 
