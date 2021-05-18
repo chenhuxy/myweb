@@ -24,6 +24,8 @@ services:
 
   myweb:
     image: chenhuxy/myweb
+    environment:
+      LANG: "en_US.utf8"
     volumes:
     - ./conf/myweb/settings.py:/myweb/myweb/settings.py
     - ./logs/:/myweb/logs
