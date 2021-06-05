@@ -39,12 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.myapp',
-    'apps.upload',
-    'apps.monitor',
-    'apps.app01',
-    'rest_framework',
-    'apps.DjangoUeditor',
-    #'django_db_reconnect',
+    #'apps.upload',
+    #'apps.monitor',
+    #'apps.app01',
+    #'rest_framework',
+    #'apps.DjangoUeditor',
 
 
 ]
@@ -115,8 +114,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'django_test',
-        'USER': 'myweb',
-        'PASSWORD': 'myweb',
+        'USER': 'root',
+        'PASSWORD': 'redhat',
         'HOST': 'localhost',
         'PORT': '3306',
     }
@@ -268,6 +267,7 @@ EMAIL_HOST_PASSWORD = 'mipzyypfdcpkbbih'         #发送邮件的邮箱密码(�
 ### cache
 # pip install django-redis-cache(Python 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (AMD64)] on win32
 # Django 2.1.7 #django-redis-cache  3.0.0 #redis:3.5.3)
+
 CACHES={
     'default': {
         #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', #缓存到本地内存中
@@ -297,9 +297,21 @@ CACHES={
 }
 '''
 
-
 ### celery
 CELERY_BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_TASK_SERIALIZER = 'json'
 
+### zabbix
+ZABBIX_URL = 'http://10.180.10.84/zabbix'
+ZABBIX_USER = 'hu.chen'
+ZABBIX_PASSWORD = 'Qoros0507'
+
+### prometheus
+PROM_URL = 'http://10.181.1.13/prometheus'
+PROM_USER = 'admin'
+PROM_PASSWROD = 'admin'
+
+### gitlab
+GITLAB_URL = 'http://10.180.11.8'
+GITLAB_TOKEN = 'F7nAGXozy4dsfJvxiLu_'

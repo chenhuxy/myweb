@@ -116,7 +116,7 @@ def tables(request,*args,**kwargs):
     usertype = models.userType.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'userinfo': userinfo, 'usertype': usertype,'login_user': userDict['user'],}
-    return render_to_response('example/tables.html',msg,)
+    return render_to_response('example/user.html',msg,)
 
 
 

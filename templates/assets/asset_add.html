@@ -1,0 +1,128 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/assets/asset/add/">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div class="card-header bg-light">
+                                添加资产<label style="color: red;">{{status}}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select" class="require">设备类型</label>
+                                            <select id="single-select" class="form-control" name="device_type">
+                                                {% for item in device_type %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select2" class="require">设备状态</label>
+                                            <select id="single-select2" class="form-control" name="device_status">
+                                                {% for item in device_status %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="cabinet_num" class="form-control-label require">机柜号</label>
+                                            <input type="text" id="cabinet_num" class="form-control" placeholder="机柜号" name="cabinet_num">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="cabinet_order" class="form-control-label require">机架号</label>
+                                            <input type="text" id="cabinet_order" class="form-control" placeholder="机架号" name="cabinet_order">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select3" class="require">机房</label>
+                                            <select id="single-select3" class="form-control" name="idc">
+                                                {% for item in idc %}
+                                                <option value={{item.id}}>{{item.display_name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select4" class="require">业务线</label>
+                                            <select id="single-select4" class="form-control" name="business_unit">
+                                                {% for item in business_unit %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select5" class="require">管理员</label>
+                                            <select id="single-select5" class="form-control" name="admin">
+                                                {% for item in admin %}
+                                                <option value={{item.id}}>{{item.username}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select6" class="require">合同</label>
+                                            <select id="single-select6" class="form-control" name="contract">
+                                                {% for item in contract %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select">标签</label>
+                                            <select id="multi-select" class="form-control" multiple="" name="tag">
+                                                {% for item in tag %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">备注</label>
+                                            <textarea id="textarea" class="form-control" rows="6" name="memo"></textarea>
+                                        </div>
+                                    </div>
+
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">添加</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/assets/asset/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% block formFooter %}
+                </form>
+            {% endblock %}
+        </div>
+{% endblock %}

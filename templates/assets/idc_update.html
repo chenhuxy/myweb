@@ -1,0 +1,67 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/assets/idc/update/id={{id}}">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+                            <div class="card-header bg-light">
+                                更新idc<label style="color: red;">{{ status }}</label>
+                            </div>
+
+                            <div class="card-body">
+                                {% for item in idc %}
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="idc" class="form-control-label require">机房名称</label>
+                                            <input type="text" id="idc" class="form-control" placeholder="机房名称" name="idc" value={{ item.display_name }}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="region" class="form-control-label require">机房区域</label>
+                                            <input type="text" id="region" class="form-control" placeholder="机房区域" name="region" value={{ item.region_display_name }}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="floor" class="form-control-label require">机房楼层</label>
+                                            <input type="text" id="floor" class="form-control" placeholder="机房楼层" name="floor" value={{ item.floor }}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="memo" class="form-control-label">备注</label>
+                                            <input type="text" id="memo" class="form-control" placeholder="备注" name="memo" value={{ item.memo }}>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">更新</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/assets/idc/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% block formFooter %}
+            </form>
+        {% endblock %}
+        </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+    </script>
+{% endblock %}

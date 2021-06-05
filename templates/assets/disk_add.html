@@ -1,0 +1,80 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/assets/disk/add/">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div class="card-header bg-light">
+                                添加disk<label style="color: red;">{{status}}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select" class="require">主机信息</label>
+                                            <select id="single-select" class="form-control" name="server_info">
+                                                {% for item in host %}
+                                                <option value={{item.id}}>{{item.hostname}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="slot" class="form-control-label require">插槽名称</label>
+                                            <input type="text" id="slot" class="form-control" placeholder="插槽名称" name="slot">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="model" class="form-control-label require">磁盘型号</label>
+                                            <input type="text" id="model" class="form-control" placeholder="磁盘型号" name="model">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="capacity" class="form-control-label require">磁盘容量</label>
+                                            <input type="number" id="capacity" class="form-control" placeholder="磁盘容量" name="capacity">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="ifac_type" class="form-control-label require">接口类型</label>
+                                            <input type="text" id="ifac_type" class="form-control" placeholder="接口类型" name="ifac_type">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">备注</label>
+                                            <textarea id="textarea" class="form-control" rows="6" name="memo"></textarea>
+                                        </div>
+                                    </div>
+
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">添加</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/assets/disk/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% block formFooter %}
+                </form>
+            {% endblock %}
+        </div>
+{% endblock %}

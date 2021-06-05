@@ -34,14 +34,25 @@
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="single-select" class="require">业务负责人</label>
-                                            <select id="single-select" class="form-control" name="director">
+                                            <select id="single-select" class="form-control" name="admin">
                                                 {% for item in userinfo %}
                                                 <option value={{item.id}}>{{item.username}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
                                     </div>
+
                                     <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select" class="require">审批人</label>
+                                            <select id="multi-select" class="form-control" name="approval" multiple="">
+                                                {% for item in approval %}
+                                                <option value={{item.id}}>{{item.username}}({{ item.workflow_order }})</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!--<div class="col-md-7">
                                         <div class="form-group">
                                             <label for="single-select-2" class="require">所属部门</label>
                                             <select id="single-select-2" class="form-control" name="group">
@@ -50,7 +61,7 @@
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                    </div>
+                                    </div>-->
 
                             </div>
 

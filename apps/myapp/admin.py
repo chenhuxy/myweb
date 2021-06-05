@@ -4,13 +4,14 @@
 from django.contrib import admin
 
 # Register your models here.
+
 from .models import *
+
+
+
 
 class scriptTypeAdmin(admin.ModelAdmin):
     list_display = ('type',)
-
-class hostInfoAdmin(admin.ModelAdmin):
-    list_display = ('hostname','ip')
 
 class userGroupAdmin(admin.ModelAdmin):
     list_display = ('name','create_time','update_time',)
@@ -26,9 +27,9 @@ class userInfoAdmin(admin.ModelAdmin):
     #list_editable = ('username','password','email','usertype',)
 
 class wf_infoAdmin(admin.ModelAdmin):
-    list_display = ('sponsor','type','content','status','approval','create_time',)
-    search_fields = ('sponsor','status','approval',)
-    list_filter = ('sponsor','status','approval',)
+    list_display = ('sponsor','type','content','status','create_time',)
+    search_fields = ('sponsor','status',)
+    list_filter = ('sponsor','status',)
     list_display_links = ('sponsor',)
     #list_editable = ('content',)
 
@@ -50,41 +51,7 @@ class wf_business_deploy_historyAdmin(admin.ModelAdmin):
     list_filter = ('name',)
     list_display_links = ('name',)
 
-'''
-class wf_statusAdmin(admin.ModelAdmin):
-    list_display = ('status',)
-    search_fields = ('status',)
-    list_filter = ('status',)
-    list_display_links = ('status',)
-'''
-class act_re_deploymentAdmin(admin.ModelAdmin):
-    list_display = ('name',)
 
-class act_ge_bytearrayAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-
-class act_hi_actinstAdmin(admin.ModelAdmin):
-    list_display = ('act_name',)
-
-class act_hi_attachmentAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-
-class act_hi_commentAdmin(admin.ModelAdmin):
-    list_display = ('type',)
-
-class act_hi_procinstAdmin(admin.ModelAdmin):
-    list_display = ('proc_def_id',)
-
-
-class act_hi_taskinstAdmin(admin.ModelAdmin):
-    list_display = ('task_def_key',)
-
-class act_ru_executionAdmin(admin.ModelAdmin):
-    list_display = ('proc_inst_id','act_id',)
-
-class act_ru_taskAdmin(admin.ModelAdmin):
-    list_display = ('name','excution_id','parent_task_id',)
-######################################################################################################################################
 
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name',)
@@ -168,7 +135,7 @@ class HandleLogAdmin(admin.ModelAdmin):
 
 
 admin.site.register(scriptType,scriptTypeAdmin)
-admin.site.register(hostInfo,hostInfoAdmin)
+
 admin.site.register(userGroup,userGroupAdmin)
 admin.site.register(userType,userTypeAdmin)
 admin.site.register(userInfo,userInfoAdmin)
@@ -176,22 +143,12 @@ admin.site.register(wf_info,wf_infoAdmin)
 admin.site.register(wf_type,wf_typeAdmin)
 admin.site.register(wf_business,wf_businessAdmin)
 admin.site.register(wf_business_deploy_history,wf_business_deploy_historyAdmin)
-#admin.site.register(wf_status,wf_statusAdmin)
-admin.site.register(act_re_deployment,act_re_deploymentAdmin)
-admin.site.register(act_ge_bytearray,act_ge_bytearrayAdmin)
-admin.site.register(act_hi_actinst,act_hi_actinstAdmin)
-admin.site.register(act_hi_attachment,act_hi_attachmentAdmin)
-admin.site.register(act_hi_comment,act_hi_commentAdmin)
-admin.site.register(act_hi_procinst,act_hi_procinstAdmin)
-admin.site.register(act_hi_taskinst,act_hi_taskinstAdmin)
-admin.site.register(act_ru_execution,act_ru_executionAdmin)
-admin.site.register(act_ru_task,act_ru_taskAdmin)
 
 
 
-###################################################################################################################################
-admin.site.register(UserProfile,UserProfileAdmin)
-admin.site.register(Admininfo,AdmininfoAdmin)
+
+#admin.site.register(UserProfile,UserProfileAdmin)
+#admin.site.register(Admininfo,AdmininfoAdmin)
 admin.site.register(DeviceType,DeviceTypeAdmin)
 admin.site.register(DeviceStatus,DeviceStatusAdmin)
 admin.site.register(Asset,AssetAdmin)
@@ -202,7 +159,7 @@ admin.site.register(Memory,MemoryAdmin)
 admin.site.register(Disk,DiskAdmin)
 admin.site.register(NIC,NICAdmin)
 admin.site.register(Contract,ContractAdmin)
-admin.site.register(BusinessUnit,BusinessUnitAdmin)
+#admin.site.register(BusinessUnit,BusinessUnitAdmin)
 admin.site.register(Tag,TagAdmin)
 admin.site.register(IDC,IDCAdmin)
 admin.site.register(HandleLog,HandleLogAdmin)

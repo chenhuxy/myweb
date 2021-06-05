@@ -38,7 +38,7 @@
                                 <th>业务名称</th>
                                 <th>项目地址</th>
                                 <th>业务负责人</th>
-                                <th>业务组</th>
+                                <th>审批人</th>
                                 <th>创建时间</th>
                                 <th>修改时间</th>
                                 <th>动作</th>
@@ -51,8 +51,12 @@
                                 <td>{{item.id}}</td>
                                 <td>{{item.name}}</td>
                                 <td>{{item.repo}}</td>
-                                <td>{{item.director.username}}</td>
-                                <td>{{ item.group.name }}</td>
+                                <td>{{item.admin.username}}</td>
+                                <td>
+                                    {% for item in item.approval.all %}
+                                    {{ item.username }}({{item.workflow_order}}),
+                                    {% endfor %}
+                                </td>
                                 <td>{{item.create_time}}</td>
                                 <td>{{item.update_time}}</td>
                                 <td>

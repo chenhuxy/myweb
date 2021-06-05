@@ -6,27 +6,10 @@ from django.db import models
 
 # Create your models here
 
-class scriptType(models.Model):
-    SCRIPT_CHOICE = (
-        ('0', 'shell'),
-        ('1', 'python'),
-    )
-    type = models.CharField('脚本类型',max_length=200,choices=SCRIPT_CHOICE,default='0')
-    class Meta:
-        verbose_name = '脚本类型'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.type
 
-class hostInfo(models.Model):
-    hostname = models.CharField('主机名',max_length=200)
-    ip = models.GenericIPAddressField('ip地址',max_length=128)
-    class Meta:
-        verbose_name = '主机信息'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.hostname
 
+
+###---------- users------------------###
 class userType(models.Model):
     name = models.CharField('用户类型',max_length=200,default='user')
     create_time = models.DateTimeField('创建时间', auto_now_add=True)
@@ -47,24 +30,23 @@ class userGroup(models.Model):
     def __unicode__(self):
         return self.name
 
-
 class userInfo(models.Model):
     username = models.CharField('用户名',max_length=200)
     email = models.EmailField('邮箱')
     password = models.CharField('密码',max_length=100)
     usertype = models.ForeignKey(userType,verbose_name='用户类型',on_delete=models.CASCADE)
-    STATUS_CHOICE = (
-        ('0', '未激活'),
-        ('1', '已激活'),
-    )
-    status = models.CharField('激活状态',max_length=200,choices=STATUS_CHOICE,default='1')
-    group = models.ForeignKey(userGroup,verbose_name='部门',on_delete=models.CASCADE)
-    ROLE_CHOICE = (
-        ('0', '否'),
-        ('1', '是'),
-    )
-    approval = models.CharField('是否部门主管',max_length=128,choices=ROLE_CHOICE,default='0')
-
+    #STATUS_CHOICE = (
+    #    ('0', '否'),
+    #    ('1', '是'),
+    #)
+    is_active = models.BooleanField('激活',max_length=200,default=True,)
+    group = models.ManyToManyField(userGroup,verbose_name='用户组',blank=True,)
+    workflow_order = models.IntegerField('工作流编号',default=0,)
+    #ROLE_CHOICE = (
+    #    ('0', '否'),
+    #    ('1', '是'),
+    #)
+    #approval = models.CharField('是否部门主管',max_length=128,choices=ROLE_CHOICE,default='0')
     create_time = models.DateTimeField('创建时间', auto_now_add=True)
     update_time = models.DateTimeField('更新时间', auto_now=True)
     memo = models.TextField('备注', blank=True, null=True)
@@ -73,292 +55,6 @@ class userInfo(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.username,self.usertype
-
-
-class wf_type(models.Model):
-    name = models.CharField('请求类型', max_length=128, default='上线', )
-    create_time = models.DateTimeField('创建时间', auto_now_add=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True)
-    class Meta:
-        verbose_name = '工单类型'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.name
-
-
-class wf_business(models.Model):
-    name = models.CharField('业务单元', max_length=128, default='default', )
-    proj_id = models.CharField('项目id',max_length=128,default=183)
-    repo = models.CharField('项目地址',max_length=128,)
-    director = models.ForeignKey('userInfo',on_delete=models.CASCADE)
-    group = models.ForeignKey('userGroup',on_delete=models.CASCADE)
-    create_time = models.DateTimeField('创建时间', auto_now_add=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True)
-    class Meta:
-        verbose_name = '业务单元'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.name
-
-class wf_business_deploy_history(models.Model):
-    name = models.CharField('业务单元', max_length=128, default='default', )
-    proj_id = models.CharField('项目id',max_length=128,default=183)
-    repo = models.CharField('项目地址',max_length=128,)
-    branch = models.CharField('项目分支', max_length=128, )
-    tag = models.CharField('项目tag', max_length=128, )
-    opertator = models.ForeignKey('userInfo',on_delete=models.CASCADE)
-    update_time = models.DateTimeField('发布时间', auto_now=True)
-    state = models.CharField('发布状态',max_length=128)
-    logs = models.TextField('发布日志',blank=True,null=True)
-    class Meta:
-        verbose_name = '发布历史'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.name
-
-
-class wf_info(models.Model):
-    sn = models.CharField('请求编号',max_length=128,)
-    title = models.CharField('标题',max_length=256,)
-    sponsor = models.CharField('发起人',max_length=128,)
-    type = models.ForeignKey(wf_type,verbose_name='请求类型',on_delete=models.CASCADE)
-    content = models.TextField('请求内容',blank=True,null=True)
-    status = models.CharField('工单状态',max_length=128,default='未提交')
-    business = models.ForeignKey('wf_business',on_delete=models.CASCADE)
-    #taskid = models.CharField('用户任务id',max_length=128,)
-    flow_id = models.IntegerField('流程id',default=0)
-    approval = models.ForeignKey(userInfo,verbose_name='审批人',on_delete=models.CASCADE)
-    create_time = models.DateTimeField('创建时间',auto_now_add=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True)
-    finish_time = models.DateTimeField('完成时间', auto_now=True)
-    #duration = models.BigIntegerField('耗时')
-    memo = models.TextField('备注',blank=True,null=True)
-    class Meta:
-        verbose_name = '工单流程'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.type,self.status
-
-class wf_info_history_commit(models.Model):
-    sn = models.CharField('请求编号',max_length=128,)
-    title = models.CharField('标题',max_length=256,)
-    sponsor = models.CharField('发起人',max_length=128,)
-    type = models.ForeignKey(wf_type,verbose_name='请求类型',on_delete=models.CASCADE)
-    content = models.TextField('请求内容',blank=True,null=True)
-    status = models.CharField('工单状态',max_length=128,default='已提交')
-    business = models.ForeignKey('wf_business', on_delete=models.CASCADE)
-    #taskid = models.CharField('用户任务id',max_length=128,)
-    flow_id = models.IntegerField('流程id',default=1)
-    approval = models.ForeignKey(userInfo,verbose_name='审批人',on_delete=models.CASCADE)
-    create_time = models.DateTimeField('创建时间',auto_now_add=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True)
-    finish_time = models.DateTimeField('完成时间', auto_now=True)
-    #duration = models.BigIntegerField('耗时')
-    memo = models.TextField('备注',blank=True,null=True)
-    class Meta:
-        verbose_name = '工单流程历史_已提交'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.type,self.status
-
-class wf_info_history_process(models.Model):
-    sn = models.CharField('请求编号',max_length=128,)
-    title = models.CharField('标题',max_length=256,)
-    sponsor = models.CharField('发起人',max_length=128,)
-    type = models.ForeignKey(wf_type,verbose_name='请求类型',on_delete=models.CASCADE)
-    content = models.TextField('请求内容',blank=True,null=True)
-    status = models.CharField('工单状态',max_length=128,default='处理中')
-    business = models.ForeignKey('wf_business', on_delete=models.CASCADE)
-    #taskid = models.CharField('用户任务id',max_length=128,)
-    flow_id = models.IntegerField('流程id',)
-    suggest = models.CharField('审批结果',max_length=128,)
-    suggest_content = models.TextField('审批意见')
-    assignee = models.CharField('处理人',max_length=128)
-    approval = models.ForeignKey(userInfo,verbose_name='审批人',on_delete=models.CASCADE)
-    create_time = models.DateTimeField('创建时间',auto_now_add=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True)
-    finish_time = models.DateTimeField('完成时间', auto_now=True)
-    #duration = models.BigIntegerField('耗时')
-    memo = models.TextField('备注',blank=True,null=True)
-    class Meta:
-        verbose_name = '工单流程历史_审批中'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.type,self.status
-
-class wf_info_history_complete(models.Model):
-    sn = models.CharField('请求编号',max_length=128,)
-    title = models.CharField('标题',max_length=256,)
-    sponsor = models.CharField('发起人',max_length=128,)
-    type = models.ForeignKey(wf_type,verbose_name='请求类型',on_delete=models.CASCADE)
-    content = models.TextField('请求内容',blank=True,null=True)
-    status = models.CharField('工单状态',max_length=128,default='已完成')
-    business = models.ForeignKey('wf_business', on_delete=models.CASCADE)
-    #taskid = models.CharField('用户任务id',max_length=128,)
-    flow_id = models.IntegerField('流程id',)
-    suggest = models.CharField('审批结果',max_length=128,)
-    suggest_content = models.TextField('审批意见')
-    assignee = models.CharField('处理人', max_length=128)
-    #approval = models.ForeignKey(userGroup,verbose_name='审批人',on_delete=models.CASCADE)
-    create_time = models.DateTimeField('创建时间',auto_now_add=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True)
-    finish_time = models.DateTimeField('完成时间', auto_now=True)
-    #duration = models.BigIntegerField('耗时')
-    memo = models.TextField('备注',blank=True,null=True)
-    class Meta:
-        verbose_name = '工单流程历史_审批完成'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.type,self.status
-
-class wf_info_history_withdraw(models.Model):
-    sn = models.CharField('请求编号',max_length=128,)
-    title = models.CharField('标题',max_length=256,)
-    sponsor = models.CharField('发起人',max_length=128,)
-    type = models.ForeignKey(wf_type,verbose_name='请求类型',on_delete=models.CASCADE)
-    content = models.TextField('请求内容',blank=True,null=True)
-    status = models.CharField('工单状态',max_length=128,default='已撤回')
-    business = models.ForeignKey('wf_business', on_delete=models.CASCADE)
-    #taskid = models.CharField('用户任务id',max_length=128,)
-    flow_id = models.IntegerField('流程id',default=-1)
-    suggest = models.CharField('审批结果',max_length=128,)
-    suggest_content = models.TextField('审批意见')
-    assignee = models.CharField('处理人', max_length=128)
-    approval = models.ForeignKey(userInfo,verbose_name='审批人',on_delete=models.CASCADE)
-    create_time = models.DateTimeField('创建时间',auto_now_add=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True)
-    finish_time = models.DateTimeField('完成时间', auto_now=True)
-    #duration = models.BigIntegerField('耗时')
-    memo = models.TextField('备注',blank=True,null=True)
-    class Meta:
-        verbose_name = '工单流程历史_已撤回'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.type,self.status
-
-
-
-#部署信息
-class act_re_deployment(models.Model):
-    name = models.CharField('部署名称', max_length=128, )
-    category = models.CharField('部署类型', max_length=128, )
-    deploy_time = models.DateTimeField('部署时间', auto_now_add=True)
-
-
-#通用信息
-class act_ge_bytearray(models.Model):
-    ver = models.IntegerField('版本')
-    name = models.CharField('部署文件名称', max_length=128, )
-    deployment_id = models.ForeignKey(act_re_deployment,verbose_name='部署id',on_delete=models.CASCADE)
-    bytes = models.BinaryField('文件字节流')
-
-#历史活动信息。这里记录流程流转过的所有节点，与HI_TASKINST不同的是，taskinst只记录usertask内容。
-class act_hi_actinst(models.Model):
-    proc_def_id = models.CharField('流程定义id',max_length=128,)
-    proc_inst_id = models.CharField('流程实例id',max_length=128,)
-    excution_id = models.CharField('流程执行id', max_length=128,)
-    act_id = models.CharField('活动id', max_length=128,)
-    task_id = models.CharField('任务id', max_length=128, )
-    call_proc_inst_id = models.CharField('请求流程实例id', max_length=128,)
-    act_name = models.CharField('活动名称', max_length=128,)
-    act_type = models.CharField('活动类型', max_length=128, )
-    assignee = models.CharField('代理人员', max_length=128, )
-    start_time = models.DateTimeField('开始时间', auto_now_add=True)
-    end_time = models.DateTimeField('结束时间', auto_now_add=True)
-    duration = models.BigIntegerField('时长,耗时')
-
-#历史的流程附件
-class act_hi_attachment(models.Model):
-    ver = models.IntegerField('版本')
-    user_id = models.CharField('附件上传用户',max_length=128,)
-    name = models.CharField('附件名称',max_length=128,)
-    description = models.TextField('描述', blank=True,null=True )
-    type = models.CharField('附件类型', max_length=128, )
-    task_id = models.CharField('任务id', max_length=128, )
-    proc_inst_id = models.CharField('流程实例id', max_length=128, )
-    url = models.CharField('附件地址', max_length=128, )
-    content_id = models.CharField('内容id', max_length=128, )
-
-#历史的说明性信息
-class act_hi_comment(models.Model):
-    type = models.CharField('意见记录类型',max_length=128,)
-    time = models.DateTimeField('意见记录时间', auto_now_add=True)
-    user_id = models.CharField('意见填写人', max_length=128, )
-    task_id = models.CharField('任务id', max_length=128, )
-    proc_inst_id = models.CharField('流程实例id', max_length=128, )
-    action = models.CharField('动作', max_length=128, )
-    message = models.CharField('处理意见',max_length=128,)
-    full_msg = models.TextField('全部消息')
-
-#核心表，历史流程实例表
-class act_hi_procinst(models.Model):
-    proc_inst_id = models.CharField('流程实例id', max_length=128, )
-    bussiness_key = models.CharField('业务类型', max_length=128, )
-    proc_def_id = models.CharField('流程定义id', max_length=128, )
-    start_time = models.DateTimeField('开始时间', auto_now_add=True)
-    end_time = models.DateTimeField('结束时间', auto_now_add=True)
-    duration = models.BigIntegerField('时长,耗时')
-    start_user_id = models.CharField('发起人id', max_length=128, )
-    start_act_id = models.CharField('开始节点id', max_length=128, )
-    end_act_id = models.CharField('结束节点id', max_length=128, )
-    super_process_instant_id = models.CharField('超级流程实例id', max_length=128, )
-    delete_reson = models.CharField('删除理由', max_length=128, )
-
-#核心表，历史任务实例表
-class act_hi_taskinst(models.Model):
-    proc_inst_id = models.CharField('流程实例id', max_length=128, )
-    bussiness_key = models.CharField('业务类型', max_length=128, )
-    proc_def_id = models.CharField('流程定义id', max_length=128, )
-    task_def_key = models.CharField('节点定义id', max_length=128, )
-    excution_id = models.CharField('执行id', max_length=128, )
-    parent_task_id = models.CharField('父任务id',max_length=128,)
-    name = models.CharField('名称', max_length=128, )
-    description = models.TextField('描述', blank=True, null=True)
-    owner = models.CharField('签收人', max_length=128, )
-    assignee = models.CharField('代理人', max_length=128, )
-    start_time = models.DateTimeField('开始时间', auto_now_add=True)
-    claim_time = models.DateTimeField('提醒时间', auto_now_add=True)
-    end_time = models.DateTimeField('结束时间', auto_now_add=True)
-    priority = models.CharField('优先级', max_length=128, )
-    due_date = models.DateTimeField('应完成时间', auto_now_add=True)
-    form_key = models.CharField('表单key', max_length=128, )
-
-#核心，我的代办任务查询表
-class act_ru_execution(models.Model):
-    ver = models.IntegerField('版本')
-    proc_inst_id = models.CharField('流程实例id', max_length=128, )
-    bussiness_key = models.CharField('业务类型', max_length=128, )
-    parent_id = models.CharField('父执行流程',max_length=128,)
-    proc_def_id = models.CharField('流程定义id', max_length=128, )
-    super_exec = models.CharField(max_length=128,)
-    act_id = models.CharField('节点实例id', max_length=128, )
-    is_active = models.IntegerField('激活状态')
-    suspension_state = models.IntegerField('暂停状态')
-
-#执行中实时任务）代办任务查询表
-class act_ru_task(models.Model):
-    ver = models.IntegerField('版本')
-    excution_id = models.CharField('执行id', max_length=128, )
-    proc_inst_id = models.CharField('流程实例id', max_length=128, )
-    proc_def_id = models.CharField('流程定义id', max_length=128, )
-    name = models.CharField('任务名称', max_length=128, )
-    parent_task_id = models.CharField('父任务id',max_length=128,)
-    description = models.TextField('描述', blank=True, null=True)
-    task_def_key = models.CharField('节点定义id', max_length=128, )
-    owner = models.CharField('签收人', max_length=128, )
-    assignee = models.CharField('代理人', max_length=128, )
-    priority = models.CharField('优先级', max_length=128, )
-    create_time = models.DateTimeField('创建时间', auto_now_add=True)
-    due_date = models.DateTimeField('应完成时间', auto_now_add=True)
-    suspension_state = models.IntegerField('暂停状态')
-
-
-###################################################################################################################################
-
-
-class Blog(models.Model):
-    title = models.CharField(max_length=256)
-    content = models.TextField()
 
 class UserProfile(models.Model):
     name = models.CharField('名字',max_length=256)
@@ -383,6 +79,134 @@ class Admininfo(models.Model):
     def __unicode__(self):
         return self.username
 
+
+
+###---------- workflow------------------###
+
+
+class wf_type(models.Model):
+    name = models.CharField('请求类型', max_length=128, default='上线', )
+    create_time = models.DateTimeField('创建时间', auto_now_add=True)
+    update_time = models.DateTimeField('更新时间', auto_now=True)
+    class Meta:
+        verbose_name = '工单类型'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
+
+
+
+class wf_business(models.Model):
+    name = models.CharField('业务单元', max_length=128, default='default', )
+    proj_id = models.CharField('项目id',max_length=128,default=183)
+    repo = models.CharField('项目地址',max_length=128,)
+    admin = models.ForeignKey('userInfo',on_delete=models.CASCADE,verbose_name='业务管理员',related_name='admin',)
+    approval = models.ManyToManyField('userInfo', verbose_name='审批人', blank=True, related_name='approval',)
+    create_time = models.DateTimeField('创建时间', auto_now_add=True)
+    update_time = models.DateTimeField('更新时间', auto_now=True)
+    class Meta:
+        verbose_name = '业务单元'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
+
+class wf_info(models.Model):
+    sn = models.CharField('请求编号',max_length=128,)
+    title = models.CharField('标题',max_length=256,)
+    sponsor = models.CharField('发起人',max_length=128,)
+    type = models.ForeignKey(wf_type,verbose_name='请求类型',on_delete=models.CASCADE)
+    content = models.TextField('请求内容',blank=True,null=True)
+    status = models.CharField('工单状态',max_length=128,default='未提交')
+    business = models.ForeignKey('wf_business',on_delete=models.CASCADE)
+    flow_id = models.IntegerField('流程id',default=-1)
+    assignee = models.CharField('当前处理人',max_length=128,)
+    next_assignee = models.CharField('下个处理人',max_length=128,)
+    create_time = models.DateTimeField('创建时间',auto_now_add=True)
+    update_time = models.DateTimeField('更新时间', auto_now=True)
+    finish_time = models.DateTimeField('完成时间', auto_now=True)
+    #duration = models.BigIntegerField('耗时')
+    memo = models.TextField('备注',blank=True,null=True)
+    class Meta:
+        verbose_name = '工单流程'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.type,self.status
+
+class wf_info_history_process(models.Model):
+    sn = models.CharField('请求编号',max_length=128,)
+    title = models.CharField('标题',max_length=256,)
+    sponsor = models.CharField('发起人',max_length=128,)
+    type = models.ForeignKey(wf_type,verbose_name='请求类型',on_delete=models.CASCADE)
+    content = models.TextField('请求内容',blank=True,null=True)
+    status = models.CharField('工单状态',max_length=128,default='处理中')
+    business = models.ForeignKey('wf_business', on_delete=models.CASCADE)
+    flow_id = models.IntegerField('流程id',)
+    assignee = models.CharField('当前处理人', max_length=128, )
+    next_assignee = models.CharField('下个处理人', max_length=128, )
+    create_time = models.DateTimeField('创建时间',auto_now_add=True)
+    update_time = models.DateTimeField('更新时间', auto_now=True)
+    finish_time = models.DateTimeField('完成时间', auto_now=True)
+    #duration = models.BigIntegerField('耗时')
+    memo = models.TextField('备注',blank=True,null=True)
+    suggest = models.CharField('审批结果', max_length=128,blank=True,null=True )
+    suggest_content = models.TextField('审批意见', blank=True,null=True)
+    class Meta:
+        verbose_name = '工单流程历史_审批中'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.type,self.status
+
+###---------- task-deploy------------------###
+class scriptType(models.Model):
+    type = models.CharField('脚本类型',max_length=200,default='shell',)
+    class Meta:
+        verbose_name = '脚本类型'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.type
+
+class wf_business_deploy_history(models.Model):
+    name = models.CharField('业务单元', max_length=128, default='default', )
+    proj_id = models.CharField('项目id',max_length=128,default=183)
+    repo = models.CharField('项目地址',max_length=128,)
+    branch = models.CharField('项目分支', max_length=128, )
+    tag = models.CharField('项目tag', max_length=128, )
+    opertator = models.ForeignKey('userInfo',on_delete=models.CASCADE)
+    update_time = models.DateTimeField('发布时间', auto_now=True)
+    state = models.CharField('发布状态',max_length=128)
+    logs = models.TextField('发布日志',blank=True,null=True)
+    class Meta:
+        verbose_name = '发布历史'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
+
+
+###---------- assets------------------###
+'''
+class UserProfile(models.Model):
+    name = models.CharField('名字',max_length=256)
+    email = models.EmailField('邮箱',max_length=256)
+    mobile = models.CharField('手机',max_length=256)
+    memo = models.TextField('备注',blank=True,null=True)
+    create_time = models.DateTimeField('创建时间',auto_now_add=True)
+    update_time = models.DateTimeField('更新时间',auto_now=True)
+    class Meta:
+        verbose_name = '管理用户信息'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
+
+class Admininfo(models.Model):
+    user = models.OneToOneField(UserProfile,on_delete=models.CASCADE)
+    username = models.CharField('用户名',max_length=256)
+    password = models.CharField('密码',max_length=256)
+    class Meta:
+        verbose_name = '管理用户'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.username
+'''
 class DeviceStatus(models.Model):
     name = models.CharField('名字', max_length=256,default='未上线')
     memo = models.TextField('备注', blank=True, null=True)
@@ -409,8 +233,8 @@ class Asset(models.Model):
     create_time = models.DateTimeField('创建时间',auto_now_add=True,blank=True,null=True)
     update_time = models.DateTimeField('更新时间',auto_now=True,blank=True,null=True)
     idc = models.ForeignKey('IDC',verbose_name='idc机房',blank=True,null=True,on_delete=models.CASCADE)
-    business_unit = models.ForeignKey('BusinessUnit',verbose_name='所属业务线',blank=True,null=True,on_delete=models.CASCADE)
-    admin = models.ForeignKey('UserProfile',verbose_name='设备管理员',blank=True,null=True,related_name='+',on_delete=models.CASCADE)
+    business_unit = models.ForeignKey('wf_business',verbose_name='所属业务线',blank=True,null=True,on_delete=models.CASCADE)
+    admin = models.ForeignKey('userInfo',verbose_name='设备管理员',blank=True,null=True,related_name='+',on_delete=models.CASCADE)
     contract = models.ForeignKey('Contract',verbose_name='合同',blank=True,null=True,on_delete=models.CASCADE)
     tag = models.ManyToManyField('Tag',verbose_name='标签',blank=True)
     memo = models.TextField('备注', blank=True, null=True)
@@ -505,7 +329,7 @@ class NIC(models.Model):
     model = models.CharField('网卡型号',max_length=256,blank=True)
     ipaddr = models.GenericIPAddressField('ip地址')
     mac = models.CharField('MAC地址',max_length=256)
-    netmask = models.CharField(max_length=256,blank=True)
+    netmask = models.CharField('子网掩码',max_length=256,blank=True)
     create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True)
     update_time = models.DateTimeField('更新时间', auto_now=True, blank=True)
     server_info = models.ForeignKey(Server,on_delete=models.CASCADE)
@@ -531,7 +355,7 @@ class Contract(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
-
+'''
 class BusinessUnit(models.Model):
     name = models.CharField('业务线',max_length=128,unique=True)
     contact = models.ForeignKey('UserProfile',default=None,on_delete=models.CASCADE)
@@ -541,6 +365,7 @@ class BusinessUnit(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
+'''
 
 class Tag(models.Model):
     name = models.CharField('标签名',max_length=256)
@@ -566,7 +391,7 @@ class HandleLog(models.Model):
     handle_type = models.CharField('操作类型',max_length=256)
     summary = models.CharField(max_length=256)
     detail = models.TextField()
-    creater = models.ForeignKey(UserProfile,on_delete=models.CASCADE)
+    creater = models.ForeignKey(userInfo,on_delete=models.CASCADE)
     create_at = models.DateTimeField('创建时间',auto_now_add=True,blank=True)
     memo = models.TextField('备注', blank=True)
     class Meta:

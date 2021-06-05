@@ -303,3 +303,17 @@ CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_RESULT_BACKEND = 'redis://redis:6379'
 CELERY_TASK_SERIALIZER = 'json'
 
+### zabbix
+ZABBIX_URL = 'http://10.180.10.84/zabbix'
+ZABBIX_USER = 'hu.chen'
+ZABBIX_PASSWORD = 'Qoros0507'
+
+### prometheus
+PROM_URL = 'http://10.181.1.13/prometheus'
+PROM_USER = 'admin'
+PROM_PASSWROD = 'admin'
+
+### gitlab
+GITLAB_URL = 'http://10.180.11.8'
+GITLAB_TOKEN = 'F7nAGXozy4dsfJvxiLu_'
+

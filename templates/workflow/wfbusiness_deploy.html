@@ -59,7 +59,7 @@
                                             <label for="single-select4" class="require">发布主机</label>
                                             <select id="single-select4" class="form-control" name="host">
                                                 {% for item in hostInfo %}
-                                                <option value={{item.ip}}>{{item.ip}}</option>
+                                                <option value={{item.id}}>{{item.hostname}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -69,10 +69,9 @@
                                         <div class="form-group">
                                             <label for="single-select5" class="require">执行脚本类型</label>
                                             <select id="single-select5" class="form-control" name="script_type">
-
-                                                <option value=0>shell</option>
-                                                <option value=1>python</option>
-
+                                                {% for item in scriptType %}
+                                                <option value={{item.id}}>{{item.type}}</option>
+                                                {% endfor %}
                                             </select>
                                         </div>
                                     </div>

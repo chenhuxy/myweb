@@ -1,0 +1,86 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/assets/nic/add/">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div class="card-header bg-light">
+                                添加nic<label style="color: red;">{{status}}</label>
+                            </div>
+
+                            <div class="card-body">
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select" class="require">主机信息</label>
+                                            <select id="single-select" class="form-control" name="server_info">
+                                                {% for item in host %}
+                                                <option value={{item.id}}>{{item.hostname}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="name" class="form-control-label require">网卡名称</label>
+                                            <input type="text" id="name" class="form-control" placeholder="网卡名称" name="name">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="model" class="form-control-label require">网卡型号</label>
+                                            <input type="text" id="model" class="form-control" placeholder="网卡型号" name="model">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="ipaddr" class="form-control-label require">ip地址</label>
+                                            <input type="text" id="ipaddr" class="form-control" placeholder="ip地址" name="ipaddr">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="mac" class="form-control-label require">MAC地址</label>
+                                            <input type="text" id="mac" class="form-control" placeholder="MAC地址" name="mac">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="netmask" class="form-control-label require">子网掩码</label>
+                                            <input type="text" id="netmask" class="form-control" placeholder="子网掩码" name="netmask">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">备注</label>
+                                            <textarea id="textarea" class="form-control" rows="6" name="memo"></textarea>
+                                        </div>
+                                    </div>
+
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">添加</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/assets/nic/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% block formFooter %}
+                </form>
+            {% endblock %}
+        </div>
+{% endblock %}

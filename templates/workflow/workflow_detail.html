@@ -102,7 +102,7 @@
                                             {% endfor %}
                                         </div>
                                     </div>
-
+<!--
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="approval" class="require form-control-label">审批人</label>
@@ -111,7 +111,7 @@
                                             {% endfor %}
                                         </div>
                                     </div>
-
+-->
 
 <!--
                                     <div class="col-md-7">
@@ -179,26 +179,30 @@
                             <div class="table-responsive">
                                 <table class="table">
                                     <tbody>
-                                    {% for item in wf_info_commit %}
+                                    {% for item in wf_info_process_start %}
                                     <tr>
                                         <td>{{item.create_time}}</td>
-                                        <td class="text-nowrap">{{item.sponsor}}提交申请，待审批。</td>
+                                        <td class="text-nowrap">
+                                            {{ item.sponsor }}{{ item.status }}，待{{ item.next_assignee }}审批。
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                     {% for item in wf_info_process %}
                                     <tr>
-                                        <td>{{item.update_time}}</td>
-                                        <td class="text-nowrap">{{item.assignee}}处理中。</td>
-                                    </tr>
-                                    <tr>
-                                        <td>{{item.finish_time}}</td>
-                                        <td>处理意见：{{item.suggest}},{{item.suggest_content}}</td>
+                                        <td>{{item.create_time}}</td>
+                                        <td class="text-nowrap">
+                                            流程{{ item.status }}。处理人：{{ item.assignee }}【{{item.suggest}},处理意见：{{item.suggest_content}}】，
+                                            待{{ item.next_assignee }}审批。
+                                        </td>
                                     </tr>
                                     {% endfor %}
-                                    {% for item in wf_info_complete %}
+                                    {% for item in wf_info_process_end %}
                                     <tr>
-                                        <td>{{item.update_time}}</td>
-                                        <td class="text-nowrap">{{item.assignee}}处理完成，流程结束。</td>
+                                        <td>{{item.create_time}}</td>
+                                        <td class="text-nowrap">
+                                            流程{{ item.status }}。处理人：{{ item.assignee }}【{{item.suggest}},处理意见：{{item.suggest_content}}】，
+                                            流程结束。
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                     </tbody>

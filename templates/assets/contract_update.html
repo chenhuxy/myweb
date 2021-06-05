@@ -1,0 +1,85 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/assets/contract/update/id={{id}}">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+                            <div class="card-header bg-light">
+                                更新合同<label style="color: red;">{{ status }}</label>
+                            </div>
+
+                            <div class="card-body">
+                                {% for item in contract %}
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="sn" class="form-control-label require">合同编号</label>
+                                            <input type="text" id="sn" class="form-control" placeholder="合同编号" name="sn" value="{{item.sn}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="name" class="form-control-label require">合同名称</label>
+                                            <input type="text" id="name" class="form-control" placeholder="合同名称" name="name" value="{{item.name}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="cost" class="form-control-label require">合同金额</label>
+                                            <input type="number" id="cost" class="form-control" placeholder="合同金额" name="cost" value="{{item.cost}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="start_date" class="form-control-label require">开始时间</label>
+                                            <input type="date" id="start_date" class="form-control" placeholder="开始时间" name="start_date" value="{{item.start_date}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="end_date" class="form-control-label require">结束时间</label>
+                                            <input type="date" id="end_date" class="form-control" placeholder="结束时间" name="end_date" value="{{item.end_date}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="license_num" class="form-control-label require">license数量</label>
+                                            <input type="number" id="license_num" class="form-control" placeholder="license数量" name="license_num" value="{{item.license_num}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">备注</label>
+                                            <textarea id="textarea" class="form-control" rows="6" name="memo">{{item.memo}}</textarea>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">更新</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/assets/contract/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% block formFooter %}
+            </form>
+        {% endblock %}
+        </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+    </script>
+{% endblock %}

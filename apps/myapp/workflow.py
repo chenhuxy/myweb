@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding:utf-8
+# _*_ coding:utf-8 _*_
 
 from apps.myapp.login_required import outer
 from django.shortcuts import render_to_response
@@ -19,8 +19,14 @@ import gitlab
 import paramiko,subprocess
 from apps.myapp import loop
 from django.core.cache import cache
+from myweb.settings import GITLAB_URL,GITLAB_TOKEN
 
-
+@outer
+def wftype(request,*args,**kwargs):
+    wftype=models.wf_type.objects.all()
+    userDict = request.session.get('is_login', None)
+    msg = {'wftype': wftype, 'login_user': userDict['user'],}
+    return render_to_response('workflow/wftype.html',msg)
 
 @outer
 def wftypeForm_add(request,*args,**kwargs):
@@ -30,17 +36,6 @@ def wftypeForm_add(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     msg = {'wftype': wftype, 'login_user': userDict['user'],'status':'', }
     return render_to_response('workflow/wftype_add.html',msg)
-
-
-@outer
-def wftypeForm_update(request,*args,**kwargs):
-    #userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    wftype = models.wf_type.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id':id, 'login_user':userDict['user'],'status':'操作成功','wftype':wftype,}
-    print(msg)
-    return render_to_response('workflow/wftype_update.html',msg)
 
 @outer
 def wftypeAdd(request,*args,**kwargs):
@@ -69,19 +64,16 @@ def wftypeAdd(request,*args,**kwargs):
     return render_to_response('workflow/wftype_add.html',msg)
 
 @outer
-def wftype(request,*args,**kwargs):
-    wftype=models.wf_type.objects.all()
+def wftypeForm_update(request,*args,**kwargs):
+    #userid = request.GET.get('userid',None)
+    id = kwargs['id']
+    wftype = models.wf_type.objects.filter(id=id)
     userDict = request.session.get('is_login', None)
-    msg = {'wftype': wftype, 'login_user': userDict['user'],}
-    return render_to_response('workflow/wftype.html',msg)
+    msg = {'id':id, 'login_user':userDict['user'],'status':'操作成功','wftype':wftype,}
+    print(msg)
+    return render_to_response('workflow/wftype_update.html',msg)
 
-def wftypeDel(request,*args,**kwargs):
-    id = request.POST.get('id')
-    models.wf_type.objects.filter(id=id).delete()
-    print('delete',id)
-    msg = {'code':1,'result':'删除工单类型id:'+id,}
-    return render_to_response('workflow/wftype.html',msg)
-
+@outer
 def wftypeUpdate(request,*args,**kwargs):
     id = kwargs['id']
     wftype = request.POST.get('wftype')
@@ -90,142 +82,50 @@ def wftypeUpdate(request,*args,**kwargs):
     models.wf_type.objects.filter(id=id).update(name=wftype,update_time=update_time)
     return redirect('/cmdb/index/wf/wftype/')
 
+@outer
+def wftypeDel(request,*args,**kwargs):
+    id = request.POST.get('id')
+    models.wf_type.objects.filter(id=id).delete()
+    print('delete',id)
+    msg = {'code':1,'result':'删除工单类型id:'+id,}
+    return render_to_response('workflow/wftype.html',msg)
 
+@outer
+def wfbusiness(request,*args,**kwargs):
+    wfbusiness=models.wf_business.objects.all()
+    count=wfbusiness.count()
+    userDict = request.session.get('is_login', None)
+    msg = {'wfbusiness': wfbusiness, 'login_user': userDict['user'],'count':count,}
+    return render_to_response('workflow/wfbusiness.html',msg)
 
 @outer
 def wfbusinessForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     wfbusiness = models.wf_business.objects.all()
     usergroup = models.userGroup.objects.all()
+    approval = userinfo.exclude(workflow_order=0)
     userDict = request.session.get('is_login', None)
     msg = {'wfbusiness': wfbusiness, 'userinfo':userinfo,
-           'usergroup':usergroup,'login_user': userDict['user'],'status':'', }
+           'usergroup':usergroup,'login_user': userDict['user'],'status':'','approval':approval, }
     print(msg)
     return render_to_response('workflow/wfbusiness_add.html',msg)
-
-
-def wfbusinessForm_update(request,*args,**kwargs):
-    #userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    userinfo = models.userInfo.objects.all()
-    usergroup = models.userGroup.objects.all()
-    wfbusiness = models.wf_business.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id':id, 'login_user':userDict['user'],'status':'操作成功',
-           'wfbusiness':wfbusiness,'userinfo':userinfo,'usergroup':usergroup,}
-    print(msg)
-    return render_to_response('workflow/wfbusiness_update.html',msg)
-
-
-@outer
-def wfbusinessForm_deploy(request,*args,**kwargs):
-    git_url = 'http://10.180.11.8'
-    git_token = 'F7nAGXozy4dsfJvxiLu_'
-    git_tools = gitlab.Gitlab(git_url,git_token)
-    #userid = request.GET.get('userid',None)
-    userDict = request.session.get('is_login', None)
-    id = kwargs['id']
-    userinfo = models.userInfo.objects.all()
-    usergroup = models.userGroup.objects.all()
-    wfbusiness = models.wf_business.objects.filter(id=id)
-    name = wfbusiness.values('name')[0]['name']
-    proj_id = wfbusiness.values('proj_id')[0]['proj_id']
-    proj = git_tools.projects.get(proj_id)
-    branches = proj.branches.list()
-    tags = proj.tags.list()
-    userDict = request.session.get('is_login', None)
-    hostInfo = models.hostInfo.objects.all()
-    scriptType = models.scriptType.objects.all()
-    print(scriptType,type(scriptType))
-    msg = {'id':id, 'login_user':userDict['user'],'status':'操作成功',
-           'wfbusiness':wfbusiness,'userinfo':userinfo,'usergroup':usergroup,
-           'branches':branches,'tags':tags,'hostInfo':hostInfo,
-           'scriptType':scriptType}
-    print(msg)
-    return render_to_response('workflow/wfbusiness_deploy.html',msg)
-
-
-@outer
-def wfbusiness_deploy(request,*args,**kwargs):
-    #userid = request.GET.get('userid',None)
-    userDict = request.session.get('is_login', None)
-    id = kwargs['id']
-    userinfo = models.userInfo.objects.all()
-    usergroup = models.userGroup.objects.all()
-    wfbusiness = models.wf_business.objects.filter(id=id)
-    host = request.POST.get('host')
-    port = 22
-    username = 'root'
-    password = 'Eo3C%k5j'
-    script_type = request.POST.get('script_type')
-    command = request.POST.get('command')
-    name = request.POST.get('name',None)
-    proj_id = wfbusiness.values('proj_id')[0]['proj_id']
-    repo = request.POST.get('repo',None)
-    branch = request.POST.get('branch',None)
-    tag = request.POST.get('tag','default')
-    opertator = models.userInfo.objects.get(username=userDict['user'])
-    update_time = timezone.now()
-    hostInfo = models.hostInfo.objects.all()
-    scriptType = models.scriptType.objects.all()
-    # print(scriptType,type(scriptType))
-
-    job = tasks.deploy.s(host, port, username, password, command,name).delay()
-    state = job.state
-    logs = cache.get(name)
-    print(job,job.status,job.result,job.id)
-    t= loop.LoopTimer(10,loop.wfbusiness_deploy_query,[job,name,proj_id,repo,branch,tag,opertator,update_time,])
-    result = t.start()
-    #print(result,)
-    models.wf_business_deploy_history.objects.create(name=name, proj_id=proj_id, repo=repo,
-                                                     branch=branch, tag=tag, opertator=opertator,
-                                                     update_time=update_time, state=state,logs=logs,)
-    msg = {'id':id, 'login_user':userDict['user'],'wfbusiness':wfbusiness,'userinfo':userinfo,'usergroup':usergroup,
-           'hostInfo':hostInfo,'scriptType':scriptType,'status':'','login_user': userDict['user'],}
-    #print(msg)
-    return redirect('/cmdb/index/wf/wfbusiness/deploy/list/',msg)
-
-@outer
-def wfbusiness_deploy_list(request,*args,**kwargs):
-    userDict = request.session.get('is_login', None)
-    wfbusiness = models.wf_business_deploy_history.objects.all()
-    msg = {'wfbusiness':wfbusiness,'login_user': userDict['user'],}
-    return render_to_response('workflow/wfbusiness_deploy_list.html',msg)
-
-@outer
-def wfbusiness_deploy_log(request,*args,**kwargs):
-    id = kwargs['id']
-    userDict = request.session.get('is_login', None)
-    wfbusiness = models.wf_business_deploy_history.objects.filter(id=id)
-    msg = {'wfbusiness':wfbusiness,'login_user': userDict['user'],}
-    return render_to_response('workflow/wfbusiness_deploy_log.html',msg)
-
-@outer
-def wfbusiness_deploy_del(request,*args,**kwargs):
-    id = request.POST.get('id')
-    models.wf_business_deploy_history.objects.filter(id=id).delete()
-    print('delete',id)
-    msg = {'code':1,'result':'删除发布id:'+id,}
-    return render_to_response('workflow/wfbusiness_deploy_list.html',msg)
 
 @outer
 def wfbusinessAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
-    usertype = models.userType.objects.all()
     userDict = request.session.get('is_login', None)
-    usergroup = models.userGroup.objects.all()
-    #result = {'status': '','usertype':None}
     if request.method == 'POST':
         wfbusiness = request.POST.get('wfbusiness',None)
         repo = request.POST.get('repo', None)
-        director_id = request.POST.get('director',None)
-        group_id = request.POST.get('group',None)
+        admin_id = request.POST.get('admin',None)
+        approval = request.POST.getlist('approval',None)
         is_exist = models.wf_business.objects.filter(name=wfbusiness)
         print(is_exist)
         if not (is_exist):
             is_empty = all([wfbusiness,repo])
             if is_empty:
-                models.wf_business.objects.create(name=wfbusiness,repo=repo,director_id=director_id,group_id=group_id)
+                queryset=models.wf_business.objects.create(name=wfbusiness,repo=repo,admin_id=admin_id,)
+                queryset.approval.set(approval)
                 msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
                        'login_user': userDict['user'],'status':'添加业务单元成功', }
                 return redirect('/cmdb/index/wf/wfbusiness/')
@@ -233,16 +133,34 @@ def wfbusinessAdd(request,*args,**kwargs):
                 msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
                        'login_user': userDict['user'],'status':'xx不能为空', }
         else:
-            msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness, 'usergroup':usergroup,
+            msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
                    'login_user': userDict['user'],'status':'该业务单元已存在！', }
     return render_to_response('workflow/wfbusiness_add.html',msg)
 
-@outer
-def wfbusiness(request,*args,**kwargs):
-    wfbusiness=models.wf_business.objects.all()
+def wfbusinessForm_update(request,*args,**kwargs):
+    id = kwargs['id']
+    wfbusiness = models.wf_business.objects.filter(id=id)
+    admin = models.userInfo.objects.all().exclude(admin__id=id)
+    approval = models.userInfo.objects.all().exclude(workflow_order=0).exclude(approval__id=id)
     userDict = request.session.get('is_login', None)
-    msg = {'wfbusiness': wfbusiness, 'login_user': userDict['user'],}
-    return render_to_response('workflow/wfbusiness.html',msg)
+    msg = {'id':id, 'login_user':userDict['user'],'status':u'操作成功','wfbusiness':wfbusiness,
+           'admin':admin,'approval':approval,}
+    print(msg)
+    return render_to_response('workflow/wfbusiness_update.html',msg)
+
+def wfbusinessUpdate(request,*args,**kwargs):
+    id = kwargs['id']
+    wfbusiness_id = request.POST.get('wfbusiness')
+    wfbusiness = models.wf_business.objects.filter(id=wfbusiness_id).values('name')[0]['name']
+    admin_id = request.POST.get('admin')
+    approval = request.POST.getlist('approval')
+    repo = request.POST.get('repo')
+    update_time = timezone.now()
+    userDict = request.session.get('is_login', None)
+    models.wf_business.objects.filter(id=id).update(name=wfbusiness,
+        update_time=update_time,admin_id=admin_id,repo=repo)
+    models.wf_business.objects.get(id=id).approval.set(approval)
+    return redirect('/cmdb/index/wf/wfbusiness/')
 
 @outer
 def wfbusiness_ajax(request,*args,**kwargs):
@@ -272,42 +190,13 @@ def wfbusinessDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除工单类型id:'+id,}
     return render_to_response('workflow/wfbusiness.html',msg)
 
-def wfbusinessUpdate(request,*args,**kwargs):
-    id = kwargs['id']
-    wfbusiness_id = request.POST.get('wfbusiness')
-    wfbusiness = models.wf_business.objects.filter(id=wfbusiness_id).values('name')[0]['name']
-    director_id = request.POST.get('director')
-    group_id = request.POST.get('group')
-    repo = request.POST.get('repo')
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    models.wf_business.objects.filter(id=id).update(name=wfbusiness,
-        update_time=update_time,director_id=director_id,group_id=group_id,repo=repo)
-    return redirect('/cmdb/index/wf/wfbusiness/')
 
 @outer
 def wf(request,*args,**kwargs):
-
     wf_info = models.wf_info.objects.all()
     userinfo = models.userInfo.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'login_user': userDict['user'], 'wf_info': wf_info,'userinfo':userinfo,}
-    '''
-    # Load the workflow specification:
-    with open('myapp/wf.py') as fp:
-        serializer = XmlSerializer()
-        spec = WorkflowSpec.deserialize(serializer, fp.read())
-
-    # Create an instance of the workflow, according to the specification.
-    wf = Workflow(spec)
-
-    # Complete tasks as desired. It is the job of the workflow engine to
-    # guarantee a consistent state of the workflow.
-    wf.complete_task_from_id(...)
-
-    # Of course, you can also persist the workflow instance:
-    #xml = wf.serialize(XmlSerializer, 'workflow/workflow_state.xml')
-    '''
     return render_to_response('workflow/workflow.html',msg)
 
 @outer
@@ -370,7 +259,6 @@ def workflow_add(request,*args,**kwargs):
     wf_type = models.wf_type.objects.all()
     userDict = request.session.get('is_login', None)
     userinfo = models.userInfo.objects.all()
-    user_group = models.userGroup.objects.all()
 
     if request.method == 'POST':
             sn = token_helper.get_random_uuid()
@@ -395,24 +283,10 @@ def workflow_add(request,*args,**kwargs):
                 wfbusiness_select = models.wf_business.objects.get(id=wfbusiness_id)
             except:
                 wfbusiness_select = None
-            approval_id = request.POST.get('approval', None)
-            try:
-                approval_select = models.userInfo.objects.get(id=approval_id,)
-            except:
-                approval_select = None
-            is_empty = all([title,content,type_select,approval_select,wfbusiness_select,])
+            is_empty = all([title,content,type_select,wfbusiness_select,])
             if is_empty:
-                # email = models.userInfo.objects.filter(id=approval_id).values('email')[0]['email']
-                # username = models.userInfo.objects.filter(id=approval_id).values('username')[0]['username']
                 models.wf_info.objects.create(sn=sn, title=title, sponsor=sponsor, type=type_select,
-                 content=content, approval=approval_select, memo=memo,business=wfbusiness_select, )
-                #models.wf_info.objects.create(sn=sn, title=title, sponsor=sponsor, type=type_select,
-                #                              content=content, memo=memo,
-                #                              business=wfbusiness_select, )
-                # print(type_select,approval_select,email,username,)
-                # return render_to_response('workflow/workflow.html',msg)
-                # tasks.send_email_workflow.delay(email, username, sn,)
-                #print(workflow.NuclearStrikeWorkflowSpec())
+                 content=content,  memo=memo,business=wfbusiness_select, )
                 return redirect('/cmdb/index/wf/requests/list/')
             else:
                 status = '带有*的选项不能为空！'
@@ -436,16 +310,11 @@ def workflow_form_update(request,*args,**kwargs):
             type = models.wf_type.objects.filter(wf_info__sn=sn)
             content = obj.values('content')
             memo = obj.values('memo')
-            approval = models.userInfo.objects.filter(wf_info__sn=sn)
-            #update_time = timezone.now()
-            #update_time = obj.update(update_time=update_time)
-            #print(update_time,type(update_time))
             userDict = request.session.get('is_login', None)
             msg = {'id':id,'sn':sn,'title':title,'sponsor':sponsor,'type':type,'login_user':userDict['user'],
-                   'status':'操作成功','approval':approval,
+                   'status':'操作成功',
                    'content':content,'memo':memo,'business':business}
             print(msg)
-            print(approval,)
             return render_to_response('workflow/workflow_update.html',msg)
 
 
@@ -458,16 +327,14 @@ def workflow_update(request,*args,**kwargs):
         sponsor = request.POST.get('sponsor')
         type = request.POST.get('type', None)
         type_select = models.wf_type.objects.get(name=type)
-        approval = request.POST.get('approval', None)
-        approval_select = models.userInfo.objects.get(username=approval)
         title = request.POST.get('title')
         content = request.POST.get('content')
         memo = request.POST.get('memo')
         update_time = timezone.now()
-        print(id,sponsor,type,content,approval,memo,)
+        print(id,sponsor,type,content,memo,)
         #userDict = request.session.get('is_login', None)
         models.wf_info.objects.filter(sn=sn).update(title=title,sponsor=sponsor,type=type_select,
-              content=content,approval=approval_select,update_time=update_time,)
+              content=content,memo=memo,update_time=update_time,)
         return render_to_response('workflow/workflow_update.html')
     except Exception as e:
         print(e,)
@@ -478,50 +345,32 @@ def workflow_update(request,*args,**kwargs):
 def workflow_detail(request,*args,**kwargs):
     sn = request.GET.get('sn',None)
     wf_info = models.wf_info.objects.filter(sn=sn)
-    wf_info_commit = models.wf_info_history_commit.objects.filter(sn=sn)
-    wf_info_process = models.wf_info_history_process.objects.filter(sn=sn)
-    wf_info_complete = models.wf_info_history_complete.objects.filter(sn=sn)
-    approval_selected_id = wf_info.values('approval')[0]['approval']
-    approval_selected = models.userInfo.objects.filter(id=approval_selected_id)
-    approval = models.userInfo.objects.all()
-    approval_set = approval_selected & approval
-    wf_type = models.wf_type.objects.all()
+    wf_info_process_start = models.wf_info_history_process.objects.filter(sn=sn).filter(status='已提交')
+    wf_info_process = models.wf_info_history_process.objects.filter(sn=sn).exclude(status='已提交').exclude(status='已完成').order_by('flow_id')
+    wf_info_process_end = models.wf_info_history_process.objects.filter(sn=sn).filter(status='已完成')
     userDict = request.session.get('is_login', None)
-    msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status': '','wf_type': wf_type,
-           'approval_selected':approval_selected,'approval':approval,'approval_set':approval_set,
-           'wf_info_commit':wf_info_commit,'wf_info_process':wf_info_process,'wf_info_complete':wf_info_complete}
+    msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status': '',
+           'wf_info_process_start':wf_info_process_start,'wf_info_process':wf_info_process,'wf_info_process_end':wf_info_process_end}
     return render_to_response('workflow/workflow_detail.html',msg)
 
 @outer
 def workflow_approve(request,*args,**kwargs):
     sn = request.GET.get('sn',None)
     wf_info = models.wf_info.objects.filter(sn=sn)
-    wf_info_commit = models.wf_info_history_commit.objects.filter(sn=sn)
-    wf_info_process = models.wf_info_history_process.objects.filter(sn=sn)
-    wf_info_complete = models.wf_info_history_complete.objects.filter(sn=sn)
-    approval_selected_id = wf_info.values('approval')[0]['approval']
-    approval_selected = models.userInfo.objects.filter(id=approval_selected_id)
-    approval = models.userInfo.objects.all()
-    approval_set = approval_selected & approval
-    wf_type = models.wf_type.objects.all()
     userDict = request.session.get('is_login', None)
-    msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status': '','wf_type': wf_type,
-           'approval_selected':approval_selected,'approval':approval,'approval_set':approval_set,
-           'wf_info_commit':wf_info_commit,'wf_info_process':wf_info_process,'wf_info_complete':wf_info_complete}
+    msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status': '',}
     return render_to_response('workflow/workflow_approve.html',msg)
 
 @outer
 def workflow_tasks(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
-    assignee = userDict['user']
-    approval_id = models.userInfo.objects.get(username=userDict['user'])
-    wf_info = models.wf_info.objects.filter(approval_id=approval_id).filter(flow_id__gt=0).filter(~Q(status='已完成'))
-    number = wf_info.count()
-    wf_info_process = models.wf_info_history_process.objects.filter(assignee=assignee)
-    number_process = wf_info_process.count()
+    wf_info = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(~Q(status='已完成'))
+    count_pending = wf_info.count()
+    wf_info_process = models.wf_info_history_process.objects.filter(assignee=userDict['user']).filter(flow_id__gt=0)
+    count_processing = wf_info_process.count()
     wf_type = models.wf_type.objects.all()
     msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '',
-           'wf_type': wf_type,'wf_info_process':wf_info_process,'number':number,'number_process':number_process}
+           'wf_type': wf_type,'wf_info_process':wf_info_process,'count_pending':count_pending,'count_processing':count_processing,}
     print(msg,)
     return render_to_response('workflow/workflow_tasks.html',msg)
 
@@ -540,27 +389,17 @@ def workflow_requests(request,*args,**kwargs):
 def workflow_commit(request,*args,**kwargs):
     if request.method=='GET':
         sn = kwargs['sn']
+        userDict = request.session.get('is_login', None)
         wf_info = models.wf_info.objects.filter(sn=sn)
         status = wf_info.values('status')[0]['status']
         if status != "未提交":
             msg = {'error':'流程进行中，不能重复提交！'}
             return render_to_response('workflow/500.html',msg)
         else:
-            approval_selected_id = wf_info.values('approval')[0]['approval']
-            approval_selected = models.userInfo.objects.filter(id=approval_selected_id)
-            email = approval_selected.values('email')[0]['email']
-            username = approval_selected.values('username')[0]['username']
-            #g = group(tasks.workflow_commit.s(sn),tasks.send_email_workflow.s(email, username,sn,)).delay()
-            c1 = tasks.workflow_commit.apply_async((sn,),link=tasks.workflow_send_email.s(username,email))
-            userDict = request.session.get('is_login', None)
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'],
-                    'status': '',}
-            #print(sn,email)
-            #res = tasks.send_email_workflow.s(email, username,sn,).delay()
-            #print(res.get())
-            #return render_to_response('workflow/workflow.html',msg)
-            #print(g.get(),g.ready(),g.successful(),)
-            print(list(c1.collect()),c1.children,c1.get(),)
+            #c1 = tasks.workflow_commit.apply_async((sn,), link=tasks.workflow_send_email.s(username, email))
+            #print(list(c1.collect()),c1.children,c1.get(),)
+            tasks.workflow_commit(sn)
+            msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
             return redirect('/cmdb/index/wf/requests/list/',msg)
 
 @outer
@@ -568,38 +407,14 @@ def workflow_withdraw(request,*args,**kwargs):
     if request.method == 'GET':
         sn = kwargs['sn']
         wf_info = models.wf_info.objects.filter(sn=sn)
-        status = wf_info.values('status')[0]['status']
-        if status != "未提交":
+        flow_id = wf_info.values('flow_id')[0]['flow_id']
+        if flow_id > 0:
             msg = {'error':'流程进行中，不能撤回！'}
             return render_to_response('workflow/500.html',msg)
         else:
-            status = '已撤销'
-            approval_selected_id = wf_info.values('approval')[0]['approval']
-            approval_selected = models.userInfo.objects.filter(id=approval_selected_id)
-            email = approval_selected.values('email')[0]['email']
-            username = approval_selected.values('username')[0]['username']
-            update_time = timezone.now()
-            flow_id = -1
-            wf_info.update(status=status, update_time=update_time, flow_id=flow_id)
-            type_id = wf_info.values('type')[0]['type']
-            try:
-                business = models.wf_business.objects.get(wf_info__sn=sn)
-                type = models.wf_type.objects.get(wf_info__sn=sn)
-            except:
-                business = None
-                type = None
-            sponsor = wf_info.values('sponsor')[0]['sponsor']
-            title = wf_info.values('title')[0]['title']
-            content = wf_info.values('content')[0]['content']
-            models.wf_info_history_withdraw.objects.create(sn=sn, title=title, sponsor=sponsor, type_id=type_id,
-                       approval_id=approval_selected_id, content=content, status=status, business=business)
+            tasks.workflow_withdraw(sn)
             userDict = request.session.get('is_login', None)
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'],
-                    'status': '', }
-            print(sn, email)
-            #res = tasks.send_email_workflow.s(email, username, sn, ).delay()
-            #print(res.get())
-            # return render_to_response('workflow/workflow.html',msg)
+            msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status': '', }
             return redirect('/cmdb/index/wf/requests/list/', msg)
 
 @outer
@@ -638,79 +453,11 @@ def workflow_process(request,*args,**kwargs):
         suggest = request.POST.get('suggest',None)
         suggest_agree=request.POST.get('suggest_agree',None)
         suggest_reject = request.POST.get('suggest_reject', None)
-        username_sponsor = request.POST.get('sponsor',None)
-        email_sponsor = models.userInfo.objects.filter(username=username_sponsor).values('email')[0]['email']
         sn = request.POST.get('sn', None)
-        title = request.POST.get('title',None)
-        content = request.POST.get('content', None)
-        type = request.POST.get('type',None)
-        #type_id = models.wf_type.objects.get(name=type)
-        #approval_id = request.POST.get('approval')
-        #approval = models.userInfo.objects.filter(id=approval_id)
-        #username_approval = approval.values('username')[0]['username']
-        #email_approval = approval.values('email')[0]['email']
-        userDict = request.session.get('is_login', None)
-        assignee = userDict['user']
-        #print(sn, username_sponsor,email_sponsor,username_approval,email_approval,
-        #        suggest,suggest_agree,suggest_reject)
         wf_info = models.wf_info.objects.filter(sn=sn)
-        business_id = wf_info.values('business')[0]['business']
-        wf_business = models.wf_business.objects.filter(id=business_id)
-        group_id = wf_business.values('group')[0]['group']
-        approval = models.userInfo.objects.filter(group_id=group_id).filter(approval='1')
-        approval_ins = models.userInfo.objects.filter(group_id=group_id).get(approval='1')
-        username_approval = approval.values('username')[0]['username']
-        email_approval = approval.values('email')[0]['email']
-        # wf_type = models.wf_type.objects.all()
-        type_id = models.wf_type.objects.get(name=type)
-        wf_type = models.wf_type.objects.all()
-        flow_id = wf_info.values('flow_id')[0]['flow_id']  # 第一次提交flow_id值为1
-
-        if suggest=='同意':
-
-            flow_id = flow_id+1  # 每次处理flow_id值加1
-
-            suggest_agree = request.POST.get('suggest_agree', None)
-            #res = tasks.workflow_send_email.s().delay(sn,username_approval,email_approval,)
-            #return res
-            #print(res, res.status, res.id, type(res), res.result, res.date_done)
-            #print(res.request.id,res.name,)
-            #cache.set(res,res.id)
-            #cache.get(res)
-
-            if flow_id < 3:
-                c2 = tasks.workflow_process.apply_async(
-                    (sn, title, username_sponsor, type, content, suggest, suggest_agree, assignee,suggest_reject,flow_id),
-                    link=tasks.workflow_send_email.s(username_approval, email_approval))
-                print(list(c2.collect()), c2.children, c2.get(), )
-            else:
-                c2 = tasks.workflow_process.apply_async(
-                    (sn, title, username_sponsor, type, content, suggest, suggest_agree, assignee, suggest_reject,flow_id),
-                    link=tasks.workflow_send_email.s(username_sponsor, email_sponsor))
-                print(list(c2.collect()), c2.children, c2.get(),)
-
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'],
-                  'status': '', 'wf_type': wf_type,}
-            #print(res,type(res))
-            #print(type,type_id,)
-            #return render_to_response('workflow/workflow_tasks.html', msg)
-            return redirect('/cmdb/index/wf/tasks/list/')
-
-
-        if suggest=='拒绝':
-
-            flow_id = flow_id+1  # 每次处理flow_id值加1
-
-            suggest_reject=request.POST.get('suggest_reject',None)
-            #res = tasks.send_email_workflow.s().delay(email_sponsor, username_sponsor, sn,)
-            #print(res, res.status, res.id, type(res), res.result, res.date_done)
-            #print(res.request.id)
-            c3 = tasks.workflow_process.apply_async(
-                (sn, title, username_sponsor, type, content, suggest, suggest_agree, assignee, suggest_reject,flow_id),
-                link=tasks.workflow_send_email.s(username_sponsor, email_sponsor))
-            print(list(c3.collect()), c3.children, c3.get(), )
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'],
-                   'status': '', 'wf_type': wf_type, }
-            #print(res,type(res),)   ###TypeError: 'str' object is not callable
-            return redirect('/cmdb/index/wf/tasks/list/')
+        userDict = request.session.get('is_login', None)
+        tasks.workflow_process(sn,suggest,suggest_agree,suggest_reject)
+        msg = {'wf_info': wf_info, 'login_user': userDict['user'],
+               'status': '',  }
+        return redirect('/cmdb/index/wf/tasks/list/')
 

@@ -6,10 +6,11 @@ from urllib import request,error
 import requests
 from apps.myapp.login_required import outer
 from django.shortcuts import render_to_response
+from myweb.settings import ZABBIX_URL,ZABBIX_USER,ZABBIX_PASSWORD
 
 
 import sys
-#zabbix_addresses=['http://10.180.10.84/zabbix,hu.chen,Qoros0507']
+
 class ZabbixTools:
     def __init__(self,address,username,password):
         self.address = address
@@ -28,11 +29,13 @@ class ZabbixTools:
                 }
        # request = urllib.request.Request(self.url,data=data,headers=self.header)
         try:
-            ret = requests.post(self.url, data=json.dumps(data), headers=self.header)
+            ret = requests.post(self.url, data=json.dumps(data), headers=self.header,timeout=1,)
             print(json.loads(ret.text)['result'])
+            result = json.loads(ret.text)['result']
         except Exception as e:
             print ("Auth Failed, please Check your name and password:",e)
-        return json.loads(ret.text)['result']
+            result = None
+        return result
 
     def trigger_get(self):
         data = {
@@ -63,11 +66,13 @@ class ZabbixTools:
         }
        # request = urllib.request.Request(self.url,data=data,headers=self.header)
         try:
-            ret = requests.post(self.url, data=json.dumps(data), headers=self.header)
+            ret = requests.post(self.url, data=json.dumps(data), headers=self.header,timeout=1,)
            # print(json.loads(ret.text))
+            result = json.loads(ret.text)
         except Exception as e:
             print ("Error as ",e)
-        return json.loads(ret.text)
+            result = None
+        return result
 '''
 if __name__ == "__main__":
     for zabbix_addres in zabbix_addresses:
@@ -79,10 +84,7 @@ if __name__ == "__main__":
 
 @outer
 def zabbix_trigger(request,*args,**kwargs):
-    address = 'http://10.180.10.84/zabbix'
-    username = 'hu.chen'
-    password = 'Qoros0507'
-    server = ZabbixTools(address,username,password)
+    server = ZabbixTools(ZABBIX_URL,ZABBIX_USER,ZABBIX_PASSWORD)
     msg= server.trigger_get()
    # lst_k = list(msg)
    # lst_v = [msg.values()]
@@ -91,15 +93,20 @@ def zabbix_trigger(request,*args,**kwargs):
    #     print(k,v)
    # print(type(msg))
     userDict = request.session.get('is_login', None)
-    res= {'msg':msg['result'],'login_user': userDict['user'],'count':len(msg['result']),}
-    print(type(msg['result']),len(msg['result']))
-    return render_to_response('monitor/zabbix.html',res)
+    try:
+        res= {'msg':msg['result'],'login_user': userDict['user'],'count':len(msg['result']),}
+        print(type(msg['result']),len(msg['result']))
+        return render_to_response('monitor/zabbix.html', res)
+    except:
+        return render_to_response('monitor/500.html')
+
 
 
 def zabbix_alert_count(*args,**kwargs):
-    address = 'http://10.180.10.84/zabbix'
-    username = 'hu.chen'
-    password = 'Qoros0507'
-    server = ZabbixTools(address, username, password)
-    msg = server.trigger_get()
-    return len(msg['result'])
+    try:
+        server = ZabbixTools(ZABBIX_URL,ZABBIX_USER,ZABBIX_PASSWORD)
+        msg = server.trigger_get()
+        result = len(msg['result'])
+    except:
+        result = None
+    return result
