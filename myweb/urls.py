@@ -26,11 +26,7 @@ urlpatterns = [
 
     url(r'^cmdb/',include('apps.myapp.urls')),
 
-    url(r'^monitor/',include('apps.monitor.urls')),
-
-    url(r'^api/',include('apps.app01.urls')),
-
-    url(r'^ueditor/',include('apps.DjangoUeditor.urls')),
+    #url(r'^api/',include('apps.app01.urls')),
 
 
 
