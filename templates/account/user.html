@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-light">
-                    <div>用户表</div>
+                    <div>用户表<label style="color: red;">{{ status }}</label></div>
                 </div>
 
 
@@ -37,12 +37,13 @@
                                 <th>id</th>
                                 <th>用户名</th>
                                 <th>邮箱</th>
-                                <th>用户类型</th>
+                                <!--<th>用户类型</th>-->
                                 <th>用户组</th>
+                                <!--<th>创建时间</th>
+                                <th>修改时间</th>-->
+                                <th>激活状态</th>
                                 <th>工作流编号</th>
-                                <th>是否激活</th>
-                                <th>创建时间</th>
-                                <th>修改时间</th>
+                                <th>备注</th>
                                 <th>动作</th>
                             </tr>
                             </thead>
@@ -53,21 +54,22 @@
                                 <td>{{item.id}}</td>
                                 <td>{{item.username}}</td>
                                 <td>{{item.email}}</td>
-                                <td>{{item.usertype.name}}</td>
+                                <!--<td>{{item.usertype.name}}</td>-->
                                 <td>
-                                    {% for item in item.group.all %}
+                                    {% for item in item.groups.all %}
                                     {{item.name}},
                                     {% endfor %}
                                 </td>
-                                <td>{{item.workflow_order}}</td>
                                 <!--<td>{{item.get_status_display}}[{{item.status}}]</td>-->
                                 {% if item.is_active == 1 %}
                                 <td>是</td>
                                 {% else %}
                                 <td>否</td>
                                 {% endif %}
-                                <td>{{item.create_time}}</td>
-                                <td>{{item.update_time}}</td>
+                                <!--<td>{{item.create_time}}</td>
+                                <td>{{item.update_time}}</td>-->
+                                <td>{{item.workflow_order}}</td>
+                                <td>{{ item.memo }}</td>
                                 <td>
                                     <!--<button class="btn btn-primary" data-toggle="modal" data-target="#modal-2">更新</button>-->
                                     <button class="btn btn-primary" data-toggle="modal" onclick="update(this)">
@@ -270,9 +272,11 @@
                 data:{userid:id},
                 type:'POST',
                 success:function (data) {
-                    window.parent.location.reload();
-                    //$(body).html(data);
-                    //alert('删除成功')
+                    $('body').html(data);//引号必须加上
+                    //window.parent.location.reload();
+                    //alert('删除成功');
+                    //alert(data);
+                    //console.log(data);
                 },
                 error:function () {
                     alert('服务器异常');

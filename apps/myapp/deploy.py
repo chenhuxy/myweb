@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # _*_ coding:utf-8 _*_
 
-from apps.myapp.login_required import outer
+from apps.myapp.auth_helper import custom_login_required,custom_permission_required
 from django.shortcuts import render_to_response
 from django.shortcuts import HttpResponse
 from apps.myapp import models
@@ -14,7 +14,7 @@ from django.http import JsonResponse
 from django.core import serializers
 from celery import chord,group,chain
 from django.db.models import Q
-from apps.myapp.mygitlab import GitTools
+from apps.myapp.gitlab_helper import GitTools
 import gitlab
 import paramiko,subprocess
 from apps.myapp import loop
@@ -24,7 +24,7 @@ from myweb.settings import GITLAB_URL,GITLAB_TOKEN
 
 
 
-@outer
+@custom_login_required
 def scripttypeForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     scripttype = models.scriptType.objects.all()
@@ -35,7 +35,7 @@ def scripttypeForm_add(request,*args,**kwargs):
 
 
 
-@outer
+@custom_login_required
 def scripttypeForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -46,7 +46,7 @@ def scripttypeForm_update(request,*args,**kwargs):
     return render_to_response('workflow/scripttype_update.html',msg)
 
 
-@outer
+@custom_login_required
 def scripttypeAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -74,7 +74,7 @@ def scripttypeAdd(request,*args,**kwargs):
 
 
 
-@outer
+@custom_login_required
 def scripttype(request,*args,**kwargs):
     scripttype=models.scriptType.objects.all()
     userDict = request.session.get('is_login', None)
@@ -107,7 +107,7 @@ def scripttypeUpdate(request,*args,**kwargs):
 
 
 
-@outer
+@custom_login_required
 def wfbusinessForm_deploy(request,*args,**kwargs):
     git_tools = gitlab.Gitlab(GITLAB_URL,GITLAB_TOKEN)
     #userid = request.GET.get('userid',None)
@@ -133,7 +133,7 @@ def wfbusinessForm_deploy(request,*args,**kwargs):
     return render_to_response('workflow/wfbusiness_deploy.html',msg)
 
 
-@outer
+@custom_login_required
 def wfbusiness_deploy(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     userDict = request.session.get('is_login', None)
@@ -173,14 +173,14 @@ def wfbusiness_deploy(request,*args,**kwargs):
     #print(msg)
     return redirect('/cmdb/index/wf/wfbusiness/deploy/list/',msg)
 
-@outer
+@custom_login_required
 def wfbusiness_deploy_list(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     wfbusiness = models.wf_business_deploy_history.objects.all()
     msg = {'wfbusiness':wfbusiness,'login_user': userDict['user'],}
     return render_to_response('workflow/wfbusiness_deploy_list.html',msg)
 
-@outer
+@custom_login_required
 def wfbusiness_deploy_log(request,*args,**kwargs):
     id = kwargs['id']
     userDict = request.session.get('is_login', None)
@@ -188,7 +188,7 @@ def wfbusiness_deploy_log(request,*args,**kwargs):
     msg = {'wfbusiness':wfbusiness,'login_user': userDict['user'],}
     return render_to_response('workflow/wfbusiness_deploy_log.html',msg)
 
-@outer
+@custom_login_required
 def wfbusiness_deploy_del(request,*args,**kwargs):
     id = request.POST.get('id')
     models.wf_business_deploy_history.objects.filter(id=id).delete()

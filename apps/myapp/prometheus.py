@@ -4,7 +4,7 @@ import json
 import urllib
 from urllib import request,error
 import requests
-from apps.myapp.login_required import outer
+from apps.myapp.auth_helper import custom_login_required,custom_permission_required
 from django.shortcuts import render_to_response
 from myweb.settings import PROM_URL,PROM_USER,PROM_PASSWROD
 
@@ -37,7 +37,8 @@ if __name__ == "__main__":
         content = p.alert_get()
     print    (content)
 '''
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_monitor')
 def prometheus_alert(request,*args,**kwargs):
     server = PromTools(PROM_URL,PROM_USER,PROM_PASSWROD)
     try:
@@ -48,6 +49,7 @@ def prometheus_alert(request,*args,**kwargs):
         return render_to_response('monitor/prometheus.html',res)
     except:
         return render_to_response('monitor/500.html')
+
 
 def prometheus_alert_count(*args,**kwargs):
     try:

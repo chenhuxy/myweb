@@ -315,3 +315,6 @@ PROM_PASSWROD = 'admin'
 ### gitlab
 GITLAB_URL = 'http://10.180.11.8'
 GITLAB_TOKEN = 'F7nAGXozy4dsfJvxiLu_'
+
+###
+AUTH_USER_MODEL = "myapp.userInfo"

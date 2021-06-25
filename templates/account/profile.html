@@ -34,12 +34,12 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-7">
+                                    <!--<div class="col-md-7">
                                         <div class="form-group">
                                             <label class="require">用户类型</label>
                                             <input type="text" class="form-control" value={{ item.usertype.name }} readonly>
                                         </div>
-                                    </div>
+                                    </div>-->
 
                                     <div class="col-md-7">
                                         <div class="form-group">
@@ -57,13 +57,25 @@
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="multi-select" class="require">用户组</label>
-                                            <select id="multi-select" class="form-control" name="group" multiple="" readonly="<option></option>">
-                                                {% for item in item.group.all %}
+                                            <label for="multi-select">用户组</label>
+                                            <select id="multi-select" class="form-control" name="group" multiple="" readonly>
+                                                {% for item in item.groups.all %}
                                                 <option value={{item.id}} selected>{{item.name}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select-2">权限</label>
+                                            <select id="multi-select-2" class="form-control" name="perm" multiple="" readonly>
+                                                {% for item in perm_selected %}
+                                                <option value={{item.id}} selected>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
                                     </div>
 
 

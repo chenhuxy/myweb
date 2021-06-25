@@ -6,27 +6,39 @@ from django.contrib import admin
 # Register your models here.
 
 from .models import *
+from django.contrib.auth.admin import UserAdmin   ###继承User表，否则admin页面修改密码后明文
 
-
+class monitorAdmin(admin.ModelAdmin):
+    list_display = ('name',)
 
 
 class scriptTypeAdmin(admin.ModelAdmin):
     list_display = ('type',)
-
+'''
 class userGroupAdmin(admin.ModelAdmin):
     list_display = ('name','create_time','update_time',)
-
+'''
+'''
 class userTypeAdmin(admin.ModelAdmin):
     list_display = ('name','create_time','update_time',)
+'''
 
 class userInfoAdmin(admin.ModelAdmin):
-    list_display = ('username','password','email','usertype',)
+    list_display = ('username','password','email',)
     search_fields = ('username','email',)
     list_filter = ('username','email',)
     #list_display_links = ('username','usertype',)
     #list_editable = ('username','password','email','usertype',)
+    #exclude = ('password',)##隐藏某个字段
 
 class wf_infoAdmin(admin.ModelAdmin):
+    list_display = ('sponsor','type','content','status','create_time',)
+    search_fields = ('sponsor','status',)
+    list_filter = ('sponsor','status',)
+    list_display_links = ('sponsor',)
+    #list_editable = ('content',)
+
+class wf_info_process_historyAdmin(admin.ModelAdmin):
     list_display = ('sponsor','type','content','status','create_time',)
     search_fields = ('sponsor','status',)
     list_filter = ('sponsor','status',)
@@ -52,17 +64,18 @@ class wf_business_deploy_historyAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
 
 
-
+'''
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
     search_fields = ('name',)
-
+'''
+'''
 class AdmininfoAdmin(admin.ModelAdmin):
     list_display = ('username',)
     list_filter = ('username',)
     search_fields = ('username',)
-
+'''
 class DeviceTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
@@ -133,13 +146,14 @@ class HandleLogAdmin(admin.ModelAdmin):
     list_filter = ('handle_type',)
     search_fields = ('handle_type',)
 
-
+admin.site.register(monitor,monitorAdmin)
 admin.site.register(scriptType,scriptTypeAdmin)
 
-admin.site.register(userGroup,userGroupAdmin)
-admin.site.register(userType,userTypeAdmin)
-admin.site.register(userInfo,userInfoAdmin)
+#admin.site.register(userGroup,userGroupAdmin)
+#admin.site.register(userType,userTypeAdmin)
+admin.site.register(userInfo,UserAdmin)   ###继承User表，否则admin页面修改密码后明文
 admin.site.register(wf_info,wf_infoAdmin)
+admin.site.register(wf_info_process_history,wf_info_process_historyAdmin)
 admin.site.register(wf_type,wf_typeAdmin)
 admin.site.register(wf_business,wf_businessAdmin)
 admin.site.register(wf_business_deploy_history,wf_business_deploy_historyAdmin)

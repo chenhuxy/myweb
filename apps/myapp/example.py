@@ -3,10 +3,10 @@
 
 from apps.myapp import models
 from django.shortcuts import render_to_response
-from apps.myapp.login_required import outer
+from apps.myapp.auth_helper import custom_login_required
 
 
-@outer
+@custom_login_required
 def layoutsnormal(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -14,7 +14,7 @@ def layoutsnormal(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/layouts-normal.html',msg,)
 
-@outer
+@custom_login_required
 def layoutsfixedsidebar(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -22,7 +22,7 @@ def layoutsfixedsidebar(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/layouts-fixed-sidebar.html',msg,)
 
-@outer
+@custom_login_required
 def layoutsfixedheader(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -30,7 +30,7 @@ def layoutsfixedheader(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/layouts-fixed-header.html',msg,)
 
-@outer
+@custom_login_required
 def layoutshiddensidebar(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -38,7 +38,7 @@ def layoutshiddensidebar(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/layouts-hidden-sidebar.html',msg,)
 
-@outer
+@custom_login_required
 def uialerts(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -46,7 +46,7 @@ def uialerts(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/alerts.html',msg,)
 
-@outer
+@custom_login_required
 def uibuttons(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -54,7 +54,7 @@ def uibuttons(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/buttons.html',msg,)
 
-@outer
+@custom_login_required
 def uicards(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -62,7 +62,7 @@ def uicards(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/cards.html',msg,)
 
-@outer
+@custom_login_required
 def uimodals(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -70,7 +70,7 @@ def uimodals(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/modals.html',msg,)
 
-@outer
+@custom_login_required
 def uitabs(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -78,7 +78,7 @@ def uitabs(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/tabs.html',msg,)
 
-@outer
+@custom_login_required
 def uiprogressbars(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -86,7 +86,7 @@ def uiprogressbars(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/progress-bars.html',msg,)
 
-@outer
+@custom_login_required
 def uiwidgets(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -94,7 +94,7 @@ def uiwidgets(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/widgets.html',msg,)
 
-@outer
+@custom_login_required
 def chartjs(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -102,7 +102,7 @@ def chartjs(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype, 'login_user': userDict['user'], }
     return render_to_response('example/chartjs.html',msg,)
 
-@outer
+@custom_login_required
 def forms(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -110,7 +110,7 @@ def forms(request,*args,**kwargs):
     msg = {'userinfo': userinfo, 'usertype': usertype,'login_user': userDict['user'],}
     return render_to_response('example/forms.html',msg,)
 
-@outer
+@custom_login_required
 def tables(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -129,7 +129,7 @@ def pagelogin(request,*args,**kwargs):
 def pageregister(request,*args,**kwargs):
     return render_to_response('example/register.html')
 
-@outer
+@custom_login_required
 def pageinvoice(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -143,7 +143,7 @@ def page404(request,*args,**kwargs):
 def page500(request,*args,**kwargs):
     return render_to_response('example/500.html')
 
-@outer
+@custom_login_required
 def pageset(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()

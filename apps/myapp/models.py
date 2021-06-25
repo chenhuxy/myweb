@@ -3,13 +3,13 @@
 
 from django.db import models
 
-
 # Create your models here
 
-
+from django.contrib.auth.models import AbstractUser
 
 
 ###---------- users------------------###
+'''
 class userType(models.Model):
     name = models.CharField('用户类型',max_length=200,default='user')
     create_time = models.DateTimeField('创建时间', auto_now_add=True)
@@ -19,9 +19,12 @@ class userType(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
+'''
 
+'''
 class userGroup(models.Model):
     name = models.CharField('所属组',max_length=200,default='default')
+
     create_time = models.DateTimeField('创建时间', auto_now_add=True)
     update_time = models.DateTimeField('更新时间', auto_now=True)
     class Meta:
@@ -29,7 +32,18 @@ class userGroup(models.Model):
        verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
+'''
 
+class userInfo(AbstractUser):
+    workflow_order = models.IntegerField('工作流编号',default=0,)
+    memo = models.TextField('备注', blank=True, null=True)
+    class Meta:
+        verbose_name = '登录用户'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.username,self.usertype
+
+'''
 class userInfo(models.Model):
     username = models.CharField('用户名',max_length=200)
     email = models.EmailField('邮箱')
@@ -55,7 +69,9 @@ class userInfo(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.username,self.usertype
+'''
 
+'''
 class UserProfile(models.Model):
     name = models.CharField('名字',max_length=256)
     email = models.EmailField('邮箱',max_length=256)
@@ -68,7 +84,8 @@ class UserProfile(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
-
+'''
+'''
 class Admininfo(models.Model):
     user = models.OneToOneField(UserProfile,on_delete=models.CASCADE)
     username = models.CharField('用户名',max_length=256)
@@ -78,8 +95,14 @@ class Admininfo(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.username
-
-
+'''
+class monitor(models.Model):
+    name = models.CharField('名称',max_length=256)
+    class Meta:
+        verbose_name = '监控权限'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
 
 ###---------- workflow------------------###
 
@@ -132,7 +155,7 @@ class wf_info(models.Model):
     def __unicode__(self):
         return self.type,self.status
 
-class wf_info_history_process(models.Model):
+class wf_info_process_history(models.Model):
     sn = models.CharField('请求编号',max_length=128,)
     title = models.CharField('标题',max_length=256,)
     sponsor = models.CharField('发起人',max_length=128,)
@@ -151,7 +174,7 @@ class wf_info_history_process(models.Model):
     suggest = models.CharField('审批结果', max_length=128,blank=True,null=True )
     suggest_content = models.TextField('审批意见', blank=True,null=True)
     class Meta:
-        verbose_name = '工单流程历史_审批中'
+        verbose_name = '工单流程历史'
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.type,self.status

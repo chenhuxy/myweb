@@ -4,7 +4,7 @@ import json
 import urllib
 from urllib import request,error
 import requests
-from apps.myapp.login_required import outer
+from apps.myapp.auth_helper import custom_login_required,custom_permission_required
 from django.shortcuts import render_to_response
 from myweb.settings import ZABBIX_URL,ZABBIX_USER,ZABBIX_PASSWORD
 
@@ -82,7 +82,8 @@ if __name__ == "__main__":
     print    (content)
 '''
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_monitor')
 def zabbix_trigger(request,*args,**kwargs):
     server = ZabbixTools(ZABBIX_URL,ZABBIX_USER,ZABBIX_PASSWORD)
     msg= server.trigger_get()

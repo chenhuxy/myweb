@@ -43,6 +43,16 @@
                                         </div>
                                     </div>
 -->
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select" class="require">用户组权限</label>
+                                            <select id="multi-select" class="form-control" name="perm" multiple="">
+                                                {% for item in perm %}
+                                                <option value={{item.id}}>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
                             </div>
 
                             <div class="card-footer p-4">

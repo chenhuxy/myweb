@@ -11,7 +11,7 @@ import json
 from django.utils.safestring import mark_safe
 from apps.myapp import models
 from  apps.myapp import common
-from apps.myapp import html_helper
+from apps.myapp import page_helper
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 from django.template import context
@@ -36,7 +36,7 @@ import os
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.conf import settings
-from apps.myapp.login_required import outer
+from apps.myapp.auth_helper import custom_login_required,custom_permission_required
 
 #####################################################################################################################################
 from django.shortcuts import render,render_to_response,HttpResponse
@@ -51,7 +51,8 @@ import urllib.parse
 # 添加index函数，用于返回index.html页面
 
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_devicetype')
 def devicetype(request,*args,**kwargs):
     devicetype=models.DeviceType.objects.all()
     count=devicetype.count()
@@ -59,7 +60,8 @@ def devicetype(request,*args,**kwargs):
     msg = {'devicetype': devicetype, 'login_user': userDict['user'],'count':count,}
     return render_to_response('assets/devicetype.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_devicetype')
 def devicetypeForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     devicetype = models.DeviceType.objects.all()
@@ -68,7 +70,8 @@ def devicetypeForm_add(request,*args,**kwargs):
     msg = {'devicetype': devicetype, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/devicetype_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_devicetype')
 def devicetypeAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     usertype = models.userType.objects.all()
@@ -95,7 +98,8 @@ def devicetypeAdd(request,*args,**kwargs):
                    'login_user': userDict['user'],'status':'该设备类型已存在！', }
     return render_to_response('assets/devicetype_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_devicetype')
 def devicetypeForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -105,6 +109,8 @@ def devicetypeForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('assets/devicetype_update.html',msg)
 
+@custom_login_required
+@custom_permission_required('myapp.change_devicetype')
 def devicetypeUpdate(request,*args,**kwargs):
     id = kwargs['id']
     devicetype = request.POST.get('devicetype')
@@ -114,6 +120,8 @@ def devicetypeUpdate(request,*args,**kwargs):
     models.DeviceType.objects.filter(id=id).update(name=devicetype,memo=memo,)
     return redirect('/cmdb/index/assets/devicetype/')
 
+@custom_login_required
+@custom_permission_required('myapp.delete_devicetype')
 def devicetypeDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.DeviceType.objects.filter(id=id).delete()
@@ -121,7 +129,8 @@ def devicetypeDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除设备类型id:'+id,}
     return render_to_response('assets/devicetype.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_devicestatus')
 def devicestatus(request,*args,**kwargs):
     devicestatus=models.DeviceStatus.objects.all()
     count=devicestatus.count()
@@ -129,7 +138,8 @@ def devicestatus(request,*args,**kwargs):
     msg = {'devicestatus': devicestatus, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/devicestatus.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_devicestatus')
 def devicestatusForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     devicestatus = models.DeviceStatus.objects.all()
@@ -138,10 +148,10 @@ def devicestatusForm_add(request,*args,**kwargs):
     msg = {'devicestatus': devicestatus, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/devicestatus_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_devicestatus')
 def devicestatusAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
-
     userDict = request.session.get('is_login', None)
     usergroup = models.userGroup.objects.all()
     #result = {'status': '','devicestatus':None}
@@ -165,7 +175,8 @@ def devicestatusAdd(request,*args,**kwargs):
                    'login_user': userDict['user'],'status':'该设备状态已存在！', }
     return render_to_response('assets/devicestatus_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_devicestatus')
 def devicestatusForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -175,6 +186,8 @@ def devicestatusForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('assets/devicestatus_update.html',msg)
 
+@custom_login_required
+@custom_permission_required('myapp.change_devicestatus')
 def devicestatusUpdate(request,*args,**kwargs):
     id = kwargs['id']
     devicestatus = request.POST.get('devicestatus')
@@ -184,6 +197,8 @@ def devicestatusUpdate(request,*args,**kwargs):
     models.DeviceStatus.objects.filter(id=id).update(name=devicestatus,memo=memo,)
     return redirect('/cmdb/index/assets/devicestatus/')
 
+@custom_login_required
+@custom_permission_required('myapp.delete_devicestatus')
 def devicestatusDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.DeviceStatus.objects.filter(id=id).delete()
@@ -191,7 +206,8 @@ def devicestatusDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除设备状态id:'+id,}
     return render_to_response('assets/devicestatus.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_idc')
 def idc(request,*args,**kwargs):
     idc=models.IDC.objects.all()
     count=idc.count()
@@ -199,7 +215,8 @@ def idc(request,*args,**kwargs):
     msg = {'idc': idc, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/idc.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_idc')
 def idcForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     idc = models.IDC.objects.all()
@@ -208,10 +225,10 @@ def idcForm_add(request,*args,**kwargs):
     msg = {'idc': idc, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/idc_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_idc')
 def idcAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
-
     userDict = request.session.get('is_login', None)
     usergroup = models.userGroup.objects.all()
     #result = {'status': '','idc':None}
@@ -237,7 +254,8 @@ def idcAdd(request,*args,**kwargs):
                    'login_user': userDict['user'],'status':'该idc已存在！', }
     return render_to_response('assets/idc_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_idc')
 def idcForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -247,6 +265,8 @@ def idcForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('assets/idc_update.html',msg)
 
+@custom_login_required
+@custom_permission_required('myapp.change_idc')
 def idcUpdate(request,*args,**kwargs):
     id = kwargs['id']
     idc = request.POST.get('idc')
@@ -258,6 +278,8 @@ def idcUpdate(request,*args,**kwargs):
     models.IDC.objects.filter(id=id).update(display_name=idc,region_display_name=region,floor=floor,memo=memo,)
     return redirect('/cmdb/index/assets/idc/')
 
+@custom_login_required
+@custom_permission_required('myapp.delete_idc')
 def idcDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.IDC.objects.filter(id=id).delete()
@@ -265,7 +287,8 @@ def idcDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除设备状态id:'+id,}
     return render_to_response('assets/idc.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_contract')
 def contract(request,*args,**kwargs):
     contract=models.Contract.objects.all()
     count=contract.count()
@@ -273,7 +296,8 @@ def contract(request,*args,**kwargs):
     msg = {'contract': contract, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/contract.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_contract')
 def contractForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     contract = models.Contract.objects.all()
@@ -282,10 +306,10 @@ def contractForm_add(request,*args,**kwargs):
     msg = {'contract': contract, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/contract_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_contract')
 def contractAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
-
     userDict = request.session.get('is_login', None)
     usergroup = models.userGroup.objects.all()
     if request.method == 'POST':
@@ -314,7 +338,8 @@ def contractAdd(request,*args,**kwargs):
                    'login_user': userDict['user'],'status':'该合同已存在！', }
     return render_to_response('assets/contract_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_contract')
 def contractForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -324,6 +349,8 @@ def contractForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('assets/contract_update.html',msg)
 
+@custom_login_required
+@custom_permission_required('myapp.change_contract')
 def contractUpdate(request,*args,**kwargs):
     id = kwargs['id']
     sn = request.POST.get('sn', None)
@@ -339,6 +366,8 @@ def contractUpdate(request,*args,**kwargs):
                                                  license_num=license_num,memo=memo,update_time=update_time,)
     return redirect('/cmdb/index/assets/contract/')
 
+@custom_login_required
+@custom_permission_required('myapp.delete_contract')
 def contractDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.Contract.objects.filter(id=id).delete()
@@ -346,7 +375,9 @@ def contractDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除设备状态id:'+id,}
     return render_to_response('assets/contract.html',msg)
 
-@outer
+
+@custom_login_required
+@custom_permission_required('myapp.view_tag')
 def tag(request,*args,**kwargs):
     tag=models.Tag.objects.all()
     count=tag.count()
@@ -354,7 +385,8 @@ def tag(request,*args,**kwargs):
     msg = {'tag': tag, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/tag.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_tag')
 def tagForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     tag = models.Tag.objects.all()
@@ -363,10 +395,10 @@ def tagForm_add(request,*args,**kwargs):
     msg = {'tag': tag, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/tag_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_tag')
 def tagAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
-
     userDict = request.session.get('is_login', None)
     usergroup = models.userGroup.objects.all()
     #result = {'status': '','tag':None}
@@ -390,7 +422,8 @@ def tagAdd(request,*args,**kwargs):
                    'login_user': userDict['user'],'status':'该tag已存在！', }
     return render_to_response('assets/tag_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_tag')
 def tagForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -400,6 +433,8 @@ def tagForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('assets/tag_update.html',msg)
 
+@custom_login_required
+@custom_permission_required('myapp.change_tag')
 def tagUpdate(request,*args,**kwargs):
     id = kwargs['id']
     tag = request.POST.get('tag')
@@ -409,6 +444,8 @@ def tagUpdate(request,*args,**kwargs):
     models.Tag.objects.filter(id=id).update(name=tag,memo=memo,)
     return redirect('/cmdb/index/assets/tag/')
 
+@custom_login_required
+@custom_permission_required('myapp.delete_tag')
 def tagDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.Tag.objects.filter(id=id).delete()
@@ -417,7 +454,8 @@ def tagDel(request,*args,**kwargs):
     return render_to_response('assets/tag.html',msg)
 
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_asset')
 def asset(request,*args,**kwargs):
     asset=models.Asset.objects.all()
     count=asset.count()
@@ -425,7 +463,8 @@ def asset(request,*args,**kwargs):
     msg = {'asset': asset, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/asset.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_asset')
 def assetForm_add(request,*args,**kwargs):
     asset = models.Asset.objects.all()
     userDict = request.session.get('is_login', None)
@@ -441,7 +480,8 @@ def assetForm_add(request,*args,**kwargs):
            'contract':contract,'tag':tag,'business_unit':business_unit,'idc':idc,'admin':admin,}
     return render_to_response('assets/asset_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_asset')
 def assetAdd(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
@@ -470,7 +510,8 @@ def assetAdd(request,*args,**kwargs):
                     'login_user': userDict['user'],'status':'xx不能为空', }
             return render_to_response('assets/500.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_asset')
 def assetForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -494,7 +535,8 @@ def assetForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('assets/asset_update.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_asset')
 def assetUpdate(request,*args,**kwargs):
     id = kwargs['id']
     device_type = request.POST.get('device_type', None)
@@ -521,7 +563,8 @@ def assetUpdate(request,*args,**kwargs):
     print(msg)
     return redirect('/cmdb/index/assets/asset/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.delete_asset')
 def assetDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.Asset.objects.filter(id=id).delete()
@@ -530,7 +573,8 @@ def assetDel(request,*args,**kwargs):
     return render_to_response('assets/asset.html',msg)
 
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_host')
 def host(request,*args,**kwargs):
     host=models.Server.objects.all()
     count=host.count()
@@ -538,7 +582,8 @@ def host(request,*args,**kwargs):
     msg = {'host': host, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/host.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_host')
 def hostForm_add(request,*args,**kwargs):
     asset = models.Asset.objects.all()
     userDict = request.session.get('is_login', None)
@@ -546,7 +591,8 @@ def hostForm_add(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/host_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_host')
 def hostAdd(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
@@ -578,7 +624,8 @@ def hostAdd(request,*args,**kwargs):
                 'login_user': userDict['user'], 'status': 'hostname已存在', }
             return render_to_response('assets/500.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_host')
 def hostForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -589,7 +636,8 @@ def hostForm_update(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/host_update.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_host')
 def hostUpdate(request,*args,**kwargs):
     id = kwargs['id']
     asset=request.POST.get('asset',None)
@@ -610,7 +658,8 @@ def hostUpdate(request,*args,**kwargs):
     print(msg)
     return redirect('/cmdb/index/assets/host/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.delete_host')
 def hostDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.Server.objects.filter(id=id).delete()
@@ -618,7 +667,8 @@ def hostDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除host id:'+id,}
     return render_to_response('assets/host.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_cpu')
 def cpu(request,*args,**kwargs):
     cpu=models.CPU.objects.all()
     count=cpu.count()
@@ -626,7 +676,8 @@ def cpu(request,*args,**kwargs):
     msg = {'cpu': cpu, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/cpu.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_cpu')
 def cpuForm_add(request,*args,**kwargs):
     host = models.Server.objects.all()
     userDict = request.session.get('is_login', None)
@@ -634,7 +685,8 @@ def cpuForm_add(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/cpu_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_cpu')
 def cpuAdd(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
@@ -661,7 +713,10 @@ def cpuAdd(request,*args,**kwargs):
             msg = {
                 'login_user': userDict['user'], 'status': '该CPU name已存在', }
             return render_to_response('assets/500.html',msg)
-@outer
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_cpu')
 def cpuForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -672,7 +727,8 @@ def cpuForm_update(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/cpu_update.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_cpu')
 def cpuUpdate(request,*args,**kwargs):
     id = kwargs['id']
     server_info = request.POST.get('server_info',None)
@@ -690,7 +746,8 @@ def cpuUpdate(request,*args,**kwargs):
     print(msg)
     return redirect('/cmdb/index/assets/cpu/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.delete_cpu')
 def cpuDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.CPU.objects.filter(id=id).delete()
@@ -698,7 +755,8 @@ def cpuDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除cpu id:'+id,}
     return render_to_response('assets/cpu.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_memory')
 def memory(request,*args,**kwargs):
     memory=models.Memory.objects.all()
     count=memory.count()
@@ -706,7 +764,8 @@ def memory(request,*args,**kwargs):
     msg = {'memory': memory, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/memory.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_memory')
 def memoryForm_add(request,*args,**kwargs):
     host = models.Server.objects.all()
     userDict = request.session.get('is_login', None)
@@ -714,7 +773,8 @@ def memoryForm_add(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/memory_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_memory')
 def memoryAdd(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
@@ -742,7 +802,10 @@ def memoryAdd(request,*args,**kwargs):
             msg = {
                 'login_user': userDict['user'], 'status': '该memory slot已存在', }
             return render_to_response('assets/500.html',msg)
-@outer
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_memory')
 def memoryForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -753,7 +816,8 @@ def memoryForm_update(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/memory_update.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_memory')
 def memoryUpdate(request,*args,**kwargs):
     id = kwargs['id']
     server_info = request.POST.get('server_info',None)
@@ -773,7 +837,8 @@ def memoryUpdate(request,*args,**kwargs):
     print(msg)
     return redirect('/cmdb/index/assets/memory/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.delete_memory')
 def memoryDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.Memory.objects.filter(id=id).delete()
@@ -781,7 +846,8 @@ def memoryDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除memory id:'+id,}
     return render_to_response('assets/memory.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_nic')
 def nic(request,*args,**kwargs):
     nic=models.NIC.objects.all()
     count=nic.count()
@@ -789,7 +855,8 @@ def nic(request,*args,**kwargs):
     msg = {'nic': nic, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/nic.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_nic')
 def nicForm_add(request,*args,**kwargs):
     host = models.Server.objects.all()
     userDict = request.session.get('is_login', None)
@@ -797,7 +864,8 @@ def nicForm_add(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/nic_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_nic')
 def nicAdd(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
@@ -826,7 +894,10 @@ def nicAdd(request,*args,**kwargs):
             msg = {
                 'login_user': userDict['user'], 'status': '该nic已存在', }
             return render_to_response('assets/500.html',msg)
-@outer
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_nic')
 def nicForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -837,7 +908,8 @@ def nicForm_update(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/nic_update.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_nic')
 def nicUpdate(request,*args,**kwargs):
     id = kwargs['id']
     server_info = request.POST.get('server_info',None)
@@ -858,7 +930,8 @@ def nicUpdate(request,*args,**kwargs):
     print(msg)
     return redirect('/cmdb/index/assets/nic/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.delete_nic')
 def nicDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.NIC.objects.filter(id=id).delete()
@@ -866,7 +939,8 @@ def nicDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除nic id:'+id,}
     return render_to_response('assets/nic.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_disk')
 def disk(request,*args,**kwargs):
     disk=models.Disk.objects.all()
     count=disk.count()
@@ -874,7 +948,8 @@ def disk(request,*args,**kwargs):
     msg = {'disk': disk, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/disk.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_disk')
 def diskForm_add(request,*args,**kwargs):
     host = models.Server.objects.all()
     userDict = request.session.get('is_login', None)
@@ -882,7 +957,8 @@ def diskForm_add(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/disk_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_disk')
 def diskAdd(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
@@ -910,7 +986,10 @@ def diskAdd(request,*args,**kwargs):
             msg = {
                 'login_user': userDict['user'], 'status': '该disk已存在', }
             return render_to_response('assets/500.html',msg)
-@outer
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_disk')
 def diskForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -921,7 +1000,8 @@ def diskForm_update(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/disk_update.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_disk')
 def diskUpdate(request,*args,**kwargs):
     id = kwargs['id']
     server_info = request.POST.get('server_info',None)
@@ -941,7 +1021,8 @@ def diskUpdate(request,*args,**kwargs):
     print(msg)
     return redirect('/cmdb/index/assets/disk/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.delete_disk')
 def diskDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.Disk.objects.filter(id=id).delete()
@@ -950,7 +1031,8 @@ def diskDel(request,*args,**kwargs):
     return render_to_response('assets/disk.html',msg)
 
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_networkdevice')
 def network(request,*args,**kwargs):
     network=models.NetworkDevice.objects.all()
     count=network.count()
@@ -958,7 +1040,8 @@ def network(request,*args,**kwargs):
     msg = {'network': network, 'login_user': userDict['user'],'count':count}
     return render_to_response('assets/network.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_networkdevice')
 def networkForm_add(request,*args,**kwargs):
     asset = models.Asset.objects.all()
     userDict = request.session.get('is_login', None)
@@ -966,7 +1049,8 @@ def networkForm_add(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/network_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_networkdevice')
 def networkAdd(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
@@ -996,7 +1080,8 @@ def networkAdd(request,*args,**kwargs):
                 'login_user': userDict['user'], 'status': '该网络设备已存在', }
             return render_to_response('assets/500.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_networkdevice')
 def networkForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -1007,7 +1092,8 @@ def networkForm_update(request,*args,**kwargs):
     print(msg,)
     return render_to_response('assets/network_update.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_networkdevice')
 def networkUpdate(request,*args,**kwargs):
     id = kwargs['id']
     asset=request.POST.get('asset',None)
@@ -1026,7 +1112,8 @@ def networkUpdate(request,*args,**kwargs):
     print(msg)
     return redirect('/cmdb/index/assets/network/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.delete_networkdevice')
 def networkDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.NetworkDevice.objects.filter(id=id).delete()

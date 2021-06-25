@@ -20,27 +20,20 @@
                                             <input type="text" id="usergroup" class="form-control" placeholder="用户组" name="usergroup" value={{ item.name }}>
                                         </div>
                                     </div>
-  <!--                                  <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="leader" class="form-control-label require">负责人</label>
-                                            <input type="text" id="leader" class="form-control" placeholder="用户组" name="leader" value={{ item.leader }}>
-                                        </div>
-                                    </div>
-                                {% endfor %}
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="single-select" class="require">上级部门</label>
-                                            <select id="single-select" class="form-control" name="flow_group">
-                                                {% for item in usergroup_selected %}
-                                                <option value={{item.id}}>{{item.name}}</option>
+                                            <label for="multi-select" class="require">权限</label>
+                                            <select id="multi-select" class="form-control" name="perm" multiple="">
+                                                {% for item in perm_selected %}
+                                                <option value={{item.id}} selected>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
                                                 {% endfor %}
-                                                {% for item in usergroup %}
-                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% for item in perm %}
+                                                <option value={{item.id}}>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
                                     </div>
--->
+                                {% endfor %}
                             </div>
 
                             <div class="card-footer p-4">

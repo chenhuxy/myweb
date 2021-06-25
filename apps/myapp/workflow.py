@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # _*_ coding:utf-8 _*_
 
-from apps.myapp.login_required import outer
+from apps.myapp.auth_helper import custom_login_required,custom_permission_required
 from django.shortcuts import render_to_response
 from django.shortcuts import HttpResponse
 from apps.myapp import models
@@ -14,35 +14,38 @@ from django.http import JsonResponse
 from django.core import serializers
 from celery import chord,group,chain
 from django.db.models import Q
-from apps.myapp.mygitlab import GitTools
+from apps.myapp.gitlab_helper import GitTools
 import gitlab
 import paramiko,subprocess
 from apps.myapp import loop
 from django.core.cache import cache
 from myweb.settings import GITLAB_URL,GITLAB_TOKEN
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_wf_type')
 def wftype(request,*args,**kwargs):
     wftype=models.wf_type.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'wftype': wftype, 'login_user': userDict['user'],}
     return render_to_response('workflow/wftype.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_wf_type')
 def wftypeForm_add(request,*args,**kwargs):
-    userinfo = models.userInfo.objects.all()
+    #userinfo = models.userInfo.objects.all()
     wftype = models.wf_type.objects.all()
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'wftype': wftype, 'login_user': userDict['user'],'status':'', }
     return render_to_response('workflow/wftype_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_wf_type')
 def wftypeAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
-    usertype = models.userType.objects.all()
+    #usertype = models.userType.objects.all()
     userDict = request.session.get('is_login', None)
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     #result = {'status': '','usertype':None}
     if request.method == 'POST':
         wftype = request.POST.get('wftype',None)
@@ -59,11 +62,12 @@ def wftypeAdd(request,*args,**kwargs):
                 msg = {'userinfo': userinfo, 'wftype': wftype,
                        'login_user': userDict['user'],'status':'xx不能为空', }
         else:
-            msg = {'userinfo': userinfo, 'wftype': wftype, 'usergroup':usergroup,
+            msg = {'userinfo': userinfo, 'wftype': wftype,
                    'login_user': userDict['user'],'status':'该工单类型已存在！', }
     return render_to_response('workflow/wftype_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_wf_type')
 def wftypeForm_update(request,*args,**kwargs):
     #userid = request.GET.get('userid',None)
     id = kwargs['id']
@@ -73,7 +77,8 @@ def wftypeForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('workflow/wftype_update.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_wf_type')
 def wftypeUpdate(request,*args,**kwargs):
     id = kwargs['id']
     wftype = request.POST.get('wftype')
@@ -82,7 +87,8 @@ def wftypeUpdate(request,*args,**kwargs):
     models.wf_type.objects.filter(id=id).update(name=wftype,update_time=update_time)
     return redirect('/cmdb/index/wf/wftype/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.delete_wf_type')
 def wftypeDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.wf_type.objects.filter(id=id).delete()
@@ -90,7 +96,8 @@ def wftypeDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除工单类型id:'+id,}
     return render_to_response('workflow/wftype.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_wf_business')
 def wfbusiness(request,*args,**kwargs):
     wfbusiness=models.wf_business.objects.all()
     count=wfbusiness.count()
@@ -98,7 +105,8 @@ def wfbusiness(request,*args,**kwargs):
     msg = {'wfbusiness': wfbusiness, 'login_user': userDict['user'],'count':count,}
     return render_to_response('workflow/wfbusiness.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_wf_business')
 def wfbusinessForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     wfbusiness = models.wf_business.objects.all()
@@ -110,7 +118,8 @@ def wfbusinessForm_add(request,*args,**kwargs):
     print(msg)
     return render_to_response('workflow/wfbusiness_add.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_wf_business')
 def wfbusinessAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     userDict = request.session.get('is_login', None)
@@ -137,6 +146,8 @@ def wfbusinessAdd(request,*args,**kwargs):
                    'login_user': userDict['user'],'status':'该业务单元已存在！', }
     return render_to_response('workflow/wfbusiness_add.html',msg)
 
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
 def wfbusinessForm_update(request,*args,**kwargs):
     id = kwargs['id']
     wfbusiness = models.wf_business.objects.filter(id=id)
@@ -148,6 +159,8 @@ def wfbusinessForm_update(request,*args,**kwargs):
     print(msg)
     return render_to_response('workflow/wfbusiness_update.html',msg)
 
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
 def wfbusinessUpdate(request,*args,**kwargs):
     id = kwargs['id']
     wfbusiness_id = request.POST.get('wfbusiness')
@@ -162,7 +175,8 @@ def wfbusinessUpdate(request,*args,**kwargs):
     models.wf_business.objects.get(id=id).approval.set(approval)
     return redirect('/cmdb/index/wf/wfbusiness/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
 def wfbusiness_ajax(request,*args,**kwargs):
     if request.method == 'POST':
         try:
@@ -183,6 +197,8 @@ def wfbusiness_ajax(request,*args,**kwargs):
         finally:
             return HttpResponse(json.dumps(data))
 
+@custom_login_required
+@custom_permission_required('myapp.delete_wf_business')
 def wfbusinessDel(request,*args,**kwargs):
     id = request.POST.get('id')
     models.wf_business.objects.filter(id=id).delete()
@@ -191,7 +207,9 @@ def wfbusinessDel(request,*args,**kwargs):
     return render_to_response('workflow/wfbusiness.html',msg)
 
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_wf_info')
+@custom_permission_required('myapp.view_wf_info_process_history')
 def wf(request,*args,**kwargs):
     wf_info = models.wf_info.objects.all()
     userinfo = models.userInfo.objects.all()
@@ -199,7 +217,8 @@ def wf(request,*args,**kwargs):
     msg = {'login_user': userDict['user'], 'wf_info': wf_info,'userinfo':userinfo,}
     return render_to_response('workflow/workflow.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_wf_info')
 def wrokflow_form_add(request,*args,**kwargs):
     wf_info = models.wf_info.objects.all()
     wf_type = models.wf_type.objects.all()
@@ -253,7 +272,8 @@ def wrokflow_form_add(request,*args,**kwargs):
         except Exception as e:
             print('error:',e)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.add_wf_info')
 def workflow_add(request,*args,**kwargs):
     wf_info = models.wf_info.objects.all()
     wf_type = models.wf_type.objects.all()
@@ -294,7 +314,8 @@ def workflow_add(request,*args,**kwargs):
                        'wf_type': wf_type, 'userinfo': userinfo, }
                 return render_to_response('workflow/500.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_wf_info')
 def workflow_form_update(request,*args,**kwargs):
     if request.method == 'GET':
         sn = kwargs['sn']
@@ -318,7 +339,8 @@ def workflow_form_update(request,*args,**kwargs):
             return render_to_response('workflow/workflow_update.html',msg)
 
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_wf_info')
 def workflow_update(request,*args,**kwargs):
     try:
         sn = kwargs['sn']
@@ -341,7 +363,8 @@ def workflow_update(request,*args,**kwargs):
     finally:
         return redirect('/cmdb/index/wf/requests/list/')
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_wf_info')
 def workflow_detail(request,*args,**kwargs):
     sn = request.GET.get('sn',None)
     wf_info = models.wf_info.objects.filter(sn=sn)
@@ -353,7 +376,8 @@ def workflow_detail(request,*args,**kwargs):
            'wf_info_process_start':wf_info_process_start,'wf_info_process':wf_info_process,'wf_info_process_end':wf_info_process_end}
     return render_to_response('workflow/workflow_detail.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_wf_info')
 def workflow_approve(request,*args,**kwargs):
     sn = request.GET.get('sn',None)
     wf_info = models.wf_info.objects.filter(sn=sn)
@@ -361,7 +385,9 @@ def workflow_approve(request,*args,**kwargs):
     msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status': '',}
     return render_to_response('workflow/workflow_approve.html',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_wf_info')
+@custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_tasks(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     wf_info = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(~Q(status='已完成'))
@@ -375,7 +401,9 @@ def workflow_tasks(request,*args,**kwargs):
     return render_to_response('workflow/workflow_tasks.html',msg)
 
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.view_wf_info')
+@custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_requests(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     wf_info = models.wf_info.objects.filter(sponsor=userDict['user'])
@@ -385,7 +413,9 @@ def workflow_requests(request,*args,**kwargs):
     print(msg, )
     return render_to_response('workflow/workflow_requests.html', msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_wf_info')
+@custom_permission_required('myapp.change_wf_info_process_history')
 def workflow_commit(request,*args,**kwargs):
     if request.method=='GET':
         sn = kwargs['sn']
@@ -402,7 +432,9 @@ def workflow_commit(request,*args,**kwargs):
             msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
             return redirect('/cmdb/index/wf/requests/list/',msg)
 
-@outer
+@custom_login_required
+@custom_permission_required('myapp.change_wf_info')
+@custom_permission_required('myapp.change_wf_info_process_history')
 def workflow_withdraw(request,*args,**kwargs):
     if request.method == 'GET':
         sn = kwargs['sn']
@@ -417,7 +449,7 @@ def workflow_withdraw(request,*args,**kwargs):
             msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status': '', }
             return redirect('/cmdb/index/wf/requests/list/', msg)
 
-@outer
+@custom_login_required
 def workflow_upload(request,*args,**kwargs):
     wf_info = models.wf_info.objects.all()
     wf_type = models.wf_type.objects.all()
@@ -447,7 +479,9 @@ def workflow_upload(request,*args,**kwargs):
         return render_to_response('workflow/workflow_add.html', msg)
 
 
-
+@custom_login_required
+@custom_permission_required('myapp.change_wf_info')
+@custom_permission_required('myapp.change_wf_info_process_history')
 def workflow_process(request,*args,**kwargs):
     if request.method=='POST':
         suggest = request.POST.get('suggest',None)

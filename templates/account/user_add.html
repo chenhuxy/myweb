@@ -36,9 +36,7 @@
                                         </div>
                                     </div>
 
-
-
-                                    <div class="col-md-7">
+                                    <!--<div class="col-md-7">
                                         <div class="form-group">
                                             <label for="single-select" class="require">用户类型</label>
                                             <select id="single-select" class="form-control" name="usertype">
@@ -47,19 +45,10 @@
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                    </div>
+                                    </div>-->
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="multi-select" class="require">用户组</label>
-                                            <select id="multi-select" class="form-control" name="group" multiple="">
-                                                {% for item in usergroup %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-  <!--                                  <div class="col-md-7">
+
+                                    <!--<div class="col-md-7">
                                         <div class="form-group">
                                             <label for="q" class="require">激活</label>
                                             <input type="checkbox" id="q" class="form-control" placeholder="is_active" name="is_active" value="True">
@@ -82,19 +71,28 @@
                                             <input type="number" id="workflow_order" class="form-control" placeholder="审批编号" name="workflow_order" value="0">
                                         </div>
                                     </div>
-                                <!--
+
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="multi-select">用户组</label>
-                                            <select id="multi-select" class="form-control" multiple="">
-                                                <option>1</option>
-                                                <option>2</option>
-                                                <option>3</option>
-                                                <option>4</option>
-                                                <option>5</option>
+                                            <select id="multi-select" class="form-control" name="group" multiple="">
+                                                {% for item in usergroup %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
                                             </select>
                                         </div>
-                                    </div>-->
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select-2">权限</label>
+                                            <select id="multi-select-2" class="form-control" name="perm" multiple="">
+                                                {% for item in perm %}
+                                                <option value={{item.id}}>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
 
                                     <div class="col-md-7">
                                         <div class="form-group">

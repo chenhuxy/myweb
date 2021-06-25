@@ -6,7 +6,7 @@ from django.urls import path
 from django.conf.urls import url,include
 from apps.myapp import views
 from apps.myapp import zabbix
-from apps.myapp import mygitlab
+from apps.myapp import gitlab_helper
 from apps.myapp import prometheus
 from apps.myapp import workflow
 from apps.myapp import example
@@ -56,28 +56,25 @@ urlpatterns=[
     #url(r'^login/forget_pass/send/email=(?P<email>\w+@(\w+\.\w+)+)',views.forget_pass_send),
     path('login/forget_pass/change/',views.forget_pass_change),
 
+###---------- permission------------------###
+    path('index/permission/list/',views.permission),
+
 ###---------- users------------------###
-    path('index/table/usertype/',views.usertype),
     path('index/table/usergroup/',views.usergroup),
     path('index/table/user/form_add/',views.userForm_add),
-    path('index/table/usertype/form_add/',views.usertypeForm_add),
     path('index/table/usergroup/form_add/',views.usergroupForm_add),
     #path('index/table/user/form_update/',views.userForm_update),
     url(r'^index/table/user/form_update/userid=(?P<userid>\d*)',views.userForm_update),
     url(r'^index/table/user/form_change_password/username=(?P<username>\w+)',views.userForm_change_password),
     url(r'^index/table/user/form_get_profile/username=(?P<username>\w+)',views.userForm_get_profile),
-    url(r'^index/table/usertype/form_update/id=(?P<id>\d*)',views.usertypeForm_update),
     url(r'^index/table/usergroup/form_update/id=(?P<id>\d*)',views.usergroupForm_update),
     path('index/table/user/add/',views.userAdd),
-    path('index/table/usertype/add/',views.usertypeAdd),
     path('index/table/usergroup/add/',views.usergroupAdd),
     url(r'^index/table/user/update/userid=(?P<userid>\d*)',views.userUpdate),
     url(r'^index/table/user/change_password/username=(?P<username>\w+)',views.user_change_password),
-    url(r'^index/table/usertype/update/id=(?P<id>\d*)',views.usertypeUpdate),
     url(r'^index/table/usergroup/update/id=(?P<id>\d*)',views.usergroupUpdate),
     path('index/table/user/del/',views.userDel),
     path('index/table/user/resetPwd/',views.resetPwd),
-    path('index/table/usertype/del/',views.usertypeDel),
     path('index/table/usergroup/del/',views.usergroupDel),
     url('^index/table/user/search/',views.search),
     url('^index/table/user/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)',views.search_result),
@@ -159,7 +156,7 @@ urlpatterns=[
     path('index/assets/network/del/',assets.networkDel),
 ###---------- monitor------------------###
     path('index/monitor/zabbix/',zabbix.zabbix_trigger),
-    path('index/monitor/gitlab/', mygitlab.git_project),
+    path('index/monitor/gitlab/', gitlab_helper.git_project),
     path('index/monitor/prometheus/', prometheus.prometheus_alert),
     #path('index/table/',views.tables),
     #url(r'^index/table/(\d*)',views.tables),
