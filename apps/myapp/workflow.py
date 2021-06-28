@@ -20,6 +20,7 @@ import paramiko,subprocess
 from apps.myapp import loop
 from django.core.cache import cache
 from myweb.settings import GITLAB_URL,GITLAB_TOKEN
+from django.contrib.auth.models import Group
 
 @custom_login_required
 @custom_permission_required('myapp.view_wf_type')
@@ -110,11 +111,11 @@ def wfbusiness(request,*args,**kwargs):
 def wfbusinessForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     wfbusiness = models.wf_business.objects.all()
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     approval = userinfo.exclude(workflow_order=0)
     userDict = request.session.get('is_login', None)
     msg = {'wfbusiness': wfbusiness, 'userinfo':userinfo,
-           'usergroup':usergroup,'login_user': userDict['user'],'status':'','approval':approval, }
+           'login_user': userDict['user'],'status':'','approval':approval, }
     print(msg)
     return render_to_response('workflow/wfbusiness_add.html',msg)
 
@@ -222,13 +223,13 @@ def wf(request,*args,**kwargs):
 def wrokflow_form_add(request,*args,**kwargs):
     wf_info = models.wf_info.objects.all()
     wf_type = models.wf_type.objects.all()
-    user_group = models.userGroup.objects.all()
+    #user_group = models.userGroup.objects.all()
     user_info = models.userInfo.objects.all()
     wf_business = models.wf_business.objects.all()
     userDict = request.session.get('is_login', None)
     if request.method=='GET':
         msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status':'', 'wf_type':wf_type,
-               'user_info':user_info,'user_group':user_group,'wf_business':wf_business}
+               'user_info':user_info,'wf_business':wf_business}
         print(msg,)
         return render_to_response('workflow/workflow_add.html',msg)
     if request.method=='POST':
@@ -368,9 +369,9 @@ def workflow_update(request,*args,**kwargs):
 def workflow_detail(request,*args,**kwargs):
     sn = request.GET.get('sn',None)
     wf_info = models.wf_info.objects.filter(sn=sn)
-    wf_info_process_start = models.wf_info_history_process.objects.filter(sn=sn).filter(status='已提交')
-    wf_info_process = models.wf_info_history_process.objects.filter(sn=sn).exclude(status='已提交').exclude(status='已完成').order_by('flow_id')
-    wf_info_process_end = models.wf_info_history_process.objects.filter(sn=sn).filter(status='已完成')
+    wf_info_process_start = models.wf_info_process_history.objects.filter(sn=sn).filter(status='已提交')
+    wf_info_process = models.wf_info_process_history.objects.filter(sn=sn).exclude(status='已提交').exclude(status='已完成').order_by('flow_id')
+    wf_info_process_end = models.wf_info_process_history.objects.filter(sn=sn).filter(status='已完成')
     userDict = request.session.get('is_login', None)
     msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status': '',
            'wf_info_process_start':wf_info_process_start,'wf_info_process':wf_info_process,'wf_info_process_end':wf_info_process_end}
@@ -392,7 +393,7 @@ def workflow_tasks(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
     wf_info = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(~Q(status='已完成'))
     count_pending = wf_info.count()
-    wf_info_process = models.wf_info_history_process.objects.filter(assignee=userDict['user']).filter(flow_id__gt=0)
+    wf_info_process = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(flow_id__gt=0)
     count_processing = wf_info_process.count()
     wf_type = models.wf_type.objects.all()
     msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '',
@@ -453,7 +454,7 @@ def workflow_withdraw(request,*args,**kwargs):
 def workflow_upload(request,*args,**kwargs):
     wf_info = models.wf_info.objects.all()
     wf_type = models.wf_type.objects.all()
-    user_group = models.userGroup.objects.all()
+    #user_group = models.userGroup.objects.all()
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
         files = request.FILES.get('mf', None)
@@ -461,7 +462,7 @@ def workflow_upload(request,*args,**kwargs):
         if not files:
             status = '没有文件上传'
             msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': status,
-                   'wf_type': wf_type, 'user_group': user_group, }
+                   'wf_type': wf_type, }
             print(msg, )
             return render_to_response('workflow/workflow_add.html', msg)
         '''

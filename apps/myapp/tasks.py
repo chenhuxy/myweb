@@ -81,7 +81,7 @@ def workflow_send_email(sn,username,email):
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 1, 'countdown': 3})
 def DeleteHistoryProcess(sn,):
-    models.wf_info_history_process.objects.filter(sn=sn).delete()
+    models.wf_info_process_history.objects.filter(sn=sn).delete()
 
 
 
@@ -94,7 +94,7 @@ def UpdateCurrent(sn,status,flow_id,assignee,next_assignee):
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 1, 'countdown': 3})
 def UpdateHistoryProcess(sn,title,sponsor,type_id,content,status,business_id,flow_id,assignee,next_assignee,memo,suggest,suggest_content,):
-    models.wf_info_history_process.objects.create(sn=sn, title=title, sponsor=sponsor, type_id=type_id,
+    models.wf_info_process_history.objects.create(sn=sn, title=title, sponsor=sponsor, type_id=type_id,
                                                   content=content, status=status,business_id=business_id,
                                                   flow_id=flow_id,assignee=assignee,next_assignee=next_assignee,memo=memo,
                                                   suggest=suggest,suggest_content=suggest_content,)

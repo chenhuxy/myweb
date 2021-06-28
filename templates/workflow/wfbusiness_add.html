@@ -44,7 +44,7 @@
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="multi-select" class="require">审批人</label>
+                                            <label for="multi-select" class="require">审批人(审批顺序按工作流编号由小到大审批)</label>
                                             <select id="multi-select" class="form-control" name="approval" multiple="">
                                                 {% for item in approval %}
                                                 <option value={{item.id}}>{{item.username}}({{ item.workflow_order }})</option>
