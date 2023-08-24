@@ -113,7 +113,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django_test',
+        'NAME': 'myweb',
         'USER': 'root',
         'PASSWORD': 'redhat',
         'HOST': 'localhost',
