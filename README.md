@@ -1,5 +1,18 @@
 # myweb
 
+### 一些功能截图：
+![image](pictures/dashboard.jpg)
+![image](pictures/登录.png)
+![image](pictures/注册.jpg)
+![image](pictures/用户及权限认证.jpg)
+![image](pictures/工单.jpg)
+![image](pictures/发布工单.jpg)
+![image](pictures/待办工单.jpg)
+![image](pictures/应用列表.jpg)
+![image](pictures/发布列表.jpg)
+![image](pictures/发布日志.jpg)
+
+### 安装方式及步骤：
 一. 本地安装：
 
 1.准备环境： 
