@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # _*_ coding:utf-8 _*_
 
+
+
+
 from apps.myapp.auth_helper import custom_login_required,custom_permission_required
 from django.shortcuts import render_to_response
 from django.shortcuts import HttpResponse
@@ -21,6 +24,131 @@ from apps.myapp import loop
 from django.core.cache import cache
 from myweb.settings import GITLAB_URL,GITLAB_TOKEN
 from django.contrib.auth.models import Group
+from apps.myapp import common
+from apps.myapp import page_helper
+from apps.myapp import json_helper
+from celery.result import AsyncResult
+from myweb.settings import SSH_HOST,SSH_PORT,SSH_USERNAME,SSH_PASSWORD,SSH_CMD,SSH_WORKDIR
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_wf_business')
+def wfbusiness(request,*args,**kwargs):
+    wfbusiness=models.wf_business.objects.all()
+    count=wfbusiness.count()
+    userDict = request.session.get('is_login', None)
+    msg = {'wfbusiness': wfbusiness, 'login_user': userDict['user'],'count':count,}
+    return render_to_response('workflow/wfbusiness.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.add_wf_business')
+def wfbusiness_form_add(request,*args,**kwargs):
+    userinfo = models.userInfo.objects.all()
+    wfbusiness = models.wf_business.objects.all()
+    #usergroup = models.userGroup.objects.all()
+    approval = userinfo.exclude(workflow_order=0)
+    userDict = request.session.get('is_login', None)
+    msg = {'wfbusiness': wfbusiness, 'userinfo':userinfo,
+           'login_user': userDict['user'],'status':'','approval':approval, }
+    print(msg)
+    return render_to_response('workflow/wfbusiness_add.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.add_wf_business')
+def wfbusiness_add(request,*args,**kwargs):
+    userinfo = models.userInfo.objects.all()
+    userDict = request.session.get('is_login', None)
+    if request.method == 'POST':
+        wfbusiness = request.POST.get('wfbusiness',None)
+        repo = request.POST.get('repo', None)
+        admin_id = request.POST.get('admin',None)
+        approval = request.POST.getlist('approval',None)
+        is_exist = models.wf_business.objects.filter(name=wfbusiness)
+        print(is_exist)
+        if not (is_exist):
+            is_empty = all([wfbusiness,])
+            if is_empty:
+                queryset=models.wf_business.objects.create(name=wfbusiness,admin_id=admin_id,)
+                queryset.approval.set(approval)
+                msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
+                       'login_user': userDict['user'],'status':'添加业务单元成功', }
+                return redirect('/cmdb/index/wf/wfbusiness/list/')
+            else:
+                msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
+                       'login_user': userDict['user'],'status':'xx不能为空', }
+        else:
+            msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
+                   'login_user': userDict['user'],'status':'该业务单元已存在！', }
+    return render_to_response('workflow/wfbusiness_add.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
+def wfbusiness_form_update(request,*args,**kwargs):
+    id = kwargs['id']
+    wfbusiness = models.wf_business.objects.filter(id=id)
+    admin = models.userInfo.objects.all().exclude(admin__id=id)
+    approval = models.userInfo.objects.all().exclude(workflow_order=0).exclude(approval__id=id)
+    userDict = request.session.get('is_login', None)
+    msg = {'id':id, 'login_user':userDict['user'],'status':u'操作成功','wfbusiness':wfbusiness,
+           'admin':admin,'approval':approval,}
+    print(msg)
+    return render_to_response('workflow/wfbusiness_update.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
+def wfbusiness_update(request,*args,**kwargs):
+    id = kwargs['id']
+    #2023/08/18
+    '''
+    wfbusiness_id = request.POST.get('wfbusiness')
+    wfbusiness = models.wf_business.objects.filter(id=wfbusiness_id).values('name')[0]['name']
+    '''
+    wfbusiness = request.POST.get('wfbusiness')
+    admin_id = request.POST.get('admin')
+    approval = request.POST.getlist('approval')
+
+    update_time = timezone.now()
+    userDict = request.session.get('is_login', None)
+    models.wf_business.objects.filter(id=id).update(name=wfbusiness,
+        update_time=update_time,admin_id=admin_id,)
+    models.wf_business.objects.get(id=id).approval.set(approval)
+    return redirect('/cmdb/index/wf/wfbusiness/list/')
+
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
+def wfbusiness_ajax(request,*args,**kwargs):
+    if request.method == 'POST':
+        try:
+            wfbusiness_id = request.POST.get('wfbusiness',None)
+            print(wfbusiness_id)
+            wfbusiness = models.wf_business.objects.filter(id=wfbusiness_id)
+            director_id = wfbusiness.values('director_id')[0]['director_id']
+            director = models.userInfo.objects.filter(id=director_id).values('username')[0]['username']
+            print(wfbusiness,director_id,director,)
+            userDict = request.session.get('is_login', None)
+            #data = serializers.serialize('json',wfbusiness) #序列化
+            #data = json.dumps(wfbusiness)
+            data = {'director_id':director_id,'director':director,}
+            print(data)
+            #return HttpResponse(json.dumps(data))
+        except:
+            data = {'director_id':'0','director':'------------- 请选择 -------------',}
+        finally:
+            return HttpResponse(json.dumps(data))
+
+@custom_login_required
+@custom_permission_required('myapp.delete_wf_business')
+def wfbusiness_del(request,*args,**kwargs):
+    id = request.POST.get('id')
+    models.wf_business.objects.filter(id=id).delete()
+    print('delete',id)
+    msg = {'code':1,'result':'删除工单类型id:'+id,}
+    return render_to_response('workflow/wfbusiness.html',msg)
+
+
+
+
+
 
 @custom_login_required
 @custom_permission_required('myapp.view_wf_type')
@@ -58,7 +186,7 @@ def wftypeAdd(request,*args,**kwargs):
                 models.wf_type.objects.create(name=wftype,)
                 msg = {'userinfo': userinfo, 'wftype': wftype,
                        'login_user': userDict['user'],'status':'添加工单类型成功', }
-                return redirect('/cmdb/index/wf/wftype/')
+                return redirect('/cmdb/index/wf/wftype/list/')
             else:
                 msg = {'userinfo': userinfo, 'wftype': wftype,
                        'login_user': userDict['user'],'status':'xx不能为空', }
@@ -86,7 +214,7 @@ def wftypeUpdate(request,*args,**kwargs):
     update_time = timezone.now()
     userDict = request.session.get('is_login', None)
     models.wf_type.objects.filter(id=id).update(name=wftype,update_time=update_time)
-    return redirect('/cmdb/index/wf/wftype/')
+    return redirect('/cmdb/index/wf/wftype/list/')
 
 @custom_login_required
 @custom_permission_required('myapp.delete_wf_type')
@@ -97,125 +225,23 @@ def wftypeDel(request,*args,**kwargs):
     msg = {'code':1,'result':'删除工单类型id:'+id,}
     return render_to_response('workflow/wftype.html',msg)
 
-@custom_login_required
-@custom_permission_required('myapp.view_wf_business')
-def wfbusiness(request,*args,**kwargs):
-    wfbusiness=models.wf_business.objects.all()
-    count=wfbusiness.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'wfbusiness': wfbusiness, 'login_user': userDict['user'],'count':count,}
-    return render_to_response('workflow/wfbusiness.html',msg)
-
-@custom_login_required
-@custom_permission_required('myapp.add_wf_business')
-def wfbusinessForm_add(request,*args,**kwargs):
-    userinfo = models.userInfo.objects.all()
-    wfbusiness = models.wf_business.objects.all()
-    #usergroup = models.userGroup.objects.all()
-    approval = userinfo.exclude(workflow_order=0)
-    userDict = request.session.get('is_login', None)
-    msg = {'wfbusiness': wfbusiness, 'userinfo':userinfo,
-           'login_user': userDict['user'],'status':'','approval':approval, }
-    print(msg)
-    return render_to_response('workflow/wfbusiness_add.html',msg)
-
-@custom_login_required
-@custom_permission_required('myapp.add_wf_business')
-def wfbusinessAdd(request,*args,**kwargs):
-    userinfo = models.userInfo.objects.all()
-    userDict = request.session.get('is_login', None)
-    if request.method == 'POST':
-        wfbusiness = request.POST.get('wfbusiness',None)
-        repo = request.POST.get('repo', None)
-        admin_id = request.POST.get('admin',None)
-        approval = request.POST.getlist('approval',None)
-        is_exist = models.wf_business.objects.filter(name=wfbusiness)
-        print(is_exist)
-        if not (is_exist):
-            is_empty = all([wfbusiness,repo])
-            if is_empty:
-                queryset=models.wf_business.objects.create(name=wfbusiness,repo=repo,admin_id=admin_id,)
-                queryset.approval.set(approval)
-                msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
-                       'login_user': userDict['user'],'status':'添加业务单元成功', }
-                return redirect('/cmdb/index/wf/wfbusiness/')
-            else:
-                msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
-                       'login_user': userDict['user'],'status':'xx不能为空', }
-        else:
-            msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
-                   'login_user': userDict['user'],'status':'该业务单元已存在！', }
-    return render_to_response('workflow/wfbusiness_add.html',msg)
-
-@custom_login_required
-@custom_permission_required('myapp.change_wf_business')
-def wfbusinessForm_update(request,*args,**kwargs):
-    id = kwargs['id']
-    wfbusiness = models.wf_business.objects.filter(id=id)
-    admin = models.userInfo.objects.all().exclude(admin__id=id)
-    approval = models.userInfo.objects.all().exclude(workflow_order=0).exclude(approval__id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id':id, 'login_user':userDict['user'],'status':u'操作成功','wfbusiness':wfbusiness,
-           'admin':admin,'approval':approval,}
-    print(msg)
-    return render_to_response('workflow/wfbusiness_update.html',msg)
-
-@custom_login_required
-@custom_permission_required('myapp.change_wf_business')
-def wfbusinessUpdate(request,*args,**kwargs):
-    id = kwargs['id']
-    wfbusiness_id = request.POST.get('wfbusiness')
-    wfbusiness = models.wf_business.objects.filter(id=wfbusiness_id).values('name')[0]['name']
-    admin_id = request.POST.get('admin')
-    approval = request.POST.getlist('approval')
-    repo = request.POST.get('repo')
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    models.wf_business.objects.filter(id=id).update(name=wfbusiness,
-        update_time=update_time,admin_id=admin_id,repo=repo)
-    models.wf_business.objects.get(id=id).approval.set(approval)
-    return redirect('/cmdb/index/wf/wfbusiness/')
-
-@custom_login_required
-@custom_permission_required('myapp.change_wf_business')
-def wfbusiness_ajax(request,*args,**kwargs):
-    if request.method == 'POST':
-        try:
-            wfbusiness_id = request.POST.get('wfbusiness',None)
-            print(wfbusiness_id)
-            wfbusiness = models.wf_business.objects.filter(id=wfbusiness_id)
-            director_id = wfbusiness.values('director_id')[0]['director_id']
-            director = models.userInfo.objects.filter(id=director_id).values('username')[0]['username']
-            print(wfbusiness,director_id,director,)
-            userDict = request.session.get('is_login', None)
-            #data = serializers.serialize('json',wfbusiness) #序列化
-            #data = json.dumps(wfbusiness)
-            data = {'director_id':director_id,'director':director,}
-            print(data)
-            #return HttpResponse(json.dumps(data))
-        except:
-            data = {'director_id':'0','director':'------------- 请选择 -------------',}
-        finally:
-            return HttpResponse(json.dumps(data))
-
-@custom_login_required
-@custom_permission_required('myapp.delete_wf_business')
-def wfbusinessDel(request,*args,**kwargs):
-    id = request.POST.get('id')
-    models.wf_business.objects.filter(id=id).delete()
-    print('delete',id)
-    msg = {'code':1,'result':'删除工单类型id:'+id,}
-    return render_to_response('workflow/wfbusiness.html',msg)
 
 
 @custom_login_required
 @custom_permission_required('myapp.view_wf_info')
 @custom_permission_required('myapp.view_wf_info_process_history')
 def wf(request,*args,**kwargs):
-    wf_info = models.wf_info.objects.all()
-    userinfo = models.userInfo.objects.all()
+    page = common.try_int(kwargs['page'], 1)
+    perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+    count = models.wf_info.objects.all().count()
+    pageinfo = page_helper.pageinfo(page, count, perItem)
+    # 工单列表降序排列
+    wf_info = models.wf_info.objects.all().order_by('-id')[pageinfo.start:pageinfo.end]
+    page_string = page_helper.pager_wf_list(request, page, pageinfo.pageCount)
+    # usertype = userType.objects.all()
     userDict = request.session.get('is_login', None)
-    msg = {'login_user': userDict['user'], 'wf_info': wf_info,'userinfo':userinfo,}
+    msg = {'wf_info': wf_info, 'count': count, 'pageCount': pageinfo.pageCount,
+           'page': page_string, 'login_user': userDict['user'], }
     return render_to_response('workflow/workflow.html',msg)
 
 @custom_login_required
@@ -226,10 +252,12 @@ def wrokflow_form_add(request,*args,**kwargs):
     #user_group = models.userGroup.objects.all()
     user_info = models.userInfo.objects.all()
     wf_business = models.wf_business.objects.all()
+    #2023/08/15
+    deploy_list = models.deploy_app.objects.all()
     userDict = request.session.get('is_login', None)
     if request.method=='GET':
         msg = {'wf_info': wf_info, 'login_user': userDict['user'],'status':'', 'wf_type':wf_type,
-               'user_info':user_info,'wf_business':wf_business}
+               'user_info':user_info,'wf_business':wf_business,'deploy_list':deploy_list}
         print(msg,)
         return render_to_response('workflow/workflow_add.html',msg)
     if request.method=='POST':
@@ -304,10 +332,22 @@ def workflow_add(request,*args,**kwargs):
                 wfbusiness_select = models.wf_business.objects.get(id=wfbusiness_id)
             except:
                 wfbusiness_select = None
+
             is_empty = all([title,content,type_select,wfbusiness_select,])
+
+            # 2023/08/16
+            deploy_id = request.POST.get('proj_name', None)
+            proj_tag = request.POST.get('proj_tag', None)
+            if deploy_id is not None:
+                proj_name = models.deploy_app.objects.filter(id=deploy_id).values('proj_name')[0]['proj_name']
+                proj_id = models.deploy_app.objects.filter(id=deploy_id).values('proj_id')[0]['proj_id']
+            else:
+                proj_name = None
+                proj_id = None
+
             if is_empty:
                 models.wf_info.objects.create(sn=sn, title=title, sponsor=sponsor, type=type_select,
-                 content=content,  memo=memo,business=wfbusiness_select, )
+                 content=content,  memo=memo,business=wfbusiness_select, proj_name=proj_name,proj_tag=proj_tag,proj_id=proj_id)
                 return redirect('/cmdb/index/wf/requests/list/')
             else:
                 status = '带有*的选项不能为空！'
@@ -322,8 +362,11 @@ def workflow_form_update(request,*args,**kwargs):
         sn = kwargs['sn']
         obj = models.wf_info.objects.filter(sn=sn)
         status = obj.values('status')[0]['status']
-        if status != "未提交":
+        if status == "已提交":
             msg = {'error': '流程进行中，不能修改！'}
+            return render_to_response('workflow/500.html', msg)
+        elif status == "已完成":
+            msg = {'error': '流程已结束，不能修改！'}
             return render_to_response('workflow/500.html', msg)
         else:
             title = obj.values('title')
@@ -333,9 +376,25 @@ def workflow_form_update(request,*args,**kwargs):
             content = obj.values('content')
             memo = obj.values('memo')
             userDict = request.session.get('is_login', None)
+            #2023/08/16
+            try:
+                proj_name_selected = obj.values('proj_name')[0]['proj_name']
+                proj_tag_selected = obj.values('proj_tag')[0]['proj_tag']
+                git_tools = gitlab.Gitlab(GITLAB_URL, GITLAB_TOKEN)
+                proj_id = models.deploy_app.objects.filter(proj_name=proj_name_selected).values('proj_id')[0]['proj_id']
+                proj = git_tools.projects.get(proj_id)
+                tags = proj.tags.list()
+            except Exception as e:
+                proj_name_selected = None
+                proj_tag_selected = None
+                tags = None
+                print(e)
+
+            deploy_list = models.deploy_app.objects.all()
+
             msg = {'id':id,'sn':sn,'title':title,'sponsor':sponsor,'type':type,'login_user':userDict['user'],
-                   'status':'操作成功',
-                   'content':content,'memo':memo,'business':business}
+                   'status':'操作成功','proj_name_selected':proj_name_selected,'proj_tag_selected':proj_tag_selected,
+                   'deploy_list':deploy_list,'tags':tags,'content':content,'memo':memo,'business':business}
             print(msg)
             return render_to_response('workflow/workflow_update.html',msg)
 
@@ -354,10 +413,17 @@ def workflow_update(request,*args,**kwargs):
         content = request.POST.get('content')
         memo = request.POST.get('memo')
         update_time = timezone.now()
+        #20230816
+        proj_name = request.POST.get('proj_name',None)
+        proj_tag = request.POST.get('proj_tag',None)
+
         print(id,sponsor,type,content,memo,)
+        print(proj_name,proj_tag)
+        proj_id = models.deploy_app.objects.filter(proj_name=proj_name).values('proj_id')[0]['proj_id']
+        print(proj_id,)
         #userDict = request.session.get('is_login', None)
         models.wf_info.objects.filter(sn=sn).update(title=title,sponsor=sponsor,type=type_select,
-              content=content,memo=memo,update_time=update_time,)
+              content=content,memo=memo,update_time=update_time,proj_name=proj_name,proj_tag=proj_tag,proj_id=proj_id)
         return render_to_response('workflow/workflow_update.html')
     except Exception as e:
         print(e,)
@@ -391,14 +457,20 @@ def workflow_approve(request,*args,**kwargs):
 @custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_tasks(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
-    wf_info = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(~Q(status='已完成'))
-    count_pending = wf_info.count()
-    wf_info_process = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(flow_id__gt=0)
-    count_processing = wf_info_process.count()
+    count_pending = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(~Q(status='已完成')).count()
+    count_processing = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(
+        flow_id__gt=0).count()
+
+    # 工单列表降序排列
+    wf_info = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(
+        ~Q(status='已完成')).order_by('-id')
+
+    wf_info_process = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(flow_id__gt=0).order_by('-id')
     wf_type = models.wf_type.objects.all()
-    msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '',
-           'wf_type': wf_type,'wf_info_process':wf_info_process,'count_pending':count_pending,'count_processing':count_processing,}
-    print(msg,)
+
+    msg = {'wf_info': wf_info, 'wf_info_process':wf_info_process,'login_user': userDict['user'], 'status': '',
+           'wf_type': wf_type,'count_pending':count_pending,'count_processing':count_processing,}
+    #print(msg,)
     return render_to_response('workflow/workflow_tasks.html',msg)
 
 
@@ -407,11 +479,17 @@ def workflow_tasks(request,*args,**kwargs):
 @custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_requests(request,*args,**kwargs):
     userDict = request.session.get('is_login', None)
-    wf_info = models.wf_info.objects.filter(sponsor=userDict['user'])
     wf_type = models.wf_type.objects.all()
-    msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '',
-           'wf_type': wf_type, }
-    print(msg, )
+    page = common.try_int(kwargs['page'], 1)
+    perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+    count = models.wf_info.objects.filter(sponsor=userDict['user']).count()
+    pageinfo = page_helper.pageinfo(page, count, perItem)
+    # 工单列表降序排列
+    wf_info = models.wf_info.objects.filter(sponsor=userDict['user']).order_by('-id')[pageinfo.start:pageinfo.end]
+    page_string = page_helper.pager_wf_request_list(request, page, pageinfo.pageCount)
+
+    msg = {'wf_info': wf_info, 'count': count, 'pageCount': pageinfo.pageCount,
+           'page': page_string, 'login_user': userDict['user'],'wf_type':wf_type }
     return render_to_response('workflow/workflow_requests.html', msg)
 
 @custom_login_required
@@ -423,13 +501,38 @@ def workflow_commit(request,*args,**kwargs):
         userDict = request.session.get('is_login', None)
         wf_info = models.wf_info.objects.filter(sn=sn)
         status = wf_info.values('status')[0]['status']
-        if status != "未提交":
-            msg = {'error':'流程进行中，不能重复提交！'}
-            return render_to_response('workflow/500.html',msg)
+        if status == "已提交":
+            msg = {'error': '流程进行中，不能提交！'}
+            return render_to_response('workflow/500.html', msg)
+        elif status == "已完成":
+            msg = {'error': '流程已结束，不能提交！'}
+            return render_to_response('workflow/500.html', msg)
         else:
             #c1 = tasks.workflow_commit.apply_async((sn,), link=tasks.workflow_send_email.s(username, email))
             #print(list(c1.collect()),c1.children,c1.get(),)
             tasks.workflow_commit(sn)
+            '''
+            # 2023/08/17
+            proj_name = wf_info.values('proj_name')[0]['proj_name']
+            proj_tag = wf_info.values('proj_tag')[0]['proj_tag']
+            proj_id = wf_info.values('proj_id')[0]['proj_id']
+            business_id = wf_info.values('business')[0]['business']
+            unit = models.wf_type.objects.filter(id=business_id).values('name')[0]['name']
+            deploy_status = '已提交'
+            max_id = models.deploy_list_detail.objects.all().order_by('-id')[0].id
+            if max_id is None:
+                # 如果数据库为空，则从 ID 为 1 的数据开始提取
+                max_id = 0
+            print(max_id, type(max_id))
+            ######################################
+            # 2023/08/17
+            task_id = tasks.ssh_remote.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD,
+                             SSH_CMD + ' ' + proj_id + ' ' + proj_name + ' ' + proj_tag + ' ' + str(max_id + 1))
+            print(task_id)
+            models.deploy_list_detail.objects.create(unit=unit, proj_name=proj_name, proj_id=proj_id,
+                                                     tag=proj_tag, task_id=task_id, status=deploy_status)
+            ##################
+            '''
             msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
             return redirect('/cmdb/index/wf/requests/list/',msg)
 
@@ -496,3 +599,82 @@ def workflow_process(request,*args,**kwargs):
                'status': '',  }
         return redirect('/cmdb/index/wf/tasks/list/')
 
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
+def wftypeChange(request,*args,**kwargs):
+    if request.method == 'POST':
+        try:
+            deploy_list_id = request.POST.get('deploy_list_id',None)
+            print(deploy_list_id)
+
+            deploy = models.deploy_app.objects.filter(id=deploy_list_id)
+            print(deploy)
+            proj_name = deploy.values('proj_name')[0]['proj_name']
+            print(proj_name)
+            proj_id = deploy.values('proj_id')[0]['proj_id']
+            print(proj_id)
+            git_tools = gitlab.Gitlab(GITLAB_URL, GITLAB_TOKEN)
+            proj = git_tools.projects.get(proj_id)
+            print(proj)
+            branches = proj.branches.list()
+            print(branches)
+            #tags = proj.tags.list()
+            tags = proj.tags.list()
+            tags_name = []
+            for item in tags:
+                tags_name.append(item.name)
+            print(type(tags),tags)
+
+            #print(json.dumps(tags))
+            userDict = request.session.get('is_login', None)
+            msg = {'tags_name': tags_name}
+            #data = serializers.serialize('json',tags)
+            #print(data)
+            #print(json.dumps(data))
+            print(type(msg),msg)
+            return HttpResponse(json.dumps(msg,cls=json_helper.MyEncoder,indent=4))
+            #return render_to_response('workflow/workflow_add.html',msg)
+        except Exception as e:
+            print(e)
+            data = {'deploy':e,}
+            return HttpResponse(json.dumps(data))
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
+def wftypeChange2(request,*args,**kwargs):
+    if request.method == 'POST':
+        try:
+            proj_name = request.POST.get('proj_name',None)
+            print(proj_name)
+
+            deploy = models.deploy_app.objects.filter(proj_name=proj_name)
+            print(deploy)
+
+            proj_id = deploy.values('proj_id')[0]['proj_id']
+            print(proj_id)
+            git_tools = gitlab.Gitlab(GITLAB_URL, GITLAB_TOKEN)
+            proj = git_tools.projects.get(proj_id)
+            print(proj)
+            branches = proj.branches.list()
+            print(branches)
+            #tags = proj.tags.list()
+            tags = proj.tags.list()
+            tags_name = []
+            for item in tags:
+                tags_name.append(item.name)
+            print(type(tags),tags)
+
+            #print(json.dumps(tags))
+            userDict = request.session.get('is_login', None)
+            msg = {'tags_name': tags_name}
+            #data = serializers.serialize('json',tags)
+            #print(data)
+            #print(json.dumps(data))
+            print(type(msg),msg)
+            return HttpResponse(json.dumps(msg))
+            #return render_to_response('workflow/workflow_add.html',msg)
+        except Exception as e:
+            print(e)
+            data = {'tags_name':e,}
+            return HttpResponse(json.dumps(data))

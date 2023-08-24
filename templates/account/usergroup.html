@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-light">
-                    <div>用户组</div>
+                    <div>组/角色</div>
                 </div>
 
 
@@ -14,7 +14,9 @@
                     <div class="title">
                         <div class="title-add" style="display:inline-block;">
                             <a href="/cmdb/index/table/usergroup/form_add/">
-                               <button class="btn btn-primary" style="padding:2px;margin-top:-20px;">+ 添加用户组</button>
+                               <button class="btn btn-primary" style="padding:2px;margin-top:-20px;">
+                                   <i class="icon icon-plus"></i> 添加组/角色
+                               </button>
                                <!-- <button class="btn btn-primary .btn-sm">+ 添加用户</button>-->
                             </a>
                         </div>
@@ -35,7 +37,7 @@
                             <tr>
                                 <th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>
                                 <th>id</th>
-                                <th>用户组</th>
+                                <th>组/角色</th>
                                 <!--<th>创建时间</th>
                                 <th>修改时间</th>-->
                                 <th>动作</th>
@@ -51,6 +53,10 @@
                                 <td>{{item.update_time}}</td>-->
                                 <td>
                                     <!--<button class="btn btn-primary" data-toggle="modal" data-target="#modal-2">更新</button>-->
+                                    <button class="btn btn-primary" data-toggle="modal" onclick="show_detail(this)">
+                                        <!--<i class="fa fa-pencil-alt"></i> 详情-->
+                                        <i class="icon icon-info"></i> 详情
+                                    </button>
                                     <button class="btn btn-primary" data-toggle="modal" onclick="update(this)">
                                         <i class="fa fa-pencil-alt"></i> 更新
                                     </button>
@@ -244,6 +250,12 @@
         var tr = obj.parentNode.parentNode;
         var id = tr.cells[1].innerHTML;
         location.href='/cmdb/index/table/usergroup/form_update/id='+id;
+    }
+
+    function show_detail(obj) {
+        var tr = obj.parentNode.parentNode;
+        var id = tr.cells[1].innerHTML;
+        location.href='/cmdb/index/table/usergroup/show_detail/id='+id;
     }
 
 

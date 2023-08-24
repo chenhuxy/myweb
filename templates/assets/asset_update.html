@@ -38,19 +38,19 @@
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="cabinet_num" class="form-control-label require">机柜号</label>
+                                            <label for="cabinet_num" class="form-control-label ">机柜号</label>
                                             <input type="text" id="cabinet_num" class="form-control" placeholder="机柜号" name="cabinet_num" value="{{ item.cabinet_num }}">
                                         </div>
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="cabinet_order" class="form-control-label require">机架号</label>
+                                            <label for="cabinet_order" class="form-control-label ">机架号</label>
                                             <input type="text" id="cabinet_order" class="form-control" placeholder="机架号" name="cabinet_order" value="{{ item.cabinet_order }}">
                                         </div>
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="single-select3" class="require">机房</label>
+                                            <label for="single-select3" >机房</label>
                                             <select id="single-select3" class="form-control" name="idc">
                                                 <option value={{item.idc.id}}>{{item.idc.display_name}}</option>
                                                 {% for item in idc %}
@@ -83,7 +83,7 @@
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="single-select6" class="require">合同</label>
+                                            <label for="single-select6" >合同</label>
                                             <select id="single-select6" class="form-control" name="contract">
                                                 <option value={{item.contract.id}}>{{item.contract.name}}</option>
                                                 {% for item in contract %}

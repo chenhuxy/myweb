@@ -8,7 +8,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-###---------- users------------------###
+
+###----------------------------------------------------------------- users-----------------------------------------------------------------------------------------------###
+
 '''
 class userType(models.Model):
     name = models.CharField('用户类型',max_length=200,default='user')
@@ -85,6 +87,7 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return self.name
 '''
+
 '''
 class Admininfo(models.Model):
     user = models.OneToOneField(UserProfile,on_delete=models.CASCADE)
@@ -96,6 +99,9 @@ class Admininfo(models.Model):
     def __unicode__(self):
         return self.username
 '''
+
+###---------------------------------------------------------------------- monitor-----------------------------------------------------------------------------------###
+
 class monitor(models.Model):
     name = models.CharField('名称',max_length=256)
     class Meta:
@@ -104,31 +110,78 @@ class monitor(models.Model):
     def __unicode__(self):
         return self.name
 
-###---------- workflow------------------###
+###------------------------------------------------------------------------ task-deploy--------------------------------------------------------------------------------------###
 
-
-class wf_type(models.Model):
-    name = models.CharField('请求类型', max_length=128, default='上线', )
-    create_time = models.DateTimeField('创建时间', auto_now_add=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True)
+class deploy_script_type(models.Model):
+    name = models.CharField('脚本类型',max_length=200,default='shell',)
     class Meta:
-        verbose_name = '工单类型'
+        verbose_name = '脚本类型'
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
 
+class deploy_app(models.Model):
+    unit = models.ForeignKey('wf_business', on_delete=models.CASCADE, verbose_name='业务单元',related_name='unit', )
+    proj_name = models.CharField('项目名称', max_length=128, )
+    proj_id = models.CharField('项目id',max_length=128,)
+    update_time = models.DateTimeField('修改时间', auto_now=True)
+    action = models.CharField('动作',max_length=128)
 
+    class Meta:
+        verbose_name = '发布列表'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.proj_name
+
+class deploy_list_detail(models.Model):
+    unit = models.CharField('业务单元', max_length=128)
+    proj_name =  models.CharField('项目名称', max_length=128)
+    proj_id = models.CharField('项目id', max_length=128, )
+    tag = models.CharField('发布tag', max_length=128)
+    task_id = models.CharField('任务id', max_length=128, )
+    task_log = models.TextField('任务日志',blank=True,null=True)
+    update_time = models.DateTimeField('修改时间', auto_now=True)
+    status = models.CharField('任务状态', max_length=128)
+    action = models.CharField('动作', max_length=128)
+
+'''
+class business(models.Model):
+    name = models.CharField('业务单元', max_length=128,  )
+    admin = models.ForeignKey('userInfo',on_delete=models.CASCADE,verbose_name='业务管理员',related_name='unit_admin',)
+    update_time = models.DateTimeField('更新时间', auto_now=True)
+    class Meta:
+        verbose_name = '业务单元'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
+'''
+
+
+
+###---------------------------------------------------------------------- workflow-----------------------------------------------------------------------------------###
 
 class wf_business(models.Model):
     name = models.CharField('业务单元', max_length=128, default='default', )
-    proj_id = models.CharField('项目id',max_length=128,default=183)
-    repo = models.CharField('项目地址',max_length=128,)
-    admin = models.ForeignKey('userInfo',on_delete=models.CASCADE,verbose_name='业务管理员',related_name='admin',)
+    #proj_id = models.CharField('项目id',max_length=128,)
+    #repo = models.CharField('项目地址',max_length=128,)
+    admin = models.ForeignKey('userInfo',on_delete=models.CASCADE,verbose_name='业务负责人',related_name='admin',)
     approval = models.ManyToManyField('userInfo', verbose_name='审批人', blank=True, related_name='approval',)
     create_time = models.DateTimeField('创建时间', auto_now_add=True)
     update_time = models.DateTimeField('更新时间', auto_now=True)
     class Meta:
         verbose_name = '业务单元'
+        verbose_name_plural = verbose_name
+    def __unicode__(self):
+        return self.name
+
+class wf_type(models.Model):
+    name = models.CharField('请求类型', max_length=128, default='生产发布', )
+    #2023/08/15
+    #deploy = models.ForeignKey(deploy_list,verbose_name='发布服务',on_delete=models.CASCADE)
+    create_time = models.DateTimeField('创建时间', auto_now_add=True)
+    update_time = models.DateTimeField('更新时间', auto_now=True)
+    class Meta:
+        verbose_name = '工单类型'
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
@@ -149,6 +202,11 @@ class wf_info(models.Model):
     finish_time = models.DateTimeField('完成时间', auto_now=True)
     #duration = models.BigIntegerField('耗时')
     memo = models.TextField('备注',blank=True,null=True)
+    # 2023/08/16
+    proj_name = models.CharField('项目名称',max_length=128,blank=True,null=True)
+    proj_tag = models.CharField('项目tag',max_length=128,blank=True,null=True)
+    # 2023/08/17
+    proj_id = models.CharField('项目id', max_length=128, blank=True, null=True)
     class Meta:
         verbose_name = '工单流程'
         verbose_name_plural = verbose_name
@@ -173,39 +231,19 @@ class wf_info_process_history(models.Model):
     memo = models.TextField('备注',blank=True,null=True)
     suggest = models.CharField('审批结果', max_length=128,blank=True,null=True )
     suggest_content = models.TextField('审批意见', blank=True,null=True)
+    # 2023/08/16
+    proj_name = models.CharField('项目名称', max_length=128, blank=True, null=True)
+    proj_tag = models.CharField('项目tag', max_length=128, blank=True, null=True)
+    # 2023/08/17
+    proj_id = models.CharField('项目id', max_length=128, blank=True, null=True)
     class Meta:
         verbose_name = '工单流程历史'
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.type,self.status
 
-###---------- task-deploy------------------###
-class scriptType(models.Model):
-    type = models.CharField('脚本类型',max_length=200,default='shell',)
-    class Meta:
-        verbose_name = '脚本类型'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.type
+###-------------------------------------------------------------------- assets---------------------------------------------------------------------------------------------###
 
-class wf_business_deploy_history(models.Model):
-    name = models.CharField('业务单元', max_length=128, default='default', )
-    proj_id = models.CharField('项目id',max_length=128,default=183)
-    repo = models.CharField('项目地址',max_length=128,)
-    branch = models.CharField('项目分支', max_length=128, )
-    tag = models.CharField('项目tag', max_length=128, )
-    opertator = models.ForeignKey('userInfo',on_delete=models.CASCADE)
-    update_time = models.DateTimeField('发布时间', auto_now=True)
-    state = models.CharField('发布状态',max_length=128)
-    logs = models.TextField('发布日志',blank=True,null=True)
-    class Meta:
-        verbose_name = '发布历史'
-        verbose_name_plural = verbose_name
-    def __unicode__(self):
-        return self.name
-
-
-###---------- assets------------------###
 '''
 class UserProfile(models.Model):
     name = models.CharField('名字',max_length=256)
@@ -230,6 +268,7 @@ class Admininfo(models.Model):
     def __unicode__(self):
         return self.username
 '''
+
 class DeviceStatus(models.Model):
     name = models.CharField('名字', max_length=256,default='未上线')
     memo = models.TextField('备注', blank=True, null=True)
@@ -256,7 +295,7 @@ class Asset(models.Model):
     create_time = models.DateTimeField('创建时间',auto_now_add=True,blank=True,null=True)
     update_time = models.DateTimeField('更新时间',auto_now=True,blank=True,null=True)
     idc = models.ForeignKey('IDC',verbose_name='idc机房',blank=True,null=True,on_delete=models.CASCADE)
-    business_unit = models.ForeignKey('wf_business',verbose_name='所属业务线',blank=True,null=True,on_delete=models.CASCADE)
+    business_unit = models.ForeignKey('wf_business',verbose_name='所属业务线',blank=True,null=True,on_delete=models.CASCADE,related_name='business_unit',)
     admin = models.ForeignKey('userInfo',verbose_name='设备管理员',blank=True,null=True,related_name='+',on_delete=models.CASCADE)
     contract = models.ForeignKey('Contract',verbose_name='合同',blank=True,null=True,on_delete=models.CASCADE)
     tag = models.ManyToManyField('Tag',verbose_name='标签',blank=True)
@@ -267,15 +306,15 @@ class Asset(models.Model):
     def __unicode__(self):
         return 'type:%s %s:%s' %(self.device_type,self.cabinet_num,self.cabinet_order)
 
-
 class Server(models.Model):
     asset = models.OneToOneField(Asset,on_delete=models.CASCADE)
     hostname = models.CharField('主机名', max_length=128, blank=True, unique=True)
+    ip = models.GenericIPAddressField('ip地址',unique=True,)
     sn = models.CharField('SN号',max_length=256)
     manufactory = models.CharField('厂商',max_length=256,blank=True,null=True)
     model = models.CharField('型号',max_length=256,blank=True,null=True)
     bios = models.CharField('BIOS', max_length=256, blank=True, null=True)
-    type = models.BooleanField('虚拟机',default=False)
+    type = models.CharField('虚拟机',max_length=256,)
     memo = models.TextField('备注', blank=True, null=True)
     create_time = models.DateTimeField('创建时间',auto_now_add=True)
     update_time = models.DateTimeField('更新时间',auto_now=True)
@@ -285,7 +324,6 @@ class Server(models.Model):
         index_together = ['sn','asset']
     def __unicode__(self):
         return self.sn
-
 
 class NetworkDevice(models.Model):
     name = models.CharField('设备名称', max_length=256, blank=True)
@@ -330,7 +368,6 @@ class Memory(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return '%s:%s' % (self.slot, self.capacity)
-
 
 class Disk(models.Model):
     slot = models.CharField('插槽名称', max_length=256, blank=True)
@@ -378,6 +415,7 @@ class Contract(models.Model):
         verbose_name_plural = verbose_name
     def __unicode__(self):
         return self.name
+
 '''
 class BusinessUnit(models.Model):
     name = models.CharField('业务线',max_length=128,unique=True)

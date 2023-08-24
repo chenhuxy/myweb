@@ -10,25 +10,28 @@
                         <div class="card p-4">
 
                             <div class="card-header bg-light">
-                                添加业务单元<label style="color: red;">{{status}}</label>
+                                添加业务单元
+                                <label style="color: red;">
+                                    {{status}}
+                                </label>
                             </div>
 
                             <div class="card-body">
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="wfbusiness" class="form-control-label require">项目名称</label>
-                                            <input type="text" id="wfbusiness" class="form-control" placeholder="项目名称" name="wfbusiness">
+                                            <label for="wfbusiness" class="form-control-label require">业务名称</label>
+                                            <input type="text" id="wfbusiness" class="form-control" placeholder="业务名称" name="wfbusiness">
                                         </div>
                                     </div>
-
+<!--
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="wfbusiness" class="form-control-label require">项目地址</label>
                                             <input type="text" id="repo" class="form-control" placeholder="项目地址" name="repo">
                                         </div>
                                     </div>
-
+-->
 
 
                                     <div class="col-md-7">
@@ -44,12 +47,13 @@
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="multi-select" class="require">审批人(审批顺序按工作流编号由小到大审批)</label>
+                                            <label for="multi-select" class="require">审批人</label>
                                             <select id="multi-select" class="form-control" name="approval" multiple="">
                                                 {% for item in approval %}
                                                 <option value={{item.id}}>{{item.username}}({{ item.workflow_order }})</option>
                                                 {% endfor %}
                                             </select>
+                                            <small class="form-text">**  审批顺序按工作流编号由小到大审批</small>
                                         </div>
                                     </div>
                                     <!--<div class="col-md-7">
@@ -68,10 +72,14 @@
                             <div class="card-footer p-4">
                                 <div class="row">
                                     <div class="col-5">
-                                        <button type="submit" class="btn btn-primary px-5">添加</button>
+                                        <button type="submit" class="btn btn-primary px-5">
+                                            <i class="icon icon-check"></i>  添加
+                                        </button>
                                     </div>
                                     <div class="col-5">
-                                        <a href="/cmdb/index/wf/wfbusiness/" class="btn btn-outline-primary px-5">取消</a>
+                                        <a href="../list/" class="btn btn-outline-primary px-5">
+                                            <i class="icon icon-action-undo"></i>  取消
+                                        </a>
                                     </div>
                                 </div>
                             </div>

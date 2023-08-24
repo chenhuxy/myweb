@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-light">
-                    <div>permission表</div>
+                    <div>权限列表</div>
                 </div>
 
 
@@ -17,7 +17,7 @@
                         <table class="table table-hover table-bordered" id="tab">
                             <thead>
                             <tr>
-                                <th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>
+                                <!--<th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>-->
                                 <th>id</th>
                                 <th>应用名称</th>
                                 <th>表名称</th>
@@ -29,7 +29,7 @@
                             <tbody>
                             {% for item in perm %}
                             <tr>
-                                <td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>
+                                <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
                                 <td>{{item.id}}</td>
                                 <td>{{item.content_type.app_label}}</td>
                                 <td>{{item.content_type.model}}</td>
@@ -40,12 +40,12 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                        <span>
+                        <!--<span>
                             <input type="checkbox" onclick="checkAll_1()" name="checkall"/>
                             <button class="btn btn-secondary" data-toggle="modal" id="delAll" onclick="delAll()" style="padding:2px;margin-top:-10px;" disabled>
                                 <i class="fa fa-trash"></i> 全部删除
                             </button>
-                        </span>
+                        </span>-->
                         <span style="float: right;">
                             共有{{count}}条，
                             每页显示：

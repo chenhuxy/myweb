@@ -8,12 +8,24 @@ from django.contrib import admin
 from .models import *
 from django.contrib.auth.admin import UserAdmin   ###继承User表，否则admin页面修改密码后明文
 
+###---------------------------------------------------------------------- monitor-----------------------------------------------------------------------------------###
+
 class monitorAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
+###------------------------------------------------------------------------ task-deploy--------------------------------------------------------------------------------------###
 
-class scriptTypeAdmin(admin.ModelAdmin):
-    list_display = ('type',)
+class deploy_script_typeAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+class deploy_appAdmin(admin.ModelAdmin):
+    list_display = ('proj_name','proj_id','unit','update_time','action',)
+    search_fields = ('proj_name','unit')
+    list_filter = ('proj_name','unit')
+    list_display_links = ('proj_name',)
+
+
+
 '''
 class userGroupAdmin(admin.ModelAdmin):
     list_display = ('name','create_time','update_time',)
@@ -23,6 +35,8 @@ class userTypeAdmin(admin.ModelAdmin):
     list_display = ('name','create_time','update_time',)
 '''
 
+###----------------------------------------------------------------- users-----------------------------------------------------------------------------------------------###
+
 class userInfoAdmin(admin.ModelAdmin):
     list_display = ('username','password','email',)
     search_fields = ('username','email',)
@@ -30,6 +44,8 @@ class userInfoAdmin(admin.ModelAdmin):
     #list_display_links = ('username','usertype',)
     #list_editable = ('username','password','email','usertype',)
     #exclude = ('password',)##隐藏某个字段
+
+###---------------------------------------------------------------------- workflow-----------------------------------------------------------------------------------###
 
 class wf_infoAdmin(admin.ModelAdmin):
     list_display = ('sponsor','type','content','status','create_time',)
@@ -51,18 +67,12 @@ class wf_typeAdmin(admin.ModelAdmin):
     list_filter = ('name',)
     list_display_links = ('name',)
 
-class wf_businessAdmin(admin.ModelAdmin):
+
+class businessAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
     list_filter = ('name',)
     list_display_links = ('name',)
-
-class wf_business_deploy_historyAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
-    list_filter = ('name',)
-    list_display_links = ('name',)
-
 
 '''
 class UserProfileAdmin(admin.ModelAdmin):
@@ -76,6 +86,10 @@ class AdmininfoAdmin(admin.ModelAdmin):
     list_filter = ('username',)
     search_fields = ('username',)
 '''
+
+
+###-------------------------------------------------------------------- assets---------------------------------------------------------------------------------------------###
+
 class DeviceTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
@@ -146,8 +160,13 @@ class HandleLogAdmin(admin.ModelAdmin):
     list_filter = ('handle_type',)
     search_fields = ('handle_type',)
 
+
+
+
+
+
 admin.site.register(monitor,monitorAdmin)
-admin.site.register(scriptType,scriptTypeAdmin)
+admin.site.register(deploy_script_type,deploy_script_typeAdmin)
 
 #admin.site.register(userGroup,userGroupAdmin)
 #admin.site.register(userType,userTypeAdmin)
@@ -155,9 +174,8 @@ admin.site.register(userInfo,UserAdmin)   ###继承User表，否则admin页面�
 admin.site.register(wf_info,wf_infoAdmin)
 admin.site.register(wf_info_process_history,wf_info_process_historyAdmin)
 admin.site.register(wf_type,wf_typeAdmin)
-admin.site.register(wf_business,wf_businessAdmin)
-admin.site.register(wf_business_deploy_history,wf_business_deploy_historyAdmin)
-
+admin.site.register(deploy_app,deploy_appAdmin)
+#admin.site.register(business,businessAdmin)
 
 
 

@@ -33,37 +33,46 @@
                                             <input type="text" id="hostname" class="form-control" placeholder="主机名" name="hostname" value="{{ item.hostname }}">
                                         </div>
                                     </div>
+
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="sn" class="form-control-label require">SN号</label>
+                                            <label for="ip" class="form-control-label require">ip地址</label>
+                                            <input type="text" id="ip" class="form-control" placeholder="ip地址" name="ip" value="{{ item.ip }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="sn" class="form-control-label ">SN号</label>
                                             <input type="text" id="sn" class="form-control" placeholder="SN号" name="sn" value="{{ item.sn }}">
                                         </div>
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="manufactory" class="form-control-label require">厂商</label>
+                                            <label for="manufactory" class="form-control-label ">厂商</label>
                                             <input type="text" id="manufactory" class="form-control" placeholder="厂商" name="manufactory" value="{{ item.manufactory }}">
                                         </div>
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="model" class="form-control-label require">型号</label>
+                                            <label for="model" class="form-control-label ">型号</label>
                                             <input type="text" id="model" class="form-control" placeholder="型号" name="model" value="{{ item.model }}">
                                         </div>
                                     </div>
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="bios" class="form-control-label require">BIOS</label>
+                                            <label for="bios" class="form-control-label ">BIOS</label>
                                             <input type="text" id="bios" class="form-control" placeholder="BIOS" name="bios" value="{{ item.bios }}">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="type" class="form-control-label require">类型（虚拟机）</label>
-                                            <input type="radio" id="type" class="form-control" placeholder="类型" name="type" value="False">否
-                                            <input type="radio" id="type" class="form-control" placeholder="类型" name="type" value="True">是
+                                            <label for="single-select-2" >服务器类型</label>
+                                            <select id="single-select-2" class="form-control" name="type">
+                                                <option value=虚拟机>虚拟机</option>
+                                                <option value=物理机>物理机</option>
+                                            </select>
                                         </div>
-
                                     </div>
 
                                     <div class="col-md-7">

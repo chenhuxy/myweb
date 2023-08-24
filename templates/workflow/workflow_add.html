@@ -12,7 +12,10 @@
 
 
                             <div class="card-header bg-light">
-                                添加流程<label style="color: red;">{{status}}</label>
+                                添加流程
+                                <label style="color: red;">
+                                    {{status}}
+                                </label>
                             </div>
 
 
@@ -25,6 +28,65 @@
                                             <input type="text" id="sponsor" class="form-control" readonly value="{{login_user}}" name="sponsor">
                                         </div>
                                     </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select" class="require">业务单元</label>
+                                            <!--<select id="single-select" class="form-control" name="wf_business" onchange="wfbusinessChange(this)">-->
+                                            <select id="single-select" class="form-control" name="wf_business">
+                                                <option value="0">------------- 请选择 -------------</option>
+                                                {% for item in wf_business %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select1" class="require">请求类型</label>
+                                            <select id="single-select1" class="form-control" name="type" onchange="wftypeChange(this)">
+                                                <option value="0" selected>------------- 请选择 -------------</option>
+                                                {% for item in wf_type %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+
+                                <div class="col-md-7" id="proj_name">
+                                    <!--
+                                        <div class="form-group" id="proj_name_child">
+                                            <label for="single-select2" class="require">发版服务</label>
+                                            <select id="single-select2" class="form-control" name="proj_name">
+                                                <option value="0">------------- 请选择 -------------</option>
+                                                {% for item in wf_type %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        -->
+                                </div>
+
+
+                                <div class="col-md-7" id="proj_tag">
+                                    <!--
+                                        <div class="form-group" id="proj_tag_child">
+                                            <label for="single-select3" class="require">发版tag</label>
+                                            <select id="single-select3" class="form-control" name="tag">
+                                                <option value="0">------------- 请选择 -------------</option>
+                                                {% for item in wf_type %}
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        -->
+                                </div>
+
+
+
 
                                     <div class="col-md-7">
                                         <div class="form-group">
@@ -44,28 +106,8 @@
                                     </div>-->
 
 
-                                   <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select1" class="require">请求类型</label>
-                                            <select id="single-select1" class="form-control" name="type">
-                                                {% for item in wf_type %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select2" class="require">业务单元</label>
-                                            <select id="single-select2" class="form-control" name="wf_business" onchange="wfbusinessChange(this)">
-                                                <!--<option value="0">------------- 请选择 -------------</option>-->
-                                                {% for item in wf_business %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
+
 
                                     <div class="col-md-7">
                                         <div class="form-group">
@@ -134,10 +176,14 @@
                             <div class="card-footer p-4">
                                 <div class="row">
                                     <div class="col-5">
-                                        <button type="submit" class="btn btn-primary px-5">添加</button>
+                                        <button type="submit" class="btn btn-primary px-5">
+                                            <i class="icon icon-check"></i>  添加
+                                        </button>
                                     </div>
                                     <div class="col-5">
-                                        <a href="/cmdb/index/wf/requests/list/" class="btn btn-outline-primary px-5">取消</a>
+                                        <a href="../list/" class="btn btn-outline-primary px-5">
+                                            <i class="icon icon-action-undo"></i>  取消
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -154,6 +200,76 @@
 {% endblock %}
 {% block javascript %}
 <script>
+
+
+
+    function wftypeChange(arg){
+        var wftype=$(arg).val();
+        console.log(wftype);
+
+        // 1:生产发布
+        if (wftype == 1){
+            $('#proj_name').append('<div class="form-group" id="proj_name_child"> \
+                                            <label for="single-select2" class="require">发版服务</label> \
+                                            <select id="single-select2" class="form-control" name="proj_name" onchange="projnameChange(this)"> \
+                                                <option value="0">------------- 请选择 -------------</option> \
+                                                {% for item in deploy_list %} \
+                                                <option value={{item.id}}>{{item.proj_name}}</option> \
+                                                {% endfor %} \
+                                            </select> \
+                                        </div>');
+
+        }
+
+        else{
+            $('#proj_name_child').remove();
+            $('#proj_tag_child').remove();
+        };
+    }
+
+
+    function projnameChange(arg){
+        var deploy_list_id=$(arg).val();
+        console.log(deploy_list_id);
+        if (deploy_list_id != 0){
+
+            $('#proj_tag').append('<div class="form-group" id="proj_tag_child"> \
+                                    <label for="single-select3" class="require">发版tag</label> \
+                                    <select id="single-select3" class="form-control" name="proj_tag"> \
+                                    </select> \
+                               </div>');
+        }
+
+        else{
+            $('#proj_tag_child').remove();
+        };
+
+        $.ajax({
+                url:'/cmdb/index/wf/wftype/change/',
+                data:{deploy_list_id:deploy_list_id},
+                type:'POST',
+                success:function (data) {
+                    var data = JSON.parse(data);
+                    var tags_name = data.tags_name;
+                    console.log(data);
+                    console.log(tags_name);
+                    target = document.getElementById('single-select3');
+                    console.log(target,typeof target);
+                    console.log(tags_name.length);
+                    var htmls = '<option value="0">------------- 请选择 -------------</option>'
+                    for(i=0;i<tags_name.length;i++){
+
+                        var htmls = htmls + '<option value=' + tags_name[i] + '>' + tags_name[i] + '</option>';
+                    };
+                    target.innerHTML = htmls;
+                },
+                error:function () {
+                    alert('服务器异常');
+                }
+            });
+
+    }
+
 
     function wfbusinessChange(arg){
         var wfbusiness=$(arg).val();

@@ -21,12 +21,12 @@ def custom_permission_required(function, perm):
     def _function(request, *args, **kwargs):
         username = request.session.get('is_login',None)['user']
         user_obj = get_object_or_404(models.userInfo,username=username)
-        print(user_obj,perm)
+        #print(user_obj,perm)
         if user_obj.has_perm(perm):
             return function(request, *args, **kwargs)
         else:
             #request.user.message_set.create(message = "What are you doing here?!")
             # Return a response or redirect to referrer or some page of your choice
             msg = {'status': '没有权限访问！'}
-            return render_to_response('account/500.html', msg)
+            return render_to_response('403.html', msg)
     return _function

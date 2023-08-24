@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-light">
-                    <div>工作流程</div>
+                    <div>工单流程</div>
                 </div>
 
 
@@ -46,9 +46,9 @@
                         <table class="table table-hover table-bordered" id="tab">
                             <thead>
                             <tr>
-                                <th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>
+                                <!--<th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>-->
                                 <th>id</th>
-                                <th>请求编号</th>
+                                <th style="display:none">请求编号</th>
                                 <th>标题</th>
                                 <th>发起人</th>
                                 <th>请求类型</th>
@@ -61,10 +61,10 @@
                             {% for item in wf_info %}
 
                             <tr>
-                                <td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>
+                                <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
                                 <td>{{item.id}}</td>
                                 <!--<td><a style="color:blue" href="/cmdb/index/wf/detail?sn={{item.sn}}">{{item.sn}}</a></td>-->
-                                <td>{{item.sn}}</td>
+                                <td style="display:none">{{item.sn}}</td>
                                 <td>{{item.title}}</td>
                                 <td>{{item.sponsor}}</td>
                                 <td>{{item.type.name}}</td>
@@ -72,34 +72,37 @@
                                 <!--<td>{{item.approval.username}}</td>-->
                                 <td>{{item.create_time}}</td>
                                 <td>
-                                    <button class="btn btn-primary" data-toggle="modal" onclick="workflowDetail(this)">
-                                        <i class="fa fa-pencil-alt"></i> 详情
-                                    </button>
-                                </td>
-<!--
-                                <td>
-                                    <button class="btn btn-primary" data-toggle="modal" onclick="workflowCommit(this)">
-                                        <i class="fa fa-cut"></i> 提交
+                                    <!--
+                                    <button class="btn btn-primary"  data-toggle="modal" onclick="workflowCommit(this)">
+                                        <i class="icon icon-check"></i> 提交
                                     </button>
                                     <button class="btn btn-primary" data-toggle="modal" onclick="workflowUpdate(this)">
                                         <i class="fa fa-pencil-alt"></i> 更新
                                     </button>
-                                    <button class="btn btn-danger" data-toggle="modal" onclick="workflowWithdraw(this)">
-                                        <i class="fa fa-trash"></i> 撤销
+                                    -->
+                                    <button class="btn btn-primary" data-toggle="modal" onclick="workflowDetail(this)">
+                                        <i class="icon icon-info"></i> 详情
                                     </button>
-                                </td>-->
+                                    <!--
+                                    <button class="btn btn-danger" data-toggle="modal" onclick="workflowWithdraw(this)">
+                                        <i class="icon icon-action-undo"></i> 撤销
+                                    </button>
+                                    -->
+                                </td>
 
                             </tr>
 
                             {% endfor %}
                             </tbody>
                         </table>
-                        <!--<span>
+                        <!--
+                        <span>
                             <input type="checkbox" onclick="checkAll_1()" name="checkall"/>
                             <button class="btn btn-secondary" data-toggle="modal" id="delAll" onclick="delAll()" style="padding:2px;margin-top:-10px;" disabled>
                                 <i class="fa fa-trash"></i> 全部删除
                             </button>
                         </span>
+                        -->
                         <span style="float: right;">
                             共有{{count}}条，
                             每页显示：
@@ -111,7 +114,7 @@
                             </select>
                             条&nbsp;&emsp;
                             {{page}}
-                        </span>-->
+                        </span>
 
                     </div>
                 </div>
@@ -281,7 +284,7 @@
 
     function workflowDetail(obj) {
         var tr = obj.parentNode.parentNode;
-        var sn = tr.cells[2].innerText;
+        var sn = tr.cells[1].innerText;
         console.log(sn)
         location.href='/cmdb/index/wf/detail/?sn='+sn;
     }

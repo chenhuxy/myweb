@@ -7,7 +7,8 @@ import requests
 from apps.myapp.auth_helper import custom_login_required,custom_permission_required
 from django.shortcuts import render_to_response
 from myweb.settings import PROM_URL,PROM_USER,PROM_PASSWROD
-
+from apps.myapp import common
+from apps.myapp import page_helper
 
 import sys
 
@@ -16,17 +17,17 @@ class PromTools:
         self.address = address
         self.username = username
         self.password = password
-        self.url = '%s/api/v1/alerts' %self.address
+        self.url = '%s/api/v1/alerts' % self.address
         self.header = {"Content-Type":"text/plain"}
 
     def alert_get(self):
         try:
-            ret = requests.get(self.url,auth=('admin','admin'),timeout=1,)
-           # print(json.loads(ret.text))
+            ret = requests.get(self.url,auth=(self.username, self.password), timeout=5,)
+            print(json.loads(ret.text))
             result = ret.text
         except Exception as e:
             print ("Error as ",e)
-            result = ''
+            result = ' '
         return result
 
 '''
@@ -42,11 +43,17 @@ if __name__ == "__main__":
 def prometheus_alert(request,*args,**kwargs):
     server = PromTools(PROM_URL,PROM_USER,PROM_PASSWROD)
     try:
-        msg = json.loads(server.alert_get())
+        alerts = json.loads(server.alert_get())['data']['alerts']
+        count = len(alerts)
+        page = common.try_int(kwargs['page'], 1)
+        perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+        pageinfo = page_helper.pageinfo(page, count, perItem)
+        alerts= alerts[pageinfo.start:pageinfo.end]
+        page_string = page_helper.pager_prometheus_alert_list(request, page, pageinfo.pageCount)
         userDict = request.session.get('is_login', None)
-        res = {'msg':msg['data']['alerts'],'login_user': userDict['user'],'count':len(msg['data']['alerts']),}
-        print(type(msg['data']['alerts']))
-        return render_to_response('monitor/prometheus.html',res)
+        msg = {'alerts': alerts, 'count': count, 'pageCount': pageinfo.pageCount,
+               'page': page_string, 'login_user': userDict['user'], }
+        return render_to_response('monitor/prometheus.html',msg)
     except:
         return render_to_response('monitor/500.html')
 

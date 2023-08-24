@@ -37,6 +37,7 @@
                                 <th>id</th>
                                 <th>资产信息</th>
                                 <th>主机名</th>
+                                <th>ip地址</th>
                                 <th>SN号</th>
                                 <th>厂商</th>
                                 <th>型号</th>
@@ -55,15 +56,12 @@
                                 <td>{{item.id}}</td>
                                 <td><a href="/cmdb/index/assets/asset">{{item.asset}}</a></td>
                                 <td>{{item.hostname}}</td>
+                                <td>{{item.ip}}</td>
                                 <td>{{item.sn}}</td>
                                 <td>{{item.manufactory}}</td>
                                 <td>{{item.model}}</td>
                                 <td>
-                                    {% if item.type == 0 %}
-                                        否
-                                    {% else %}
-                                        是
-                                    {% endif %}
+                                    {{item.type}}
                                 </td>
                                 <td>{{item.bios}}</td>
                                 <td>{{item.create_time}}</td>

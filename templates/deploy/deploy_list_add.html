@@ -1,0 +1,103 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+        {% block formTitle %}
+            <form method="post" action="/cmdb/index/deploy/task/add/">
+        {% endblock %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+                            <div class="card-header bg-light">
+                                发布配置
+                                <label style="color: red;">
+                                    {{ status }}
+                                </label>
+                            </div>
+
+                            <div class="card-body">
+                                    {% for item in deploy %}
+
+                                    <!--<div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select" class="require">脚本类型</label>
+                                            <select id="single-select" class="form-control" name="unit">
+                                                {% for item in scriptType %}
+                                                <option value={{item.id}}>{{item.type}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>-->
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="scriptType" class="form-control-label require">脚本类型</label>
+                                            <input type="text" id="scriptType" class="form-control" readonly value="python" name="scriptType">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="proj_name" class="form-control-label require">业务单元</label>
+                                            <input type="text" id="unit" class="form-control" readonly value="{{item.unit.name}}" name="unit">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="proj_name" class="form-control-label require">项目名称</label>
+                                            <input type="text" id="proj_name" class="form-control" readonly value="{{item.proj_name}}" name="proj_name">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="proj_id" class="form-control-label require">项目id</label>
+                                            <input type="text" id="proj_id" class="form-control" readonly value="{{item.proj_id}}" name="proj_id">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="single-select-2" class="require">项目tag</label>
+                                            <select id="single-select-2" class="form-control" name="tag">
+                                                <option value=NULL>---请选择---</option>
+                                                {% for item in tags %}
+                                                <option value={{item.name}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                {% endfor %}
+                            </div>
+
+
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">
+                                            <i class="icon icon-check"></i>  提交发布
+                                        </button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="../list/" class="btn btn-outline-primary px-5">
+                                            <i class="icon icon-action-undo"></i>  取消
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% block formFooter %}
+            </form>
+        {% endblock %}
+        </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+    </script>
+{% endblock %}

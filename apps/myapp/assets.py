@@ -40,8 +40,8 @@ from apps.myapp.auth_helper import custom_login_required,custom_permission_requi
 
 #####################################################################################################################################
 from django.shortcuts import render,render_to_response,HttpResponse
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+#from rest_framework.decorators import api_view
+#from rest_framework.response import Response
 import urllib
 import urllib.parse
 
@@ -65,7 +65,7 @@ def devicetype(request,*args,**kwargs):
 def devicetypeForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     devicetype = models.DeviceType.objects.all()
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'devicetype': devicetype, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/devicetype_add.html',msg)
@@ -74,9 +74,9 @@ def devicetypeForm_add(request,*args,**kwargs):
 @custom_permission_required('myapp.add_devicetype')
 def devicetypeAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
-    usertype = models.userType.objects.all()
+    #usertype = models.userType.objects.all()
     userDict = request.session.get('is_login', None)
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     #result = {'status': '','usertype':None}
     if request.method == 'POST':
         devicetype = request.POST.get('devicetype',None)
@@ -94,7 +94,8 @@ def devicetypeAdd(request,*args,**kwargs):
                 msg = {'userinfo': userinfo, 'devicetype': devicetype,
                        'login_user': userDict['user'],'status':'xx不能为空', }
         else:
-            msg = {'userinfo': userinfo, 'devicetype': devicetype, 'usergroup':usergroup,
+            #msg = {'userinfo': userinfo, 'devicetype': devicetype, 'usergroup':usergroup,
+            msg = {'userinfo': userinfo, 'devicetype': devicetype,
                    'login_user': userDict['user'],'status':'该设备类型已存在！', }
     return render_to_response('assets/devicetype_add.html',msg)
 
@@ -143,7 +144,7 @@ def devicestatus(request,*args,**kwargs):
 def devicestatusForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     devicestatus = models.DeviceStatus.objects.all()
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'devicestatus': devicestatus, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/devicestatus_add.html',msg)
@@ -153,7 +154,7 @@ def devicestatusForm_add(request,*args,**kwargs):
 def devicestatusAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     userDict = request.session.get('is_login', None)
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     #result = {'status': '','devicestatus':None}
     if request.method == 'POST':
         devicestatus = request.POST.get('devicestatus',None)
@@ -171,7 +172,8 @@ def devicestatusAdd(request,*args,**kwargs):
                 msg = {'userinfo': userinfo, 'devicestatus': devicestatus,
                        'login_user': userDict['user'],'status':'xx不能为空', }
         else:
-            msg = {'userinfo': userinfo, 'devicestatus': devicestatus, 'usergroup':usergroup,
+            #msg = {'userinfo': userinfo, 'devicestatus': devicestatus, 'usergroup': usergroup,
+            msg = {'userinfo': userinfo, 'devicestatus': devicestatus,
                    'login_user': userDict['user'],'status':'该设备状态已存在！', }
     return render_to_response('assets/devicestatus_add.html',msg)
 
@@ -220,7 +222,7 @@ def idc(request,*args,**kwargs):
 def idcForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     idc = models.IDC.objects.all()
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'idc': idc, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/idc_add.html',msg)
@@ -230,7 +232,7 @@ def idcForm_add(request,*args,**kwargs):
 def idcAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     userDict = request.session.get('is_login', None)
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     #result = {'status': '','idc':None}
     if request.method == 'POST':
         idc = request.POST.get('idc',None)
@@ -250,7 +252,8 @@ def idcAdd(request,*args,**kwargs):
                 msg = {'userinfo': userinfo, 'idc': idc,
                        'login_user': userDict['user'],'status':'xx不能为空', }
         else:
-            msg = {'userinfo': userinfo, 'idc': idc, 'usergroup':usergroup,
+            #msg = {'userinfo': userinfo, 'idc': idc, 'usergroup': usergroup,
+            msg = {'userinfo': userinfo, 'idc': idc,
                    'login_user': userDict['user'],'status':'该idc已存在！', }
     return render_to_response('assets/idc_add.html',msg)
 
@@ -301,7 +304,7 @@ def contract(request,*args,**kwargs):
 def contractForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     contract = models.Contract.objects.all()
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'contract': contract, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/contract_add.html',msg)
@@ -311,7 +314,7 @@ def contractForm_add(request,*args,**kwargs):
 def contractAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     userDict = request.session.get('is_login', None)
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     if request.method == 'POST':
         sn = request.POST.get('sn',None)
         name = request.POST.get('name', None)
@@ -334,7 +337,8 @@ def contractAdd(request,*args,**kwargs):
                 msg = {'userinfo': userinfo, 'contract': contract,
                        'login_user': userDict['user'],'status':'xx不能为空', }
         else:
-            msg = {'userinfo': userinfo, 'contract': contract, 'usergroup':usergroup,
+            #msg = {'userinfo': userinfo, 'contract': contract, 'usergroup': usergroup,
+            msg = {'userinfo': userinfo, 'contract': contract,
                    'login_user': userDict['user'],'status':'该合同已存在！', }
     return render_to_response('assets/contract_add.html',msg)
 
@@ -390,7 +394,7 @@ def tag(request,*args,**kwargs):
 def tagForm_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     tag = models.Tag.objects.all()
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     userDict = request.session.get('is_login', None)
     msg = {'tag': tag, 'login_user': userDict['user'],'status':'', }
     return render_to_response('assets/tag_add.html',msg)
@@ -400,7 +404,7 @@ def tagForm_add(request,*args,**kwargs):
 def tagAdd(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     userDict = request.session.get('is_login', None)
-    usergroup = models.userGroup.objects.all()
+    #usergroup = models.userGroup.objects.all()
     #result = {'status': '','tag':None}
     if request.method == 'POST':
         tag = request.POST.get('tag',None)
@@ -418,7 +422,8 @@ def tagAdd(request,*args,**kwargs):
                 msg = {'userinfo': userinfo, 'tag': tag,
                        'login_user': userDict['user'],'status':'xx不能为空', }
         else:
-            msg = {'userinfo': userinfo, 'tag': tag, 'usergroup':usergroup,
+            #msg = {'userinfo': userinfo, 'tag': tag, 'usergroup': usergroup,
+            msg = {'userinfo': userinfo, 'tag': tag,
                    'login_user': userDict['user'],'status':'该tag已存在！', }
     return render_to_response('assets/tag_add.html',msg)
 
@@ -467,12 +472,12 @@ def asset(request,*args,**kwargs):
 @custom_permission_required('myapp.add_asset')
 def assetForm_add(request,*args,**kwargs):
     asset = models.Asset.objects.all()
+    business_unit = models.wf_business.objects.all()
     userDict = request.session.get('is_login', None)
     device_type = models.DeviceType.objects.all()
     device_status = models.DeviceStatus.objects.all()
     contract = models.Contract.objects.all()
     tag = models.Tag.objects.all()
-    business_unit = models.wf_business.objects.all()
     idc = models.IDC.objects.all()
     admin = models.userInfo.objects.all()
     msg = {'asset': asset, 'login_user': userDict['user'],'status':'',
@@ -489,17 +494,17 @@ def assetAdd(request,*args,**kwargs):
         device_status = request.POST.get('device_status', None)
         contract = request.POST.get('contract',None)
         tag = request.POST.getlist('tag', None)
-        business_unit = request.POST.get('business_unit', None)
+        business_unit_id = request.POST.get('business_unit', None)
         cabinet_num = request.POST.get('cabinet_num',None)
         cabinet_order = request.POST.get('cabinet_order', None)
         idc = request.POST.get('idc', None)
         admin = request.POST.get('admin', None)
         memo = request.POST.get('memo',None)
         print(tag,)
-        is_empty = all([device_type,device_status,contract,business_unit,idc,admin,cabinet_num,cabinet_order])
+        is_empty = all([device_type,device_status,])
         if is_empty:
             queryset=models.Asset.objects.create(device_type_id=device_type,device_status_id=device_status,contract_id=contract,
-                                        business_unit_id=business_unit,idc_id=idc,cabinet_num=cabinet_num,
+                                        business_unit_id=business_unit_id,idc_id=idc,cabinet_num=cabinet_num,
                                         cabinet_order=cabinet_order,admin_id=admin,memo=memo,)
             queryset.tag.set(tag)
             msg = {
@@ -598,6 +603,7 @@ def hostAdd(request,*args,**kwargs):
     if request.method == 'POST':
         asset = request.POST.get('asset', None)
         hostname = request.POST.get('hostname', None)
+        ip = request.POST.get('ip', None)
         sn = request.POST.get('sn',None)
         manufactory = request.POST.get('manufactory', None)
         model = request.POST.get('model', None)
@@ -608,9 +614,9 @@ def hostAdd(request,*args,**kwargs):
         is_exist = models.Server.objects.filter(hostname=hostname,)
         print(is_exist)
         if not (is_exist):
-            is_empty = all([asset,hostname,contract,sn,manufactory,model,bios,type,])
+            is_empty = all([asset,hostname,ip,])
             if is_empty:
-                queryset=models.Server.objects.create(asset_id=asset,hostname=hostname,sn=sn,manufactory=manufactory,
+                queryset=models.Server.objects.create(asset_id=asset,hostname=hostname,ip=ip,sn=sn,manufactory=manufactory,
                                                  model=model,bios=bios,type=type,memo=memo,)
                 msg = {
                        'login_user': userDict['user'],'status':'添加host成功', }
@@ -621,7 +627,7 @@ def hostAdd(request,*args,**kwargs):
                 return render_to_response('assets/500.html', msg)
         else:
             msg = {
-                'login_user': userDict['user'], 'status': 'hostname已存在', }
+                'login_user': userDict['user'], 'status': 'hostname或ip地址已存在', }
             return render_to_response('assets/500.html',msg)
 
 @custom_login_required
@@ -642,6 +648,7 @@ def hostUpdate(request,*args,**kwargs):
     id = kwargs['id']
     asset=request.POST.get('asset',None)
     hostname = request.POST.get('hostname', None)
+    ip = request.POST.get('ip', None)
     sn = request.POST.get('sn', None)
     manufactory = request.POST.get('manufactory', None)
     model = request.POST.get('model', None)
@@ -651,7 +658,7 @@ def hostUpdate(request,*args,**kwargs):
     update_time = timezone.now()
     userDict = request.session.get('is_login', None)
     ##update return value is type int
-    models.Server.objects.filter(id=id).update(asset_id=asset,hostname=hostname,sn=sn,manufactory=manufactory,
+    models.Server.objects.filter(id=id).update(asset_id=asset,hostname=hostname,ip=ip,sn=sn,manufactory=manufactory,
                                                model=model,bios=bios,type=type,memo=memo,update_time=update_time,)
     msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'asset':asset,'hostname':hostname,'sn':sn,
            'manufactory':manufactory,'model':model,'bios':bios,'type':type,'memo':memo, }
@@ -1120,3 +1127,110 @@ def networkDel(request,*args,**kwargs):
     print('delete',id)
     msg = {'code':1,'result':'删除network id:'+id,}
     return render_to_response('assets/network.html',msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_wf_business')
+def business(request,*args,**kwargs):
+    business=models.business.objects.all()
+    count=business.count()
+    userDict = request.session.get('is_login', None)
+    msg = {'business': business, 'login_user': userDict['user'],'count':count,}
+    return render_to_response('assets/business.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.add_wf_business')
+def businessForm_add(request,*args,**kwargs):
+    userinfo = models.userInfo.objects.all()
+    business = models.business.objects.all()
+    #usergroup = models.userGroup.objects.all()
+    approval = userinfo.exclude(workflow_order=0)
+    userDict = request.session.get('is_login', None)
+    msg = {'business': business, 'userinfo':userinfo,
+           'login_user': userDict['user'],'status':'','approval':approval, }
+    print(msg)
+    return render_to_response('assets/business_add.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.add_wf_business')
+def businessAdd(request,*args,**kwargs):
+    userinfo = models.userInfo.objects.all()
+    userDict = request.session.get('is_login', None)
+    if request.method == 'POST':
+        business = request.POST.get('business',None)
+        admin_id = request.POST.get('admin',None)
+        is_exist = models.business.objects.filter(name=business)
+        print(is_exist)
+        if not (is_exist):
+            is_empty = all([business,])
+            if is_empty:
+                queryset=models.business.objects.create(name=business,admin_id=admin_id,)
+                msg = {'userinfo': userinfo, 'business': business,
+                       'login_user': userDict['user'],'status':'添加业务单元成功', }
+                return redirect('/cmdb/index/wf/deploy/business/')
+            else:
+                msg = {'userinfo': userinfo, 'business': business,
+                       'login_user': userDict['user'],'status':'xx不能为空', }
+        else:
+            msg = {'userinfo': userinfo, 'business': business,
+                   'login_user': userDict['user'],'status':'该业务单元已存在！', }
+    return render_to_response('assets/business_add.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
+def businessForm_update(request,*args,**kwargs):
+    id = kwargs['id']
+    business = models.business.objects.filter(id=id)
+    admin = models.userInfo.objects.all().exclude(unit_admin__id=id)
+    approval = models.userInfo.objects.all().exclude(workflow_order=0).exclude(approval__id=id)
+    userDict = request.session.get('is_login', None)
+    msg = {'id':id, 'login_user':userDict['user'],'status':u'操作成功','business':business,
+           'admin':admin,'approval':approval,}
+    print(msg)
+    return render_to_response('assets/business_update.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
+def businessUpdate(request,*args,**kwargs):
+    id = kwargs['id']
+    business = request.POST.get('business')
+    admin_id = request.POST.get('admin')
+    update_time = timezone.now()
+    userDict = request.session.get('is_login', None)
+    models.business.objects.filter(id=id).update(name=business,
+        update_time=update_time,admin_id=admin_id,)
+    return redirect('/cmdb/index/wf/deploy/business/')
+
+@custom_login_required
+@custom_permission_required('myapp.change_wf_business')
+def business_ajax(request,*args,**kwargs):
+    if request.method == 'POST':
+        try:
+            business_id = request.POST.get('business',None)
+            print(business_id)
+            business = models.business.objects.filter(id=business_id)
+            director_id = business.values('director_id')[0]['director_id']
+            director = models.userInfo.objects.filter(id=director_id).values('username')[0]['username']
+            print(business,director_id,director,)
+            userDict = request.session.get('is_login', None)
+            #data = serializers.serialize('json',wfbusiness) #序列化
+            #data = json.dumps(wfbusiness)
+            data = {'director_id':director_id,'director':director,}
+            print(data)
+            #return HttpResponse(json.dumps(data))
+        except:
+            data = {'director_id':'0','director':'------------- 请选择 -------------',}
+        finally:
+            return HttpResponse(json.dumps(data))
+
+@custom_login_required
+@custom_permission_required('myapp.delete_wf_business')
+def businessDel(request,*args,**kwargs):
+    id = request.POST.get('id')
+    models.business.objects.filter(id=id).delete()
+    print('delete',id)
+    msg = {'code':1,'result':'删除工单类型id:'+id,}
+    return render_to_response('assets/business.html',msg)
+
+
+

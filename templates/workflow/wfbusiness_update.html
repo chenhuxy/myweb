@@ -9,27 +9,28 @@
                     <div class="col-md-12">
                         <div class="card p-4">
                             <div class="card-header bg-light">
-                                更新业务单元<label style="color: red;">{{ status }}</label>
+                                更新业务单元
+                                <label style="color: red;">
+                                    {{ status }}
+                                </label>
                             </div>
 
                             <div class="card-body">
                                   {% for item in wfbusiness %}
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="single-select" class="require">业务名称</label>
-                                            <select id="single-select" class="form-control" name="wfbusiness">
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                            </select>
+                                            <label for="wfbusiness" class="form-control-label require">业务名称</label>
+                                            <input type="text" id="wfbusiness" class="form-control" placeholder="业务名称" name="wfbusiness" value="{{ item.name }}">
                                         </div>
                                     </div>
-
+<!--
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="repo" class="form-control-label require">项目地址</label>
                                             <input type="text" id="repo" class="form-control" value="{{item.repo}}" name="repo">
                                         </div>
                                     </div>
-
+-->
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="single-select-2" class="require">业务负责人</label>
@@ -52,6 +53,7 @@
                                                 <option value={{item.id}}>{{item.username}}({{ item.workflow_order }})</option>
                                                 {% endfor %}
                                             </select>
+                                            <small class="form-text">**  审批顺序按工作流编号由小到大审批</small>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -60,10 +62,14 @@
                             <div class="card-footer p-4">
                                 <div class="row">
                                     <div class="col-5">
-                                        <button type="submit" class="btn btn-primary px-5">更新</button>
+                                        <button type="submit" class="btn btn-primary px-5">
+                                            <i class="icon icon-check"></i>  更新
+                                        </button>
                                     </div>
                                     <div class="col-5">
-                                        <a href="/cmdb/index/wf/wfbusiness/" class="btn btn-outline-primary px-5">取消</a>
+                                        <a href="../list/" class="btn btn-outline-primary px-5">
+                                            <i class="icon icon-action-undo"></i>  取消
+                                        </a>
                                     </div>
                                 </div>
                             </div>
