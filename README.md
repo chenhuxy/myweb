@@ -1,5 +1,18 @@
 # myweb
 
+### 一些功能截图：
+![image](pictures/dashboard.jpg)
+![image](pictures/登录.png)
+![image](pictures/注册.jpg)
+![image](pictures/用户及权限认证.jpg)
+![image](pictures/工单.jpg)
+![image](pictures/发布工单.jpg)
+![image](pictures/待办工单.jpg)
+![image](pictures/应用列表.jpg)
+![image](pictures/发布列表.jpg)
+![image](pictures/发布日志.jpg)
+
+### 安装方式及步骤：
 一. 本地安装：
 
 1.准备环境： 
@@ -35,7 +48,7 @@
   
 7.启动celery
 
-        nohup celery worker -A myweb -P eventlet -l info &
+        nohup celery worker -A myweb -P solo -l info &
    
 8.启动server
 
@@ -48,13 +61,18 @@
 	密码：admin
 
    
-二. Docker安装
+二. Docker安装（推荐方式）
 
 1.启动服务
 
         docker-compose up -d
-        
-2.启动成功，浏览器访问ip：8000/cmdb
+ 
+2.初始化数据库
+
+        执行scripts目录下sql脚本
+
+       
+3.启动成功，浏览器访问ip：8000/cmdb
 
 	用户名：admin
 
