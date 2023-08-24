@@ -23,9 +23,9 @@ SECRET_KEY = '0k3^xbe$m)*r@9)97=-vt097ag^45ln1ort7wa@n03%x9*h3sk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# DEBUG = True
+DEBUG = True
 
-DEBUG = False
+#DEBUG = False
 
 ALLOWED_HOSTS = ["*", ]
 
@@ -156,7 +156,6 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-'''
 # settings中debug开启时，加载静态文件使用
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -164,6 +163,7 @@ STATICFILES_DIRS = [
 '''
 # settings中debug关闭时，加载静态文件使用
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+'''
 
 # session配置
 
@@ -258,12 +258,12 @@ ZABBIX_USER = 'xxx'
 ZABBIX_PASSWORD = 'xxx'
 
 # prometheus配置
-PROM_URL = 'http://1.1.1.1/prom'
+PROM_URL = 'xxx'
 PROM_USER = 'xxx'
 PROM_PASSWROD = 'xxx'
 
 # gitlab配置
-GITLAB_URL = 'http://1.1.1.1'
+GITLAB_URL = 'xxx'
 GITLAB_TOKEN = 'xxx'
 
 # 自定义用户表配置
