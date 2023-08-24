@@ -14,6 +14,12 @@ services:
     - myweb-net
     ports:
     - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   redis:
     image: redis:3
@@ -21,6 +27,12 @@ services:
     - myweb-net
     ports:
     - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   myweb:
     image: chenhuxy/myweb:v1.0.0
@@ -30,8 +42,10 @@ services:
     - ./conf/myweb/settings.py:/myweb/myweb/settings.py
     - ./logs/:/myweb/logs
     depends_on:
-    - mysql
-    - redis
+    - mysql:
+      condition: service_healthy
+    - redis:
+      condition: service_healthy
     restart: always
     networks:
     - myweb-net
