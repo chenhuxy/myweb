@@ -183,8 +183,9 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
     proj_id = wf_info.values('proj_id')[0]['proj_id']
     unit = models.wf_business.objects.filter(id=business_id).values('name')[0]['name']
     deploy_status = '执行中'
-    max_id = models.deploy_list_detail.objects.all().order_by('-id')[0].id
-    if max_id is None:
+    try:
+        max_id = models.deploy_list_detail.objects.all().order_by('-id')[0].id
+    except:
         # 如果数据库为空，则从 ID 为 1 的数据开始提取
         max_id = 0
     print(max_id, type(max_id))
@@ -231,9 +232,16 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
                                                   next_assignee_username, memo, suggest, suggest_content, proj_name,
                                                   proj_tag,
                                                   proj_id)
-                           ) | workflow_send_email.si(sn, username, email) | ssh_remote_exec_cmd_wf.si(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD,
-                                               SSH_CMD + ' ' + proj_id + ' ' + proj_name + ' ' + proj_tag + ' ' + str(
-                                                   max_id + 1),unit,proj_name,proj_id,proj_tag,deploy_status))()
+                           ) | workflow_send_email.si(sn, username, email) | ssh_remote_exec_cmd_wf.si(SSH_HOST,
+                                                                                                       SSH_PORT,
+                                                                                                       SSH_USERNAME,
+                                                                                                       SSH_PASSWORD,
+                                                                                                       SSH_CMD + ' ' + proj_id + ' ' + proj_name + ' ' + proj_tag + ' ' + str(
+                                                                                                           max_id + 1),
+                                                                                                       unit, proj_name,
+                                                                                                       proj_id,
+                                                                                                       proj_tag,
+                                                                                                       deploy_status))()
                 else:
                     (group(UpdateCurrent.s(sn, status, flow_id, assignee_username, next_assignee_username),
                            UpdateHistoryProcess.s(sn, title,
@@ -265,6 +273,7 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
         '''
 
         break
+
 
 # 手动发布
 # @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 10}, )
@@ -305,6 +314,7 @@ def ssh_remote_exec_cmd(self, ip, port, username, password, cmd):
     # 不返回result到celery result，仅返回task_id
     return
 
+
 '''
 # @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 10}, )
 @shared_task(bind=True)
@@ -314,11 +324,11 @@ def create_task_list_detail(self, unit, proj_name, proj_id, proj_tag, deploy_sta
                                              tag=proj_tag, task_id=self.request.id, status=deploy_status)
 '''
 
+
 # 自动发布
 # @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 10}, )
 @shared_task(bind=True)
-def ssh_remote_exec_cmd_wf(self, ip, port, username, password, cmd,unit,proj_name,proj_id,proj_tag,deploy_status):
-
+def ssh_remote_exec_cmd_wf(self, ip, port, username, password, cmd, unit, proj_name, proj_id, proj_tag, deploy_status):
     models.deploy_list_detail.objects.create(unit=unit, proj_name=proj_name, proj_id=proj_id,
                                              tag=proj_tag, task_id=self.request.id, status=deploy_status)
 
@@ -329,8 +339,6 @@ def ssh_remote_exec_cmd_wf(self, ip, port, username, password, cmd,unit,proj_nam
     stdin, stdout, stderr = ssh.exec_command(cmd)
     lines = stdout.read().decode()
     # print(lines,type(lines))
-
-
 
     while True:
         # nextline = remote_file.readline().strip()

@@ -268,8 +268,9 @@ def deploy_list_form_add(request,*args,**kwargs):
 def deploy_list_add(request,*args,**kwargs):
     userinfo = models.userInfo.objects.all()
     userDict = request.session.get('is_login', None)
-    max_id = models.deploy_list_detail.objects.all().order_by('-id')[0].id
-    if max_id is None:
+    try:
+        max_id = models.deploy_list_detail.objects.all().order_by('-id')[0].id
+    except:
         # 如果数据库为空，则从 ID 为 1 的数据开始提取
         max_id = 0
     print(max_id,type(max_id))
