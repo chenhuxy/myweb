@@ -82,26 +82,28 @@ CREATE TABLE `django_admin_log`  (
 -- ----------------------------
 -- Table structure for django_content_type
 -- ----------------------------
-DROP TABLE IF EXISTS `django_content_type`;
-CREATE TABLE `django_content_type`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app_label` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `model` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `django_content_type_app_label_model_76bd3d3b_uniq`(`app_label`, `model`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+--DROP TABLE IF EXISTS `django_content_type`;
+--CREATE TABLE `django_content_type`  (
+--  `id` int(11) NOT NULL AUTO_INCREMENT,
+--  `app_label` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+--  `model` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+--  PRIMARY KEY (`id`) USING BTREE,
+--  UNIQUE INDEX `django_content_type_app_label_model_76bd3d3b_uniq`(`app_label`, `model`) USING BTREE
+--) ENGINE = InnoDB AUTO_INCREMENT = 27 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
 
 -- ----------------------------
 -- Table structure for django_migrations
 -- ----------------------------
-DROP TABLE IF EXISTS `django_migrations`;
-CREATE TABLE `django_migrations`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `app` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `applied` datetime(6) NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+--DROP TABLE IF EXISTS `django_migrations`;
+--CREATE TABLE `django_migrations`  (
+--  `id` int(11) NOT NULL AUTO_INCREMENT,
+--  `app` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+--  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+--  `applied` datetime(6) NOT NULL,
+--  PRIMARY KEY (`id`) USING BTREE
+--) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for django_session

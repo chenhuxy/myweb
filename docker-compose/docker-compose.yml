@@ -23,7 +23,7 @@ services:
     - "6379:6379"
 
   myweb:
-    image: chenhuxy/myweb
+    image: chenhuxy/myweb:v1.0.0
     environment:
       LANG: "en_US.utf8"
     volumes:

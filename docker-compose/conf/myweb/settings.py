@@ -116,7 +116,7 @@ DATABASES = {
         'NAME': 'django_test',
         'USER': 'myweb',
         'PASSWORD': 'myweb',
-        'HOST': 'myweb',
+        'HOST': 'mysql',
         'PORT': '3306',
     }
 }
