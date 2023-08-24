@@ -17,7 +17,7 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-use django_test;
+use myweb;
 
 -- ----------------------------
 -- Table structure for myapp_userinfo
