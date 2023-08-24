@@ -42,10 +42,10 @@ services:
     - ./conf/myweb/settings.py:/myweb/myweb/settings.py
     - ./logs/:/myweb/logs
     depends_on:
-    - mysql:
-      condition: service_healthy
-    - redis:
-      condition: service_healthy
+      mysql:
+        condition: "service_healthy"
+      redis:
+        condition: "service_healthy"
     restart: always
     networks:
     - myweb-net
