@@ -39,12 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.myapp',
-    'apps.upload',
-    'apps.monitor',
-    'apps.app01',
-    'rest_framework',
-    'apps.DjangoUeditor',
-    #'django_db_reconnect',
+    #'apps.upload',
+    #'apps.monitor',
+    #'apps.app01',
+    #'rest_framework',
+    #'apps.DjangoUeditor',
 
 
 ]
@@ -117,7 +116,7 @@ DATABASES = {
         'NAME': 'django_test',
         'USER': 'myweb',
         'PASSWORD': 'myweb',
-        'HOST': 'mysql',
+        'HOST': 'myweb',
         'PORT': '3306',
     }
 }
@@ -262,12 +261,13 @@ EMAIL_USE_TLS = False   #是否使用TLS安全传输协议(用于在两个通信
 EMAIL_USE_SSL = False    #是否使用SSL加密，qq企业邮箱要求使用
 EMAIL_HOST = 'smtp.qq.com'   #发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
 EMAIL_PORT = 25     #发件箱的SMTP服务器端口
-EMAIL_HOST_USER = '834163059@qq.com'    #发送邮件的邮箱地址
-EMAIL_HOST_PASSWORD = 'mipzyypfdcpkbbih'         #发送邮件的邮箱密码(这里使用的是授权码)
+EMAIL_HOST_USER = 'xxx@qq.com'    #发送邮件的邮箱地址
+EMAIL_HOST_PASSWORD = 'xxx'         #发送邮件的邮箱密码(这里使用的是授权码)
 
 ### cache
 # pip install django-redis-cache(Python 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (AMD64)] on win32
 # Django 2.1.7 #django-redis-cache  3.0.0 #redis:3.5.3)
+
 CACHES={
     'default': {
         #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', #缓存到本地内存中
@@ -297,25 +297,24 @@ CACHES={
 }
 '''
 
-
 ### celery
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
 CELERY_TASK_SERIALIZER = 'json'
 
 ### zabbix
-ZABBIX_URL = 'http://10.180.10.84/zabbix'
-ZABBIX_USER = 'hu.chen'
-ZABBIX_PASSWORD = 'Qoros0507'
+ZABBIX_URL = 'http://1.1.1.1/zabbix'
+ZABBIX_USER = 'xxx'
+ZABBIX_PASSWORD = 'xxx'
 
 ### prometheus
-PROM_URL = 'http://10.181.1.13/prometheus'
-PROM_USER = 'admin'
-PROM_PASSWROD = 'admin'
+PROM_URL = 'http://1.1.1.1/prometheus'
+PROM_USER = 'xxx'
+PROM_PASSWROD = 'xxx'
 
 ### gitlab
-GITLAB_URL = 'http://10.180.11.8'
-GITLAB_TOKEN = 'F7nAGXozy4dsfJvxiLu_'
+GITLAB_URL = 'http://1.1.1.1'
+GITLAB_TOKEN = 'xxx'
 
 ###
 AUTH_USER_MODEL = "myapp.userInfo"
