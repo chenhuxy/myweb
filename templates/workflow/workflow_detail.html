@@ -2,7 +2,7 @@
 {% block content %}
         <div class="content">
         {% block formTitle %}
-            <form method="post" action="/cmdb/index/wf/tasks/process/">
+            <!--<form method="post" action="/cmdb/index/wf/tasks/process/">-->
         {% endblock %}
             <div class="container-fluid">
 
@@ -37,12 +37,19 @@
                     <div class="col-md-12">
                         <div class="card p-4">
 
-                            <div>
-                               <a href="../list/" class="btn btn-outline-primary px-5">返回</a>
+                            <div style="text-align: right">
+                               <a href="../list">
+                                   <button class="btn btn-outline-primary px-5">
+                                        <i class="icon icon-action-undo"></i>  返回
+                                   </button>
+                               </a>
                             </div>
 
                             <div class="card-header bg-light">
-                                流程详情<label style="color: red;">{{status}}</label>
+                                流程详情
+                                <label style="color: red;">
+                                    {{status}}
+                                </label>
                             </div>
 
                             <div class="card-body">
@@ -67,6 +74,49 @@
 
                                     <div class="col-md-7">
                                         <div class="form-group">
+                                            <label for="business" class="form-control-label require">业务单元</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="business" class="form-control" readonly value="{{item.business.name}}" name="business">
+                                                {% endfor %}
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="type" class="form-control-label require">请求类型</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" id="type" class="form-control" readonly value="{{item.type.name}}" name="type">
+                                                {% endfor %}
+                                        </div>
+                                    </div>
+
+
+
+                                <div class="col-md-7" id="proj_name">
+                                        <div class="form-group">
+                                            <label for="proj_name" class="form-control-label require">项目名称</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" class="form-control" readonly value="{{item.proj_name}}" name="proj_name">
+                                                {% endfor %}
+                                            <small class="form-text">工单类型为‘生产发布’时需要填写，其他类型忽略</small>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7" id="proj_tag">
+                                        <div class="form-group">
+                                            <label for="proj_tag" class="form-control-label require">项目tag</label>
+                                            {% for item in wf_info %}
+                                            <input type="text" class="form-control" readonly value="{{item.proj_tag}}" name="proj_tag">
+                                                {% endfor %}
+                                            <small class="form-text">工单类型为‘生产发布’时需要填写，其他类型忽略</small>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
                                             {% for item in wf_info %}
                                             <label for="title" class="form-control-label require">标题</label>
                                             <input type="text" id="title" class="form-control" readonly value="{{item.title}}" name="title">
@@ -74,23 +124,9 @@
                                         </div>
                                     </div>
 
-                                   <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="types" class="form-control-label require">请求类型</label>
-                                            {% for item in wf_info %}
-                                            <input type="text" id="types" class="form-control" readonly value="{{item.type.name}}" name="type">
-                                                {% endfor %}
-                                        </div>
-                                    </div>
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="business" class="form-control-label require">业务单元</label>
-                                            {% for item in wf_info %}
-                                            <input type="text" id="business" class="form-control" readonly value="{{item.business.name}}" name="business">
-                                                {% endfor %}
-                                        </div>
-                                    </div>
+
+
 
 
 
@@ -219,4 +255,19 @@
         </form>
     {% endblock %}
         </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+        $(function () {
+
+                var type = $('#type').val();
+                //alert(type);
+                //console.log(type);
+                if(type!='生产发布'){
+                    document.getElementById('proj_name').setAttribute("style","display:none");
+                    document.getElementById('proj_tag').setAttribute("style","display:none");
+                }
+
+        })
+    </script>
 {% endblock %}

@@ -1,0 +1,420 @@
+
+{% extends "master/layout.html" %}
+
+{% block content %}
+
+<div class="content"  id="task_log_parent">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+
+
+
+                    <div class="card-header bg-light">
+
+                        <div style="text-align: right">
+                               <a href="../list/">
+                                   <button class="btn btn-outline-primary px-5">
+                                        <i class="icon icon-action-undo"></i>  返回
+                                   </button>
+                               </a>
+                            </div>
+
+                        发布日志
+                        <br><br>
+                        id：<label style="color: red;" id="id">{{ id }}</label>
+                        项目名称：<label style="color: red;" id="proj_name">{{ proj_name }}</label>
+                        项目id：<label style="color: red;" id="proj_id">{{ proj_id }}</label>
+                        发布tag：<label style="color: red;" id="tag">{{ tag }}</label>
+                        任务id：<label style="color: red;" id="task_id">{{ task_id }}</label>
+
+
+
+                    </div>
+
+                    <div class="card-body">
+                    <pre>
+                        <span id="task_log">
+                         <!--{{ result }}-->
+                        </span>
+                    </pre>
+                    </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
+{% block javascript %}
+<script>
+
+// websocket获取日志
+
+$(function () {
+
+    // 新建websocket连接
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/cmdb/index/deploy/task/get_task_log/'
+    );
+
+    // 连接建立成功事件
+    chatSocket.onopen = function () {
+        console.log('WebSocket连接打开');
+        console.log('给服务端发送消息');
+        //发送字符: "来自客户端浏览器的请求信息"到服务端
+        // 获取服务名
+        var id = document.getElementById('id').innerHTML;
+        var proj_name = document.getElementById('proj_name').innerHTML;
+        var proj_id = document.getElementById('proj_id').innerHTML;
+        var tag = document.getElementById('tag').innerHTML;
+        var task_id = document.getElementById('task_id').innerHTML;
+        //console.log(proj_name,proj_id,tag);
+        var msg = {
+            'id': id,
+            'proj_name': proj_name,
+            'proj_id': proj_id,
+            'tag': tag,
+            'task_id': task_id,
+            'message': '来自客户端浏览器的请求信息',
+        };
+        console.log(JSON.stringify(msg));
+        chatSocket.send(JSON.stringify(msg));
+        console.log("请求信息发送成功！");
+    };
+
+    // 接收消息事件
+    chatSocket.onmessage = function (e) {
+        if (e.data.length > 0) {
+            //打印服务端返回的数据
+            result = JSON.parse(e.data)
+            console.log('message: ' + result);
+            //alert(result);
+            // 转换为字符串，防止卡死testestt
+            $('#task_log').append(result);
+            //滚动条自动到最底部
+            $("#task_log_parent").scrollTop($("#task_log_parent")[0].scrollHeight);
+        };
+    };
+
+    // 关闭连接事件
+    chatSocket.onclose = function (e) {
+        console.log("connection closed (" + e.code + ")");
+        chatSocket.send(JSON.stringify({
+            'message': 'close'
+        }));
+    };
+
+});
+
+
+/*
+// ajax轮询celery获取日志
+
+$(function () {
+    function get_task_info(){
+        //var tr = obj.parentNode.parentNode;
+        //var tbody = tr.parentNode;
+        //var id = tr.firstElementChild.innerHTML;
+        //var id = tr.cells[1].innerHTML;
+        var task_id = document.getElementById('task_id').innerHTML;
+        //alert(task_id);
+
+        $.ajax({
+            type:'POST',
+            url:'/cmdb/index/deploy/task/get_task_info/',
+            data:{
+                task_id:task_id
+            },
+            success:function (result) {
+                msg = JSON.parse(result);
+                //console.log(msg);
+                //window.parent.location.reload();
+                //alert(document.getElementById('task_log').innerHTML);
+                document.getElementById('task_log').innerHTML=msg.task_log;
+            },
+            error:function (e) {
+                console.log(e.status);
+            }
+        });
+
+    };
+
+    setInterval(function (){
+        get_task_info()
+    },10000);
+
+});　
+*/
+
+
+$(function () {
+    var perItem = $.cookie('page_num');
+    if (perItem){
+        $('#pageSelect').val(perItem);
+
+    }
+})
+
+
+function pageChange(arg) {
+    var value=$(arg).val();
+    $.cookie('page_num',value,{path:'/'});
+    window.parent.location.reload();
+}
+
+
+function clearContent(arg) {
+        arg.placeholder="";
+}
+
+
+function fillContent(arg) {
+        arg.placeholder="请输入用户名或邮箱搜索";
+}
+
+
+function del(obj) {
+    var tr = obj.parentNode.parentNode;
+    var tbody = tr.parentNode;
+    //var id = tr.firstElementChild.innerHTML;
+    var id = tr.cells[1].innerHTML;
+    //alert(id)
+    if (confirm("确定删除？")){
+        window.event.returnValue = true;
+    }else {
+        window.event.returnValue = false;
+    }
+    if (window.event.returnValue == true){
+        tbody.removeChild(tr);
+        $.ajax({
+            url:'/cmdb/index/wf/wfbusiness/del/',
+            data:{id:id},
+            type:'POST',
+            success:function (data) {
+                window.parent.location.reload();
+                //$(body).html(data);
+                //alert('删除成功')
+            },
+            error:function () {
+                alert('服务器异常');
+            }
+        });
+    }else{
+    }
+}
+
+
+function update(obj) {
+    var tr = obj.parentNode.parentNode;
+    //var userid = tr.firstElementChild.innerHTML;
+    var id = tr.cells[1].innerHTML;
+    location.href='/cmdb/index/wf/wfbusiness/form_update/id='+id;
+    //alert(userid);
+
+}
+
+function deploy(obj) {
+    var tr = obj.parentNode.parentNode;
+    //var userid = tr.firstElementChild.innerHTML;
+    var id = tr.cells[1].innerHTML;
+    location.href='/cmdb/index/wf/wfbusiness/form_deploy/id='+id;
+    //alert(userid);
+
+}
+
+
+function checkOne() {
+    var checks = document.getElementsByName("checkone")
+    var checkall=document.getElementsByName("checkall");
+    //console.log(checks.length,checks)
+    var flag = 0;
+    for (var i = 0; i < checks.length; i++) {
+        console.log(checks[i].checked)
+        if (checks[i].checked) {
+            var flag = flag + 1
+        }
+    }
+    console.log(flag)
+    if (flag){
+        if (flag == checks.length){
+            checkall.item(0).checked=true;
+            checkall.item(1).checked=true;
+            console.log(checkall.item(0).checked);
+            console.log(checkall.item(1).checked);
+        }
+        else{
+            checkall.item(0).checked=false;
+            checkall.item(1).checked=false;
+            console.log(checkall.item(0).checked);
+            console.log(checkall.item(1).checked);
+        }
+        document.getElementById("delAll").removeAttribute("disabled")
+        document.getElementById("delAll").setAttribute("class", "btn btn-danger")
+    } else {
+        checkall.item(0).checked=false;
+        checkall.item(1).checked=false;
+        document.getElementById("delAll").setAttribute("disabled", true)
+        document.getElementById("delAll").setAttribute("class", "btn btn-secondary")
+    }
+        //break;
+}
+
+
+function checkAll_0() {
+    //获得当前第一个checkbox的状态
+    var checkall = document.getElementsByName("checkall");
+    //得到当前checked状态
+    var checked_0 = checkall.item(0).checked;
+    var checked_1 = checked_0;
+    checkall.item(1).checked = checked_1;
+    var checked =  checked_0 && checked_1;
+    //console.log(checkall.item(0).checked,checkall.item(1).checked);
+    //获得所有分类项的checkbox
+    var checks = document.getElementsByName("checkone");
+    for (var i = 0; i < checks.length; i++) {
+        //修改每一个checkbox的状态
+        checks[i].checked = checked;
+
+    }
+    if (checked_0){
+        document.getElementById("delAll").removeAttribute("disabled")
+        document.getElementById("delAll").setAttribute("class","btn btn-danger")
+
+    }else {
+        document.getElementById("delAll").setAttribute("disabled",true)
+        document.getElementById("delAll").setAttribute("class","btn btn-secondary")
+    }
+}
+
+
+ function checkAll_1() {
+    //获得当前第一个checkbox的状态
+     var checkall = document.getElementsByName("checkall");
+     //得到当前checked状态
+     var checked_1 = checkall.item(1).checked;
+     var checked_0 = checked_1;
+     checkall.item(0).checked = checked_0;
+     var checked =  checked_0 && checked_1;
+     //console.log(checkall.item(0).checked,checkall.item(1).checked);
+     //获得所有分类项的checkbox
+     var checks = document.getElementsByName("checkone");
+     for (var i = 0; i < checks.length; i++) {
+         //修改每一个checkbox的状态
+         checks[i].checked = checked;
+     }
+     if (checked_1){
+        document.getElementById("delAll").removeAttribute("disabled")
+        document.getElementById("delAll").setAttribute("class","btn btn-danger")
+    }else {
+        document.getElementById("delAll").setAttribute("disabled",true)
+        document.getElementById("delAll").setAttribute("class","btn btn-secondary")
+    }
+ }
+
+
+function delAll() {
+    var checks = document.getElementsByName("checkone");
+    if (confirm("确定删除？")){
+        window.event.returnValue = true;
+    }else {
+        window.event.returnValue = false;
+    }
+    for (var i = 0; i < checks.length; i++) {
+        if (checks[i].checked){
+            var tr = checks[i].parentNode.parentNode;
+            var tbody = tr.parentNode;
+            var id = tr.cells[1].innerHTML;
+
+
+            if (window.event.returnValue == true){
+                tbody.removeChild(tr);
+                $.ajax({
+                    url:'/cmdb/index/table/user/del/',
+                    data:{userid:id},
+                    type:'POST',
+                    success:function (data) {
+                        window.parent.location.reload();
+                        //$(body).html(data);
+                        //alert('删除成功')
+                    },
+                    error:function () {
+                        alert('服务器异常');
+                    }
+                });
+               i--;
+            }else{
+
+            }
+        }
+    }
+}
+
+
+function myTrim(x) {
+    return x.replace(/^\s+|\s+$/gm,'');
+}
+
+/*前端搜索打开此条注释
+window.onload=function(){
+    var oTab=document.getElementById("tab");
+    var oBt=document.getElementsByTagName("input");
+
+    oBt[1].onclick=function(){
+
+        var flag=0;
+        for(var i=0;i<oTab.tBodies[0].rows.length;i++)
+        {
+            var str1=oTab.tBodies[0].rows[i].cells[2].innerHTML.toUpperCase();
+            var str2=oBt[0].value.toUpperCase();
+            oTab.tBodies[0].rows[i].style.background = '';    //清除上次搜索痕迹
+            //if (str2.trim()!="") {                                   //未输入或输入为空时，不做搜索
+  //使用string.toUpperCase()(将字符串中的字符全部转换成大写)或string.toLowerCase()(将字符串中的字符全部转换成小写)
+  //所谓忽略大小写的搜索就是将用户输入的字符串全部转换大写或小写，然后把信息表中的字符串的全部转换成大写或小写，最后再去比较两者转换后的字符就行了*/
+  /*******************************JS实现表格忽略大小写搜索*********************************/
+            //if (!str2) return;  //内容不存在即返回
+/*                if (str1 == str2) {
+                oTab.tBodies[0].rows[i].style.background = 'yellow';
+                //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+            } else {
+                oTab.tBodies[0].rows[i].style.background = '';
+            }*/
+/***********************************JS实现表格的模糊搜索*************************************/
+//表格的模糊搜索的就是通过JS中的一个search()方法，使用格式，string1.search(string2);如果
+//用户输入的字符串是其一个子串，就会返回该子串在主串的位置，不匹配则会返回-1，故操作如下
+/*                if (str1.search(str2) != -1) {
+                oTab.tBodies[0].rows[i].style.background = 'yellow';
+                //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+            } else {
+                oTab.tBodies[0].rows[i].style.background = '';
+            }*/
+/***********************************JS实现表格的多关键字搜索********************************/
+    //表格的多关键字搜索，加入用户所输入的多个关键字之间用空格隔开，就用split方法把一个长字符串以空格为标准，分成一个字符串数组，
+    //然后以一个循环将切成的数组的子字符串与信息表中的字符串比较
+/*前端搜索打开此条注释                    var arr = str2.trim().split(' ');
+                for (var j = 0; j < arr.length; j++) {
+                    console.log(arr, arr.length, arr[j], str2)
+                    if (arr != [''] && arr[j] != '') {          //未输入或输入为空时，不做搜索
+                        if (str1.search(arr[j]) != -1) {
+                            oTab.tBodies[0].rows[i].style.background = 'yellow';
+                            //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+                            flag++;
+                        }
+                    }
+                }
+            //}//else{
+                //oTab.tBodies[0].rows[i].style.background = '';
+            //}
+        }
+        alert('共找到'+flag+'条');
+    }
+}
+前端搜索打开此条注释*/
+
+</script>
+{% endblock %}

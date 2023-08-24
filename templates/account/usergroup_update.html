@@ -9,15 +9,18 @@
                     <div class="col-md-12">
                         <div class="card p-4">
                             <div class="card-header bg-light">
-                                更新用户组<label style="color: red;">{{ status }}</label>
+                                更新组/角色
+                                <label style="color: red;">
+                                    {{ status }}
+                                </label>
                             </div>
 
                             <div class="card-body">
                                 {% for item in usergroup %}
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="usergroup" class="form-control-label require">用户组</label>
-                                            <input type="text" id="usergroup" class="form-control" placeholder="用户组" name="usergroup" value={{ item.name }}>
+                                            <label for="usergroup" class="form-control-label require">组/角色</label>
+                                            <input type="text" id="usergroup" class="form-control" placeholder="组/角色名称" name="usergroup" value={{ item.name }}>
                                         </div>
                                     </div>
                                     <div class="col-md-7">
@@ -39,10 +42,14 @@
                             <div class="card-footer p-4">
                                 <div class="row">
                                     <div class="col-5">
-                                        <button type="submit" class="btn btn-primary px-5">更新</button>
+                                        <button type="submit" class="btn btn-primary px-5">
+                                            <i class="icon icon-check"></i>  更新
+                                        </button>
                                     </div>
                                     <div class="col-5">
-                                        <a href="/cmdb/index/table/usergroup/" class="btn btn-outline-primary px-5">取消</a>
+                                        <a href="../list/" class="btn btn-outline-primary px-5">
+                                            <i class="icon icon-action-undo"></i>  取消
+                                        </a>
                                     </div>
                                 </div>
                             </div>

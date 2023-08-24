@@ -14,7 +14,9 @@
                     <div class="title">
                         <div class="title-add" style="display:inline-block;">
                             <a href="/cmdb/index/wf/wfbusiness/form_add/">
-                               <button class="btn btn-primary" style="padding:2px;margin-top:-20px;">+ 添加业务单元 </button>
+                               <button class="btn btn-primary" style="padding:2px;margin-top:-20px;">
+                                   <i class="icon icon-plus"></i>  添加业务单元
+                               </button>
                                <!-- <button class="btn btn-primary .btn-sm">+ 添加用户</button>-->
                             </a>
                         </div>
@@ -36,7 +38,7 @@
                                 <th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>
                                 <th>id</th>
                                 <th>业务名称</th>
-                                <th>项目地址</th>
+                                <!--<th>项目地址</th>-->
                                 <th>业务负责人</th>
                                 <th>审批人</th>
                                 <th>创建时间</th>
@@ -50,7 +52,7 @@
                                 <td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>
                                 <td>{{item.id}}</td>
                                 <td>{{item.name}}</td>
-                                <td>{{item.repo}}</td>
+                                <!--<td>{{item.repo}}</td>-->
                                 <td>{{item.admin.username}}</td>
                                 <td>
                                     {% for item in item.approval.all %}
@@ -67,9 +69,11 @@
                                     <button class="btn btn-danger" data-toggle="modal" onclick="del(this)">
                                         <i class="fa fa-trash"></i> 删除
                                     </button>
+                                    <!--
                                     <button class="btn btn-primary" data-toggle="modal" onclick="deploy(this)">
                                         <i class="fa fa-pencil-alt"></i> 发布
                                     </button>
+                                    -->
                                 </td>
                             </tr>
                             {% endfor %}

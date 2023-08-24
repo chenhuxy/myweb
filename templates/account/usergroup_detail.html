@@ -1,0 +1,88 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div style="text-align: right">
+                               <a href="../list/">
+                                   <button class="btn btn-outline-primary px-5">
+                                        <i class="icon icon-action-undo"></i>  返回
+                                   </button>
+                               </a>
+                            </div>
+
+
+                            <div class="card-header bg-light">
+                                组/角色详情
+                                <label style="color: red;">
+                                    {{ status }}
+                                </label>
+                            </div>
+
+                            <div class="card-body">
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">组/角色名称</label>
+                                            <input readonly type="text" class="form-control" value={{ usergroup_name }}>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select-2" class="require">权限</label>
+                                            <select id="multi-select-2" readonly class="form-control" name="perm" multiple="">
+                                                {% for item in perm_selected %}
+                                                <!--<option value={{item.id}} selected>
+                                                    {{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}
+                                                </option>-->
+                                                <option value={{item.id}}>
+                                                    {{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}
+                                                </option>
+                                                {% endfor %}
+
+                                                {% for item in perm_selected_by_group %}
+                                                <!--<option value={{item.id}} selected>
+                                                    {{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}
+                                                </option>-->
+                                                <option value={{item.id}}>
+                                                    {{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                    </div>
+
+
+
+
+                            </div>
+<!--
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">更新</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/table/user/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+    </script>
+{% endblock %}

@@ -7,7 +7,10 @@
                     <div class="col-md-12">
                         <div class="card p-4">
                             <div class="card-header bg-light">
-                                用户资料<label style="color: red;">{{ status }}</label>
+                                用户资料
+                                <label style="color: red;">
+                                    {{ status }}
+                                </label>
                             </div>
 
                             <div class="card-body">
@@ -16,21 +19,35 @@
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label class="form-control-label require">用户名</label>
-                                            <input type="text" class="form-control" value={{ item.username }} readonly>
+                                            <input readonly type="text" class="form-control" value={{ item.username }}>
                                         </div>
                                     </div>
-<!--
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">姓氏</label>
+                                            <input readonly type="text" class="form-control" value={{ item.first_name }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">名字</label>
+                                            <input readonly type="text" class="form-control" value={{ item.last_name }}>
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="password" class="form-control-label require">密码</label>
-                                            <input type="password" id="password" class="form-control" placeholder="密码" name="password" value={{ item.password }}>
+                                            <input readonly type="password" id="password" class="form-control" value={{ item.password }}>
                                         </div>
                                     </div>
--->
+
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label class="require">邮箱</label>
-                                            <input type="email" class="form-control" value={{ item.email }} readonly>
+                                            <label class="form-control-label require">邮箱</label>
+                                            <input readonly type="email" class="form-control" value={{ item.email }}>
                                         </div>
                                     </div>
 
@@ -43,35 +60,72 @@
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label class="form-control-label">工作流编号</label>
-                                            <input type="text" class="form-control" value={{ item.workflow_order }} readonly>
+                                            <label class="form-control-label require">工作流编号</label>
+                                            <input readonly type="text" class="form-control" value={{ item.workflow_order }}>
                                         </div>
                                     </div>
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label class="form-control-label">激活状态</label>
-                                            <input type="text" class="form-control" value={{ item.is_active }} readonly>
+                                            <label class="form-control-label require">激活状态</label>
+                                            <input readonly type="text" class="form-control" value={{ item.is_active }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label require">是否超级管理员</label>
+                                            <input readonly type="text" class="form-control" value={{ item.is_superuser }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">用户创建时间</label>
+                                            <input readonly type="text" class="form-control" value={{ item.date_joined }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">是否可以登录管理后台</label>
+                                            <input readonly type="text" class="form-control" value={{ item.is_staff }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">最后登录管理后台时间</label>
+                                            <input readonly type="text" class="form-control" value={{ item.last_login }}>
                                         </div>
                                     </div>
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="multi-select">用户组</label>
-                                            <select id="multi-select" class="form-control" name="group" multiple="" readonly>
-                                                {% for item in item.groups.all %}
-                                                <option value={{item.id}} selected>{{item.name}}</option>
+                                            <label for="multi-select">组/角色</label>
+                                            <select id="multi-select" readonly class="form-control" name="group" multiple="">
+                                                {% if group_selected %}
+                                                {% for item in group_selected %}
+                                                <!--<option value={{item.id}} selected>{{item.name}}</option>-->
+                                                <option value={{item.id}}>{{item.name}}</option>
                                                 {% endfor %}
+                                                {% else %}
+                                                <!--<option value={{item.id}} selected></option>-->
+                                                <option value={{item.id}}></option>
+                                                {% endif %}
                                             </select>
                                         </div>
                                     </div>
 
                                     <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="multi-select-2">权限</label>
-                                            <select id="multi-select-2" class="form-control" name="perm" multiple="" readonly>
+                                            <label for="multi-select-2" class="require">权限</label>
+                                            <select id="multi-select-2" readonly class="form-control" name="perm" multiple="">
                                                 {% for item in perm_selected %}
-                                                <option value={{item.id}} selected>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
+                                                <!--<option value={{item.id}} selected>-->
+                                                <option value={{item.id}}>
+                                                    {{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}
+                                                </option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -82,7 +136,7 @@
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="textarea">备注</label>
-                                            <textarea id="textarea" class="form-control" rows="6" name="memo" readonly>{{item.memo}}</textarea>
+                                            <textarea id="textarea" readonly class="form-control" rows="6" name="memo">{{item.memo}}</textarea>
                                         </div>
                                     </div>
                                  {% endfor %}

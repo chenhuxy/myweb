@@ -21,15 +21,23 @@
                     <div class="card-header text-center text-uppercase h4 font-weight-light">
                         找回密码（第二步）
                     </div>
-                    <label style="color:red";>{{username}}</label>
-                    <label>您正在使用密码找回功能，验证码将发送至以下邮箱：</label>
+                    <label style="color:red";>
+                        {{username}}
+                    </label>
+                    <label>
+                        您正在使用密码找回功能，验证码将发送至以下邮箱：
+                    </label>
                     {% for item in email %}
-                    <label style="color:red";>{{item.email}}</label>
+                    <label style="color:red";>
+                        {{item.email}}
+                    </label>
                     {% endfor %}
                     <div class="card-body py-5">
 
                         <div class="form-group">
-                            <label style="color:red";>{{status}}</label>
+                            <label style="color:red";>
+                                {{status}}
+                            </label>
                             <div class="row">
                                 <div class="col-6">
                                     <input type="text" class="form-control" name="code" placeholder="请输入验证码">
@@ -47,7 +55,9 @@
                                 <input type="submit" class="btn btn-primary px-5" value="下一步">
                             </div>
                             <div class="col-6">
-                                <a href="/cmdb/login/forget_pass/step/1/" class="btn btn-outline-primary px-5">上一步</a>
+                                <a href="/cmdb/login/forget_pass/step/1/" class="btn btn-outline-primary px-5">
+                                    <i class="icon icon-action-undo"></i>  上一步
+                                </a>
                             </div>
                         </div>
                     </div>

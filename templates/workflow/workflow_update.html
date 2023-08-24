@@ -9,7 +9,10 @@
                     <div class="col-md-12">
                         <div class="card p-4">
                             <div class="card-header bg-light">
-                                更新流程<label style="color: red;">{{ status }}</label>
+                                更新流程
+                                <label style="color: red;">
+                                    {{ status }}
+                                </label>
                             </div>
 
                             <div class="card-body">
@@ -51,6 +54,37 @@
                                         </div>
                                     </div>
 
+                                <div class="col-md-7" id="proj_name">
+
+                                        <div class="form-group" id="proj_name_child">
+                                            <label for="single-select2" class="require">发版服务</label>
+                                            <select id="single-select2" class="form-control" name="proj_name" onchange="projnameChange(this)">
+                                                <option value={{proj_name_selected}}>{{proj_name_selected}}</option>
+                                                {% for item in deploy_list %}
+                                                <option value={{item.proj_name}}>{{item.proj_name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                </div>
+
+
+                                <div class="col-md-7" id="proj_tag">
+
+                                        <div class="form-group" id="proj_tag_child">
+                                            <label for="single-select3" class="require">发版tag</label>
+                                            <select id="single-select3" class="form-control" name="proj_tag">
+                                                <option value={{proj_tag_selected}}>{{proj_tag_selected}}</option>
+                                                {% for item in tags %}
+                                                <option value={{item.name}}>{{item.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                </div>
+
+
+
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             {% for item in title %}
@@ -90,10 +124,14 @@
                             <div class="card-footer p-4">
                                 <div class="row">
                                     <div class="col-5">
-                                        <button type="submit" class="btn btn-primary px-5">更新</button>
+                                        <button type="submit" class="btn btn-primary px-5">
+                                            <i class="icon icon-check"></i>  更新
+                                        </button>
                                     </div>
                                     <div class="col-5">
-                                        <a href="/cmdb/index/wf/requests/list/" class="btn btn-outline-primary px-5">取消</a>
+                                        <a href="../list/" class="btn btn-outline-primary px-5">
+                                            <i class="icon icon-action-undo"></i>  取消
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -109,5 +147,47 @@
 {% endblock %}
 {% block javascript %}
     <script>
+        $(function () {
+
+                var type = $('#type').val();
+                //alert(type);
+                //console.log(type);
+                if(type!='生产发布'){
+                    document.getElementById('proj_name').setAttribute("style","display:none");
+                    document.getElementById('proj_tag').setAttribute("style","display:none");
+                }
+
+        })
+
+        function projnameChange(arg){
+        var proj_name=$(arg).val();
+        console.log(proj_name);
+
+        $.ajax({
+                url:'/cmdb/index/wf/wftype/change2/',
+                data:{proj_name:proj_name},
+                type:'POST',
+                success:function (data) {
+                    var data = JSON.parse(data);
+                    var tags_name = data.tags_name;
+                    console.log(data);
+                    console.log(tags_name);
+                    target = document.getElementById('single-select3');
+                    console.log(target,typeof target);
+                    console.log(tags_name.length);
+                    var htmls = '<option value="0">------------- 请选择 -------------</option>'
+                    for(i=0;i<tags_name.length;i++){
+
+                        var htmls = htmls + '<option value=' + tags_name[i] + '>' + tags_name[i] + '</option>';
+                    };
+                    target.innerHTML = htmls;
+                },
+                error:function () {
+                    alert('服务器异常');
+                }
+            });
+
+    }
+
     </script>
 {% endblock %}

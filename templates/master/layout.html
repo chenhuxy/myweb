@@ -12,6 +12,7 @@
     <style>
     </style>
 </head>
+
 <body class="sidebar-fixed header-fixed">
     <div class="page-wrapper">
         <nav class="navbar page-header">
@@ -49,10 +50,10 @@
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right">
-                        <div class="dropdown-header">Account</div>
+                        <div class="dropdown-header">账户</div>
 
                         <a href="/cmdb/index/table/user/form_get_profile/username={{ login_user }}" class="dropdown-item">
-                            <i class="fa fa-user"></i> Profile
+                            <i class="fa fa-user"></i> 个人信息
                         </a>
 
                         <a href="#" class="dropdown-item">
@@ -67,6 +68,7 @@
 
                         <a href="/cmdb/logout/" class="dropdown-item">
                             <i class="fa fa-lock"></i> 注销登录
+
                         </a>
                     </div>
                 </li>
@@ -86,6 +88,186 @@
                                 <i class="icon icon-speedometer"></i> 仪表盘
                             </a>
                         </li>
+
+
+
+                        <li class="nav-item  nav-dropdown" id="user">
+                            <a href="#" class="nav-link nav-dropdown-toggle">
+                                <i class="icon icon-people"></i> 用户管理 <i class="fa fa-caret-left"></i>
+                            </a>
+                            <ul class="nav-dropdown-items">
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/table/user/list/" class="nav-link">
+                                        <i class="icon icon-user"></i> 用户列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/permission/list/" class="nav-link">
+                                        <i class="icon icon-lock"></i> 权限列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/table/usergroup/list/" class="nav-link">
+                                        <i class="icon icon-shield"></i> 组/角色
+                                    </a>
+                                </li>
+                                </ul>
+                        </li>
+
+
+                        <li class="nav-item  nav-dropdown" id="assets">
+                            <a href="#" class="nav-link nav-dropdown-toggle">
+                                <i class="icon icon-screen-desktop"></i> 资产管理 <i class="fa fa-caret-left"></i>
+                            </a>
+                            <ul class="nav-dropdown-items">
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/asset/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 资产列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/host/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 服务器列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/cpu/" class="nav-link">
+                                        <i class="icon icon-graph"></i> CPU列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/memory/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 内存列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/nic/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 网卡列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/disk/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 硬盘列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/network/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 网络设备列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/devicetype/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 设备类型
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/devicestatus/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 设备状态
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/idc/" class="nav-link">
+                                        <i class="icon icon-graph"></i> IDC机房
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/contract/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 合同
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/tag/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 标签
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/table/usertype/" class="nav-link">
+                                        <i class="icon icon-graph"></i> 操作日志
+                                    </a>
+                                </li>
+                                </ul>
+                        </li>
+
+                        <li class="nav-item  nav-dropdown" id="monitor">
+                            <a href="#" class="nav-link nav-dropdown-toggle">
+                                <i class="icon icon-energy"></i> 监控 <i class="fa fa-caret-left"></i>
+                            </a>
+                            <ul class="nav-dropdown-items">
+
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/monitor/zabbix/" class="nav-link">
+                                        <i class="icon icon-energy"></i> zabbix监控
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/monitor/prometheus/alert/list/" class="nav-link">
+                                        <i class="icon icon-fire"></i> prometheus监控
+                                    </a>
+                                </li>
+                                </ul>
+                        </li>
+
+                        <li class="nav-item  nav-dropdown" id="task">
+                            <a href="#" class="nav-link nav-dropdown-toggle">
+                                <i class="icon icon-rocket"></i> 任务发布 <i class="fa fa-caret-left"></i>
+                            </a>
+                            <ul class="nav-dropdown-items">
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/deploy/scripttype/list/" class="nav-link">
+                                        <i class="icon icon-puzzle"></i> 脚本类型
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/deploy/app/list/" class="nav-link">
+                                        <i class="icon icon-puzzle"></i> 应用列表
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/deploy/task/list/" class="nav-link">
+                                        <i class="icon icon-puzzle"></i> 发布列表
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item  nav-dropdown" id="workflow">
+                            <a href="#" class="nav-link nav-dropdown-toggle">
+                                <i class="icon icon-paper-plane"></i> 工单系统 <i class="fa fa-caret-left"></i>
+                            </a>
+                            <ul class="nav-dropdown-items">
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/wf/list/" class="nav-link">
+                                        <i class="icon icon-target"></i> 所有工单
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/wf/wftype/list/" class="nav-link">
+                                        <i class="icon icon-target"></i> 工单类型
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/wf/wfbusiness/list/" class="nav-link">
+                                        <i class="icon icon-puzzle"></i> 业务单元
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/wf/tasks/list/" class="nav-link">
+                                        <i class="icon icon-target"></i> 我的待办
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/wf/requests/list/" class="nav-link">
+                                        <i class="icon icon-target"></i> 我的请求
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+<!--
+
+                        <li class="nav-title">More</li>
 
                         <li class="nav-item nav-dropdown" id="layout">
                             <a href="#" class="nav-link nav-dropdown-toggle">
@@ -195,175 +377,6 @@
                             </a>
                         </li>
 
-                        <li class="nav-item  nav-dropdown" id="user">
-                            <a href="#" class="nav-link nav-dropdown-toggle">
-                                <i class="icon icon-grid"></i> 用户管理 <i class="fa fa-caret-left"></i>
-                            </a>
-                            <ul class="nav-dropdown-items">
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/table/user/" class="nav-link">
-                                        <i class="icon icon-grid"></i> 用户列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/permission/list/" class="nav-link">
-                                        <i class="icon icon-grid"></i> 权限列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/table/usergroup/" class="nav-link">
-                                        <i class="icon icon-grid"></i> 用户组
-                                    </a>
-                                </li>
-                                </ul>
-                        </li>
-
-
-                        <li class="nav-item  nav-dropdown" id="assets">
-                            <a href="#" class="nav-link nav-dropdown-toggle">
-                                <i class="icon icon-energy"></i> 资产管理 <i class="fa fa-caret-left"></i>
-                            </a>
-                            <ul class="nav-dropdown-items">
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/asset/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 资产列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/host/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 服务器列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/cpu/" class="nav-link">
-                                        <i class="icon icon-energy"></i> CPU列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/memory/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 内存列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/nic/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 网卡列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/disk/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 硬盘列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/network/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 网络设备列表
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/devicetype/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 设备类型
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/devicestatus/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 设备状态
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/idc/" class="nav-link">
-                                        <i class="icon icon-energy"></i> IDC机房
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/contract/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 合同
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/assets/tag/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 标签
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/table/usertype/" class="nav-link">
-                                        <i class="icon icon-energy"></i> 操作日志
-                                    </a>
-                                </li>
-                                </ul>
-                        </li>
-
-                        <li class="nav-item  nav-dropdown" id="monitor">
-                            <a href="#" class="nav-link nav-dropdown-toggle">
-                                <i class="icon icon-graph"></i> 监控 <i class="fa fa-caret-left"></i>
-                            </a>
-                            <ul class="nav-dropdown-items">
-
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/monitor/zabbix/" class="nav-link">
-                                        <i class="icon icon-graph"></i> zabbix监控
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/monitor/prometheus/" class="nav-link">
-                                        <i class="icon icon-graph"></i> prometheus监控
-                                    </a>
-                                </li>
-                                </ul>
-                        </li>
-
-                        <li class="nav-item  nav-dropdown" id="task">
-                            <a href="#" class="nav-link nav-dropdown-toggle">
-                                <i class="icon icon-puzzle"></i> 任务发布 <i class="fa fa-caret-left"></i>
-                            </a>
-                            <ul class="nav-dropdown-items">
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/script/scripttype/" class="nav-link">
-                                        <i class="icon icon-puzzle"></i> 脚本类型
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/wf/wfbusiness/" class="nav-link">
-                                        <i class="icon icon-puzzle"></i> 业务单元
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/wf/wfbusiness/deploy/list/" class="nav-link">
-                                        <i class="icon icon-puzzle"></i> 任务列表
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-item  nav-dropdown" id="workflow">
-                            <a href="#" class="nav-link nav-dropdown-toggle">
-                                <i class="icon icon-target"></i> 工单系统 <i class="fa fa-caret-left"></i>
-                            </a>
-                            <ul class="nav-dropdown-items">
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/wf/list/" class="nav-link">
-                                        <i class="icon icon-target"></i> 所有工单
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/wf/wftype/" class="nav-link">
-                                        <i class="icon icon-target"></i> 工单类型
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/wf/tasks/list/" class="nav-link">
-                                        <i class="icon icon-target"></i> 我的待办
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/wf/requests/list/" class="nav-link">
-                                        <i class="icon icon-target"></i> 我的请求
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="nav-title">More</li>
-
                         <li class="nav-item nav-dropdown" id="other">
                             <a href="#" class="nav-link nav-dropdown-toggle">
                                 <i class="icon icon-umbrella"></i> Pages <i class="fa fa-caret-left"></i>
@@ -413,6 +426,8 @@
                                 </li>
                             </ul>
                         </li>
+-->
+
                     </ul>
                 </nav>
             </div>
@@ -437,6 +452,7 @@
     <script src="/static/dist/js/carbon.js"></script>
     <script src="/static/dist/js/demo.js"></script>
     <script src="/static/extra/jquery.cookie.js"></script>
+    <script src="/static/extra/echarts.js"></script>
     <script>
         $(function(){
         //绑定a链接的点击事件
@@ -470,4 +486,5 @@
     {% block javascript %}
     {% endblock %}
 </body>
+
 </html>

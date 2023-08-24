@@ -1,0 +1,175 @@
+{% extends "master/layout.html" %}
+{% block content %}
+        <div class="content">
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card p-4">
+
+                            <div style="text-align: right">
+                               <a href="../list/">
+                                   <button class="btn btn-outline-primary px-5">
+                                        <i class="icon icon-action-undo"></i>  返回
+                                   </button>
+                               </a>
+                            </div>
+                            <div class="card-header bg-light">
+                                用户详情
+                                <label style="color: red;">
+                                    {{ status }}
+                                </label>
+                            </div>
+
+                            <div class="card-body">
+
+                                {% for item in userinfo %}
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label require">用户名</label>
+                                            <input readonly type="text" class="form-control" value={{ item.username }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">姓氏</label>
+                                            <input readonly type="text" class="form-control" value={{ item.first_name }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">名字</label>
+                                            <input readonly type="text" class="form-control" value={{ item.last_name }}>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="password" class="form-control-label require">密码</label>
+                                            <input readonly type="password" id="password" class="form-control" value={{ item.password }}>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label require">邮箱</label>
+                                            <input readonly type="email" class="form-control" value={{ item.email }}>
+                                        </div>
+                                    </div>
+
+                                    <!--<div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="require">用户类型</label>
+                                            <input type="text" class="form-control" value={{ item.usertype.name }} readonly>
+                                        </div>
+                                    </div>-->
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label require">工作流编号</label>
+                                            <input readonly type="text" class="form-control" value={{ item.workflow_order }}>
+                                            <small class="form-text">默认没有审批权限，值为0，作为审批人员，需要数字大于0且由小到大审批.</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label require">激活状态</label>
+                                            <input readonly type="text" class="form-control" value={{ item.is_active }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label require">是否超级管理员</label>
+                                            <input readonly type="text" class="form-control" value={{ item.is_superuser }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">用户创建时间</label>
+                                            <input readonly type="text" class="form-control" value={{ item.date_joined }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">是否可以登录管理后台</label>
+                                            <input readonly type="text" class="form-control" value={{ item.is_staff }}>
+                                        </div>
+                                    </div>
+
+                                <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label class="form-control-label">最后登录管理后台时间</label>
+                                            <input readonly type="text" class="form-control" value={{ item.last_login }}>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select">组/角色</label>
+                                            <select id="multi-select" readonly class="form-control" name="group" multiple="">
+                                                {% if group_selected %}
+                                                {% for item in group_selected %}
+                                                <!--<option value={{item.id}} selected>{{item.name}}</option>-->
+                                                <option value={{item.id}}>{{item.name}}</option>
+                                                {% endfor %}
+                                                {% else %}
+                                                <!--<option value={{item.id}} selected></option>-->
+                                                 <option value={{item.id}}></option>
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="multi-select-2" class="require">权限</label>
+                                            <select id="multi-select-2" readonly class="form-control" name="perm" multiple="">
+                                                {% for item in perm_selected %}
+                                                <!--<option value={{item.id}} selected>-->
+                                                <option value={{item.id}}>
+                                                    {{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-md-7">
+                                        <div class="form-group">
+                                            <label for="textarea">备注</label>
+                                            <textarea id="textarea" readonly class="form-control" rows="6" name="memo">{{item.memo}}</textarea>
+                                        </div>
+                                    </div>
+                                 {% endfor %}
+                            </div>
+<!--
+                            <div class="card-footer p-4">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <button type="submit" class="btn btn-primary px-5">更新</button>
+                                    </div>
+                                    <div class="col-5">
+                                        <a href="/cmdb/index/table/user/" class="btn btn-outline-primary px-5">取消</a>
+                                    </div>
+                                </div>
+                            </div>
+-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+    </script>
+{% endblock %}
