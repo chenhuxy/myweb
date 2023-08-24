@@ -35,7 +35,7 @@
   
 7.启动celery
 
-        nohup celery worker -A myweb -P eventlet -l info &
+        nohup celery worker -A myweb -P solo -l info &
    
 8.启动server
 
@@ -48,13 +48,18 @@
 	密码：admin
 
    
-二. Docker安装
+二. Docker安装（推荐方式）
 
 1.启动服务
 
         docker-compose up -d
-        
-2.启动成功，浏览器访问ip：8000/cmdb
+ 
+2.初始化数据库
+
+        执行scripts目录下sql脚本
+
+       
+3.启动成功，浏览器访问ip：8000/cmdb
 
 	用户名：admin
 
