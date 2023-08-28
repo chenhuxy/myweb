@@ -16,6 +16,7 @@ from apps.myapp import deploy
 from apps.myapp import tasks
 
 import apps.myapp.views
+
 #######################################################################################
 # from rest_framework import routers
 # from apps.myapp import api
@@ -117,7 +118,7 @@ urlpatterns = [
     url(r'^index/deploy/scripttype/update/id=(?P<id>\d*)', deploy.deploy_script_type_update),
     path('index/deploy/scripttype/del/', deploy.deploy_script_type_del),
 
-    path('index/deploy/app/list/', deploy.deploy_app),
+    url(r'^index/deploy/app/list/(?P<page>\d*)', deploy.deploy_app),
     # path('index/wf/deploy/ajax/', deploy.deploy_ajax),
     path('index/deploy/app/form_add/', deploy.deploy_app_form_add),
     url(r'^index/deploy/app/form_update/id=(?P<id>\d*)', deploy.deploy_app_form_update),
@@ -238,5 +239,3 @@ urlpatterns = [
     #   url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 
 ]
-
-

@@ -349,3 +349,44 @@ def pager_prometheus_alert_list(request,page,pageCount):
     return page_string
 
 
+def pager_deploy_app_list(request,page,pageCount):
+    page_html = []
+    first_html = '<a href="/cmdb/index/deploy/app/list/%d">首页</a>' % (1,)
+    page_html.append(first_html)
+    if page == 1:
+        pre_html = '<a href="/cmdb/index/deploy/app/list/%d">上页</a>' % (1,)
+    else:
+        pre_html = '<a href="/cmdb/index/deploy/app/list/%d">上页</a>' % (page - 1,)
+    page_html.append(pre_html)
+
+    pageDisplay = 11
+    pageStart = int((page - (pageDisplay + 1) / 2))
+    pageEnd = int(page + (pageDisplay - 1) / 2)
+    if pageCount < pageDisplay:
+        pageStart = 0
+        pageEnd = pageCount
+    else:
+        if page < (pageDisplay + 1) / 2:
+            pageStart = 0
+            pageEnd = pageDisplay
+        else:
+            if pageEnd > pageCount:
+                pageStart = pageStart
+                pageEnd = pageCount
+    for i in range(pageStart, pageEnd):
+        if page == i + 1:
+            a_html = '<a style="color:red;"href="/cmdb/index/deploy/app/list/%d">[%d]</a>' % (i + 1, i + 1)
+        else:
+            a_html = '<a href="/cmdb/index/deploy/app/list/%d">[%d]</a>' % (i + 1, i + 1)
+        page_html.append(a_html)
+    if page == pageCount:
+        next_html = '<a href="/cmdb/index/deploy/app/list/%d">下页</a>' % (pageCount,)
+    else:
+        next_html = '<a href="/cmdb/index/deploy/app/list/%d">下页</a>' % (page + 1,)
+    page_html.append(next_html)
+    end_html = '<a href="/cmdb/index/deploy/app/list/%d">尾页</a>' % (pageCount,)
+    page_html.append(end_html)
+    page_string = mark_safe(''.join(page_html))
+    return page_string
+
+

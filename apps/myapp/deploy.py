@@ -114,11 +114,17 @@ def deploy_script_type_del(request,*args,**kwargs):
 @custom_login_required
 @custom_permission_required('myapp.view_deploy_app')
 def deploy_app(request,*args,**kwargs):
-    deploy = models.deploy_app.objects.all()
-    count = deploy.count()
+    count = models.deploy_app.objects.all().count()
+    page = common.try_int(kwargs['page'], 1)
+    perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+    pageinfo = page_helper.pageinfo(page, count, perItem)
     userDict = request.session.get('is_login', None)
-    msg = {'deploy': deploy, 'login_user': userDict['user'], 'count': count, }
+    deploy = models.deploy_app.objects.all()[pageinfo.start:pageinfo.end]
+    page_string = page_helper.pager_deploy_app_list(request, page, pageinfo.pageCount)
+    msg = {'deploy': deploy, 'login_user': userDict['user'], 'count': count,
+           'pageCount': pageinfo.pageCount, 'page': page_string, }
     return render_to_response('deploy/deploy_app.html', msg)
+
 
 
 @custom_login_required
