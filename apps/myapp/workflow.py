@@ -458,7 +458,10 @@ def workflow_update(request, *args, **kwargs):
 
         print(id, sponsor, type, content, memo, )
         print(proj_name, proj_tag)
-        proj_id = models.deploy_app.objects.filter(proj_name=proj_name).values('proj_id')[0]['proj_id']
+        try:
+            proj_id = models.deploy_app.objects.filter(proj_name=proj_name).values('proj_id')[0]['proj_id']
+        except:
+            proj_id = None
         print(proj_id, )
         # userDict = request.session.get('is_login', None)
         models.wf_info.objects.filter(sn=sn).update(title=title, sponsor=sponsor, type=type_select,
@@ -555,7 +558,8 @@ def workflow_requests_search(request, *args, **kwargs):
 def workflow_requests_search_result(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
     keyword = kwargs['keyword']
-    wf_info = models.wf_info.objects.filter(sponsor=userDict['user']).filter(sn__icontains=keyword) | models.wf_info.objects.filter(
+    wf_info = models.wf_info.objects.filter(sponsor=userDict['user']).filter(
+        sn__icontains=keyword) | models.wf_info.objects.filter(
         sponsor=userDict['user']).filter(title__icontains=keyword)
     count = wf_info.count()
     page = common.try_int(kwargs['page'], 1)
