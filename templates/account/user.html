@@ -28,13 +28,13 @@
                             </a>
                         </div>
                         <div class="title-search" style="display:inline-block;float:right;">
-        <form action="/cmdb/index/table/user/search/" method="post"  style="margin-top:-10px;">
+                        <form action="/cmdb/index/table/user/search/" method="post"  style="margin-top:-10px;">
                             <div style="display:inline-block;">
                                 <i class="fa fa-search" id="i-advanced-search-i" style="position:relative;left:25px"></i>
-                                <input type="search" name="keyword" onfocus="clearContent(this)" onblur="fillContent(this)" placeholder="请输入用户名或邮箱搜索" style="text-indent:30px;">
+                                <input type="search" name="keyword" onfocus="clearContent(this)" onblur="fillContent(this)" placeholder="用户名或邮箱" style="text-indent:30px;">
                                 <input type="submit" value="搜索">
                             </div>
-        </form>
+                        </form>
                         </div>
                     </div>
 
@@ -227,264 +227,264 @@
 <script>
 
 
-    $(function () {
-        var perItem = $.cookie('page_num');
-        if (perItem){
-            $('#pageSelect').val(perItem);
+$(function () {
+    var perItem = $.cookie('page_num');
+    if (perItem){
+        $('#pageSelect').val(perItem);
 
-        }
-    })
+    }
+})
 
 
-    function pageChange(arg) {
-        var value=$(arg).val();
-        $.cookie('page_num',value,{path:'/'});
-        window.parent.location.reload();
+function pageChange(arg) {
+    var value=$(arg).val();
+    $.cookie('page_num',value,{path:'/'});
+    window.parent.location.reload();
+}
+
+
+function clearContent(arg) {
+        arg.placeholder="";
+}
+
+
+function fillContent(arg) {
+        arg.placeholder="用户名或邮箱";
+}
+
+
+function resetPwd(obj) {
+    var tr = obj.parentNode.parentNode;
+    var tbody = tr.parentNode;
+    //var id = tr.firstElementChild.innerHTML;
+    var id = tr.cells[1].innerHTML;
+    if (confirm("确定重置密码？")){
+        window.event.returnValue = true;
+    }else {
+        window.event.returnValue = false;
     }
 
-
-    function clearContent(arg) {
-            arg.placeholder="";
+    if (window.event.returnValue == true){
+        $.ajax({
+            url:'/cmdb/index/table/user/resetPwd/',
+            data:{userid:id},
+            type:'POST',
+            success:function (data) {
+                //window.parent.location.reload();
+                //$(body).html(data);
+                msg = JSON.parse(data);
+                alert(msg);
+            },
+            error:function () {
+                alert('服务器异常');
+            }
+        });
     }
+    else{
 
+    };
+}
 
-    function fillContent(arg) {
-            arg.placeholder="请输入用户名或邮箱搜索";
+function del(obj) {
+    var tr = obj.parentNode.parentNode;
+    var tbody = tr.parentNode;
+    //var id = tr.firstElementChild.innerHTML;
+    var id = tr.cells[1].innerHTML;
+    //alert(id)
+    if (confirm("确定删除？")){
+        window.event.returnValue = true;
+    }else {
+        window.event.returnValue = false;
     }
+    if (window.event.returnValue == true){
+        tbody.removeChild(tr);
+        $.ajax({
+            url:'/cmdb/index/table/user/del/',
+            data:{userid:id},
+            type:'POST',
+            success:function (data) {
+                //$('body').html(data);//引号必须加上
+                window.parent.location.reload();
+                //alert('删除成功');
+                //alert(data);
+                //console.log(data);
+            },
+            error:function () {
+                alert('服务器异常');
+            }
+        });
+    }else{
 
-
-    function resetPwd(obj) {
-        var tr = obj.parentNode.parentNode;
-        var tbody = tr.parentNode;
-        //var id = tr.firstElementChild.innerHTML;
-        var id = tr.cells[1].innerHTML;
-        if (confirm("确定重置密码？")){
-            window.event.returnValue = true;
-        }else {
-            window.event.returnValue = false;
-        }
-
-        if (window.event.returnValue == true){
-            $.ajax({
-                url:'/cmdb/index/table/user/resetPwd/',
-                data:{userid:id},
-                type:'POST',
-                success:function (data) {
-                    //window.parent.location.reload();
-                    //$(body).html(data);
-                    msg = JSON.parse(data);
-                    alert(msg);
-                },
-                error:function () {
-                    alert('服务器异常');
-                }
-            });
-        }
-        else{
-
-        };
     }
-
-    function del(obj) {
-        var tr = obj.parentNode.parentNode;
-        var tbody = tr.parentNode;
-        //var id = tr.firstElementChild.innerHTML;
-        var id = tr.cells[1].innerHTML;
-        //alert(id)
-        if (confirm("确定删除？")){
-            window.event.returnValue = true;
-        }else {
-            window.event.returnValue = false;
-        }
-        if (window.event.returnValue == true){
-            tbody.removeChild(tr);
-            $.ajax({
-                url:'/cmdb/index/table/user/del/',
-                data:{userid:id},
-                type:'POST',
-                success:function (data) {
-                    $('body').html(data);//引号必须加上
-                    //window.parent.location.reload();
-                    //alert('删除成功');
-                    //alert(data);
-                    //console.log(data);
-                },
-                error:function () {
-                    alert('服务器异常');
-                }
-            });
-        }else{
-
-        }
-    }
+}
 
 
-    function update(obj) {
-        //obj.preventDefault();
-        var tr = obj.parentNode.parentNode;
-        //var userid = tr.firstElementChild.innerHTML;
-        var userid = tr.cells[1].innerHTML;
-        //var username = tr.cells[1].innerHTML;
-        //var password = tr.cells[2].innerHTML;
-        //var email = tr.cells[3].innerHTML;
-        //var usertype = tr.cells[4].innerHTML;
-        location.href='/cmdb/index/table/user/form_update/userid='+userid;
-        //alert(userid);
- /*            $.ajax({
-               url: '/cmdb/index/table/user/form_update/',
-               data: {userid:id,username:username,password:password,email:email,usertype:usertype},
-               type: 'POST',
-                success: function (data) {
-                    //window.parent.location.href='/cmdb/index/table/user/form_update/'
-                    //alert('更新成功')
-                    //window.parent.location.reload();
-                   //$(body).html(data);
-              },
-               error: function () {
-                 alert('服务器异常');
-              }
-          });
-        //window.parent.location.href='/cmdb/index/table/user/form_update/'
+function update(obj) {
+    //obj.preventDefault();
+    var tr = obj.parentNode.parentNode;
+    //var userid = tr.firstElementChild.innerHTML;
+    var userid = tr.cells[1].innerHTML;
+    //var username = tr.cells[1].innerHTML;
+    //var password = tr.cells[2].innerHTML;
+    //var email = tr.cells[3].innerHTML;
+    //var usertype = tr.cells[4].innerHTML;
+    location.href='/cmdb/index/table/user/form_update/userid='+userid;
+    //alert(userid);
+/*         $.ajax({
+           url: '/cmdb/index/table/user/form_update/',
+           data: {userid:id,username:username,password:password,email:email,usertype:usertype},
+           type: 'POST',
+           success: function (data) {
+                //window.parent.location.href='/cmdb/index/table/user/form_update/'
+                //alert('更新成功')
+                //window.parent.location.reload();
+               //$(body).html(data);
+          },
+           error: function () {
+             alert('服务器异常');
+          }
+      });
+    //window.parent.location.href='/cmdb/index/table/user/form_update/'
 */
-    }
+}
 
 
 function show_detail(obj) {
-        var tr = obj.parentNode.parentNode;
-        var id = tr.cells[1].innerHTML;
-        location.href='/cmdb/index/table/user/show_detail/userid='+id;
-    }
+    var tr = obj.parentNode.parentNode;
+    var id = tr.cells[1].innerHTML;
+    location.href='/cmdb/index/table/user/show_detail/userid='+id;
+}
 
-	function checkOne() {
-        var checks = document.getElementsByName("checkone")
-        var checkall=document.getElementsByName("checkall");
-        //console.log(checks.length,checks)
-        var flag = 0;
-        for (var i = 0; i < checks.length; i++) {
-            console.log(checks[i].checked)
-            if (checks[i].checked) {
-                var flag = flag + 1
-            }
+function checkOne() {
+    var checks = document.getElementsByName("checkone");
+    var checkall=document.getElementsByName("checkall");
+    //console.log(checks.length,checks);
+    var flag = 0;
+    for (var i = 0; i < checks.length; i++) {
+        console.log(checks[i].checked);
+        if (checks[i].checked) {
+            var flag = flag + 1;
         }
-        console.log(flag)
-        if (flag){
-            if (flag == checks.length){
-                checkall.item(0).checked=true;
-                checkall.item(1).checked=true;
-                console.log(checkall.item(0).checked);
-                console.log(checkall.item(1).checked);
-            }
-            else{
-                checkall.item(0).checked=false;
-                checkall.item(1).checked=false;
-                console.log(checkall.item(0).checked);
-                console.log(checkall.item(1).checked);
-            }
-            document.getElementById("delAll").removeAttribute("disabled")
-            document.getElementById("delAll").setAttribute("class", "btn btn-danger")
-        } else {
+    };
+    console.log(flag);
+    if (flag){
+        if (flag == checks.length){
+            checkall.item(0).checked=true;
+            checkall.item(1).checked=true;
+            console.log(checkall.item(0).checked);
+            console.log(checkall.item(1).checked);
+        }
+        else{
             checkall.item(0).checked=false;
             checkall.item(1).checked=false;
-            document.getElementById("delAll").setAttribute("disabled", true)
-            document.getElementById("delAll").setAttribute("class", "btn btn-secondary")
-        }
-            //break;
-    }
+            console.log(checkall.item(0).checked);
+            console.log(checkall.item(1).checked);
+        };
+        document.getElementById("delAll").removeAttribute("disabled");
+        document.getElementById("delAll").setAttribute("class", "btn btn-danger");
+    } else {
+        checkall.item(0).checked=false;
+        checkall.item(1).checked=false;
+        document.getElementById("delAll").setAttribute("disabled", true);
+        document.getElementById("delAll").setAttribute("class", "btn btn-secondary");
+    };
+        //break;
+}
 
 
-    function checkAll_0() {
-        //获得当前第一个checkbox的状态
-        var checkall = document.getElementsByName("checkall");
-        //得到当前checked状态
-        var checked_0 = checkall.item(0).checked;
-        var checked_1 = checked_0;
-        checkall.item(1).checked = checked_1;
-        var checked =  checked_0 && checked_1;
-        //console.log(checkall.item(0).checked,checkall.item(1).checked);
-        //获得所有分类项的checkbox
-        var checks = document.getElementsByName("checkone");
-        for (var i = 0; i < checks.length; i++) {
-            //修改每一个checkbox的状态
-            checks[i].checked = checked;
+function checkAll_0() {
+    //获得当前第一个checkbox的状态
+    var checkall = document.getElementsByName("checkall");
+    //得到当前checked状态
+    var checked_0 = checkall.item(0).checked;
+    var checked_1 = checked_0;
+    checkall.item(1).checked = checked_1;
+    var checked =  checked_0 && checked_1;
+    //console.log(checkall.item(0).checked,checkall.item(1).checked);
+    //获得所有分类项的checkbox
+    var checks = document.getElementsByName("checkone");
+    for (var i = 0; i < checks.length; i++) {
+        //修改每一个checkbox的状态
+        checks[i].checked = checked;
 
-        }
-        if (checked_0){
-            document.getElementById("delAll").removeAttribute("disabled")
-            document.getElementById("delAll").setAttribute("class","btn btn-danger")
+    };
+    if (checked_0){
+        document.getElementById("delAll").removeAttribute("disabled");
+        document.getElementById("delAll").setAttribute("class","btn btn-danger");
 
-        }else {
-            document.getElementById("delAll").setAttribute("disabled",true)
-            document.getElementById("delAll").setAttribute("class","btn btn-secondary")
-        }
-    }
+    }else {
+        document.getElementById("delAll").setAttribute("disabled",true);
+        document.getElementById("delAll").setAttribute("class","btn btn-secondary");
+    };
+}
 	
 
-     function checkAll_1() {
-        //获得当前第一个checkbox的状态
-         var checkall = document.getElementsByName("checkall");
-         //得到当前checked状态
-         var checked_1 = checkall.item(1).checked;
-         var checked_0 = checked_1;
-         checkall.item(0).checked = checked_0;
-         var checked =  checked_0 && checked_1;
-         //console.log(checkall.item(0).checked,checkall.item(1).checked);
-         //获得所有分类项的checkbox
-         var checks = document.getElementsByName("checkone");
-         for (var i = 0; i < checks.length; i++) {
-             //修改每一个checkbox的状态
-             checks[i].checked = checked;
-         }
-         if (checked_1){
-            document.getElementById("delAll").removeAttribute("disabled")
-            document.getElementById("delAll").setAttribute("class","btn btn-danger")
-        }else {
-            document.getElementById("delAll").setAttribute("disabled",true)
-            document.getElementById("delAll").setAttribute("class","btn btn-secondary")
-        }
-     }
-	 
-
-    function delAll() {
-        var checks = document.getElementsByName("checkone");
-        if (confirm("确定删除？")){
-            window.event.returnValue = true;
-        }else {
-            window.event.returnValue = false;
-        }
-        for (var i = 0; i < checks.length; i++) {
-            if (checks[i].checked){
-                var tr = checks[i].parentNode.parentNode;
-                var tbody = tr.parentNode;
-                var id = tr.cells[1].innerHTML;
+ function checkAll_1() {
+    //获得当前第一个checkbox的状态
+     var checkall = document.getElementsByName("checkall");
+     //得到当前checked状态
+     var checked_1 = checkall.item(1).checked;
+     var checked_0 = checked_1;
+     checkall.item(0).checked = checked_0;
+     var checked =  checked_0 && checked_1;
+     //console.log(checkall.item(0).checked,checkall.item(1).checked);
+     //获得所有分类项的checkbox
+     var checks = document.getElementsByName("checkone");
+     for (var i = 0; i < checks.length; i++) {
+         //修改每一个checkbox的状态
+         checks[i].checked = checked;
+     };
+     if (checked_1){
+        document.getElementById("delAll").removeAttribute("disabled");
+        document.getElementById("delAll").setAttribute("class","btn btn-danger");
+    }else {
+        document.getElementById("delAll").setAttribute("disabled",true);
+        document.getElementById("delAll").setAttribute("class","btn btn-secondary");
+    };
+ }
 
 
-                if (window.event.returnValue == true){
-                    tbody.removeChild(tr);
-                    $.ajax({
-                        url:'/cmdb/index/table/user/del/',
-                        data:{userid:id},
-                        type:'POST',
-                        success:function (data) {
-                            window.parent.location.reload();
-                            //$(body).html(data);
-                            //alert('删除成功')
-                        },
-                        error:function () {
-                            alert('服务器异常');
-                        }
-                    });
-                   i--;
-                }else{
-
-                }
-            }
-        }
+function delAll() {
+    var checks = document.getElementsByName("checkone");
+    if (confirm("确定删除？")){
+        window.event.returnValue = true;
+    }else {
+        window.event.returnValue = false;
     }
+    for (var i = 0; i < checks.length; i++) {
+        if (checks[i].checked){
+            var tr = checks[i].parentNode.parentNode;
+            var tbody = tr.parentNode;
+            var id = tr.cells[1].innerHTML;
 
 
-    function myTrim(x) {
-        return x.replace(/^\s+|\s+$/gm,'');
-    }
+            if (window.event.returnValue == true){
+                tbody.removeChild(tr);
+                $.ajax({
+                    url:'/cmdb/index/table/user/del/',
+                    data:{userid:id},
+                    type:'POST',
+                    success:function (data) {
+                        window.parent.location.reload();
+                        //$(body).html(data);
+                        //alert('删除成功')
+                    },
+                    error:function () {
+                        alert('服务器异常');
+                    }
+                });
+               i--;
+            }else{
+
+            };
+        };
+    };
+}
+
+
+function myTrim(x) {
+    return x.replace(/^\s+|\s+$/gm,'');
+}
 
 /*前端搜索打开此条注释
     window.onload=function(){

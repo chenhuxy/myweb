@@ -126,6 +126,35 @@ def deploy_app(request,*args,**kwargs):
     return render_to_response('deploy/deploy_app.html', msg)
 
 
+@custom_login_required
+def deploy_app_search(request,*args,**kwargs):
+    keyword = request.POST.get('keyword').strip()
+    page = '1'
+    print(keyword,page)
+    if keyword:
+        return redirect('/cmdb/index/deploy/app/search_result/keyword=' + keyword + '&page=' + page)
+    else:
+        return redirect('/cmdb/index/deploy/app/list/')
+
+@custom_login_required
+def deploy_app_search_result(request,*args,**kwargs):
+    keyword = kwargs['keyword']
+    deploy = models.deploy_app.objects.filter(proj_name__icontains=keyword) | models.deploy_app.objects.filter(
+        proj_id__icontains=keyword)
+    count = deploy.count()
+    userDict = request.session.get('is_login', None)
+    page = common.try_int(kwargs['page'], 1)
+    print(keyword,page)
+    perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+    pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
+    deploy = deploy[pageinfo.start:pageinfo.end]
+    page_string = page_helper.pager_deploy_app_list_search(request, page, pageinfo.pageCount, keyword)
+    msg = {'deploy': deploy, 'login_user': userDict['user'], 'status': '操作成功',
+           'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string, }
+    #return render_to_response('user_search.html',msg)
+    return render_to_response('deploy/deploy_app.html', msg)
+
+
 
 @custom_login_required
 @custom_permission_required('myapp.add_deploy_app')
@@ -236,12 +265,38 @@ def deploy_list(request, *args, **kwargs):
     pageinfo = page_helper.pageinfo(page, count, perItem)
     # 发布列表降序排列
     deploy = models.deploy_list_detail.objects.all().order_by('-id')[pageinfo.start:pageinfo.end]
-    page_string = page_helper.pager_task_list(request, page, pageinfo.pageCount)
+    page_string = page_helper.pager_deploy_task_list(request, page, pageinfo.pageCount)
 
     msg = {'deploy': deploy, 'login_user': userDict['user'], 'count': count, 'pageCount': pageinfo.pageCount,
            'page': page_string, }
     return render_to_response('deploy/deploy_list.html', msg)
 
+@custom_login_required
+def deploy_list_search(request,*args,**kwargs):
+    keyword = request.POST.get('keyword').strip()
+    page = '1'
+    print(keyword,page)
+    if keyword:
+        return redirect('/cmdb/index/deploy/task/search_result/keyword=' + keyword + '&page=' + page)
+    else:
+        return redirect('/cmdb/index/deploy/task/list/')
+
+@custom_login_required
+def deploy_list_search_result(request,*args,**kwargs):
+    keyword = kwargs['keyword']
+    deploy = models.deploy_list_detail.objects.filter(proj_name__icontains=keyword) | models.deploy_list_detail.objects.filter(status__icontains=keyword)
+    count = deploy.count()
+    userDict = request.session.get('is_login', None)
+    page = common.try_int(kwargs['page'], 1)
+    print(keyword,page)
+    perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+    pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
+    deploy = deploy.order_by('-id')[pageinfo.start:pageinfo.end]
+    page_string = page_helper.pager_deploy_task_list_search(request, page, pageinfo.pageCount, keyword)
+    msg = {'deploy': deploy, 'login_user': userDict['user'], 'status': '操作成功',
+           'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string, }
+    #return render_to_response('user_search.html',msg)
+    return render_to_response('deploy/deploy_list.html', msg)
 
 
 @custom_login_required
