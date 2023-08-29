@@ -78,9 +78,13 @@ urlpatterns = [
     ###---------------------------------------------------------------------- workflow-----------------------------------------------------------------------------------###
 
     url(r'^index/wf/list/(?P<page>\d*)', workflow.wf),
+    url('^index/wf/search/', workflow.wf_search),
+    url('^index/wf/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)', workflow.wf_search_result),
     url(r'^index/wf/detail/', workflow.workflow_detail),
     path('index/wf/requests/form_add/', workflow.wrokflow_form_add),
     path('index/wf/requests/add/', workflow.workflow_add),
+    url('^index/wf/requests/search/', workflow.workflow_requests_search),
+    url('^index/wf/requests/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)', workflow.workflow_requests_search_result),
     url(r'^index/wf/requests/form_update/sn=(?P<sn>\w+)', workflow.workflow_form_update),
     url(r'^index/wf/requests/update/sn=(?P<sn>\w+)', workflow.workflow_update),
     url(r'^index/wf/requests/list/(?P<page>\d*)', workflow.workflow_requests),
@@ -119,6 +123,8 @@ urlpatterns = [
     path('index/deploy/scripttype/del/', deploy.deploy_script_type_del),
 
     url(r'^index/deploy/app/list/(?P<page>\d*)', deploy.deploy_app),
+    url('^index/deploy/app/search/', deploy.deploy_app_search),
+    url('^index/deploy/app/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)', deploy.deploy_app_search_result),
     # path('index/wf/deploy/ajax/', deploy.deploy_ajax),
     path('index/deploy/app/form_add/', deploy.deploy_app_form_add),
     url(r'^index/deploy/app/form_update/id=(?P<id>\d*)', deploy.deploy_app_form_update),
@@ -129,6 +135,9 @@ urlpatterns = [
     url(r'^index/deploy/task/form_add/id=(?P<id>\d*)', deploy.deploy_list_form_add),
     path('index/deploy/task/add/', deploy.deploy_list_add),
     url(r'index/deploy/task/list/(?P<page>\d*)', deploy.deploy_list),
+    url('^index/deploy/task/search/', deploy.deploy_list_search),
+    url('^index/deploy/task/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)',
+        deploy.deploy_list_search_result),
     url(r'^index/deploy/task/log/id=(?P<id>\d*)', deploy.deploy_list_log),
     # url(r'^index/wf/deploy/get_task_log/', deploy.get_task_log),
     # url(r'^index/wf/deploy/get_task_status/', deploy.get_task_status),

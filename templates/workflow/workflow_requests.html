@@ -20,11 +20,11 @@
                             </a>
                         </div>
                         <div class="title-search" style="display:inline-block;float:right;">
-        <form action="/cmdb/index/table/user/search/" method="post"  style="margin-top:-10px;">
+                        <form action="/cmdb/index/wf/requests/search/" method="post"  style="margin-top:-10px;">
 
                             <div style="display:inline-block;">
                                 <i class="fa fa-search" id="i-advanced-search-i" style="position:relative;left:25px"></i>
-                                <input type="search" name="keyword" onfocus="clearContent(this)" onblur="fillContent(this)" placeholder="请输入流程id搜索" style="text-indent:30px;">
+                                <input type="search" name="keyword" onfocus="clearContent(this)" onblur="fillContent(this)" placeholder="标题或流程编号" style="text-indent:30px;">
                                 <input type="submit" value="搜索">
                             </div>
 <!--
@@ -37,9 +37,9 @@
                                     </span>
                                 </div>
                             </div>-->
-        </form>
-                        </div>
+                    </form>
                     </div>
+                </div>
 
 
                     <div class="table-responsive">
@@ -240,7 +240,7 @@
 
 
     function fillContent(arg) {
-            arg.placeholder="请输入流程id搜索";
+            arg.placeholder="标题或流程编号";
     }
 
 

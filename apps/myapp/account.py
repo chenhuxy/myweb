@@ -271,10 +271,10 @@ def search(request,*args,**kwargs):
     keyword = request.POST.get('keyword').strip()
     page = '1'
     print(keyword,page)
-    if (keyword):
+    if keyword:
         return redirect('/cmdb/index/table/user/search_result/keyword=' + keyword + '&page=' + page)
     else:
-        return redirect('/cmdb/index/table/user/')
+        return redirect('/cmdb/index/table/user/list/')
 
 @custom_login_required
 def search_result(request,*args,**kwargs):
@@ -288,7 +288,7 @@ def search_result(request,*args,**kwargs):
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
     pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
     userinfo = userinfo[pageinfo.start:pageinfo.end]
-    page_string = page_helper.pager_search(request, page, pageinfo.pageCount, keyword)
+    page_string = page_helper.pager_user_list_search(request, page, pageinfo.pageCount, keyword)
     msg = {'userinfo': userinfo, 'login_user': userDict['user'], 'status': '操作成功',
            'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string, }
     #return render_to_response('user_search.html',msg)
@@ -705,7 +705,7 @@ def user(request,*args,**kwargs):
     count = userInfo.objects.all().count()
     pageinfo = page_helper.pageinfo(page, count, perItem)
     userinfo = userInfo.objects.all()[pageinfo.start:pageinfo.end]
-    page_string= page_helper.pager(request, page, pageinfo.pageCount)
+    page_string= page_helper.pager_user_list(request, page, pageinfo.pageCount)
     #usertype = userType.objects.all()
     userDict = request.session.get('is_login',None)
     #if not userDict:

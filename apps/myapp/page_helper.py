@@ -3,8 +3,10 @@
 
 from django.utils.safestring import mark_safe
 
+
+# -------------------------------------pageinfo_search--------------------------------------------------------------------------------------
 class pageinfo_search(object):
-    def __init__(self,page,count,perItem,keyword):
+    def __init__(self, page, count, perItem, keyword):
         self.__page = page
         self.__count = count
         self.__perItem = perItem
@@ -12,17 +14,17 @@ class pageinfo_search(object):
 
     @property
     def start(self):
-        start = (self.__page-1)*self.__perItem
-        return  start
+        start = (self.__page - 1) * self.__perItem
+        return start
 
     @property
     def end(self):
-        end = self.__page*self.__perItem
-        return  end
+        end = self.__page * self.__perItem
+        return end
 
     @property
     def pageCount(self):
-        div = divmod(self.__count,self.__perItem)
+        div = divmod(self.__count, self.__perItem)
         if div[1] == 0:
             pageCount = div[0]
         else:
@@ -30,16 +32,14 @@ class pageinfo_search(object):
         return pageCount
 
 
-
-def pager_search(request,page,pageCount,keyword,):
-
+def pager_user_list_search(request, page, pageCount, keyword, ):
     page_html = []
-    first_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">首页</a>' % (keyword,1,)
+    first_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">首页</a>' % (keyword, 1,)
     page_html.append(first_html)
     if page == 1:
-        pre_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">上页</a>' % (keyword,1,)
+        pre_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">上页</a>' % (keyword, 1,)
     else:
-        pre_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">上页</a>' % (keyword,page - 1,)
+        pre_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">上页</a>' % (keyword, page - 1,)
     page_html.append(pre_html)
 
     pageDisplay = 11
@@ -58,42 +58,217 @@ def pager_search(request,page,pageCount,keyword,):
                 pageEnd = pageCount
     for i in range(pageStart, pageEnd):
         if page == i + 1:
-            a_html = '<a style="color:red;"href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">[%d]</a>' % (keyword,i + 1, i + 1)
+            a_html = '<a style="color:red;"href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
         else:
-            a_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">[%d]</a>' % (keyword,i + 1, i + 1)
+            a_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
         page_html.append(a_html)
     if page == pageCount:
-        next_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">下页</a>' % (keyword,pageCount,)
+        next_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">下页</a>' % (keyword, pageCount,)
     else:
-        next_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">下页</a>' % (keyword,page + 1,)
+        next_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">下页</a>' % (keyword, page + 1,)
     page_html.append(next_html)
-    end_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">尾页</a>' % (keyword,pageCount,)
+    end_html = '<a href="/cmdb/index/table/user/search_result/keyword=%s&page=%d">尾页</a>' % (keyword, pageCount,)
     page_html.append(end_html)
     page_string = mark_safe(''.join(page_html))
     return page_string
 
 
+def pager_deploy_app_list_search(request, page, pageCount, keyword, ):
+    page_html = []
+    first_html = '<a href="/cmdb/index/deploy/app/search_result/keyword=%s&page=%d">首页</a>' % (keyword, 1,)
+    page_html.append(first_html)
+    if page == 1:
+        pre_html = '<a href="/cmdb/index/deploy/app/search_result/keyword=%s&page=%d">上页</a>' % (keyword, 1,)
+    else:
+        pre_html = '<a href="/cmdb/index/deploy/app/search_result/keyword=%s&page=%d">上页</a>' % (keyword, page - 1,)
+    page_html.append(pre_html)
+
+    pageDisplay = 11
+    pageStart = int((page - (pageDisplay + 1) / 2))
+    pageEnd = int(page + (pageDisplay - 1) / 2)
+    if pageCount < pageDisplay:
+        pageStart = 0
+        pageEnd = pageCount
+    else:
+        if page < (pageDisplay + 1) / 2:
+            pageStart = 0
+            pageEnd = pageDisplay
+        else:
+            if pageEnd > pageCount:
+                pageStart = pageStart
+                pageEnd = pageCount
+    for i in range(pageStart, pageEnd):
+        if page == i + 1:
+            a_html = '<a style="color:red;"href="/cmdb/index/deploy/app/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
+        else:
+            a_html = '<a href="/cmdb/index/deploy/app/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
+        page_html.append(a_html)
+    if page == pageCount:
+        next_html = '<a href="/cmdb/index/deploy/app/search_result/keyword=%s&page=%d">下页</a>' % (keyword, pageCount,)
+    else:
+        next_html = '<a href="/cmdb/index/deploy/app/search_result/keyword=%s&page=%d">下页</a>' % (keyword, page + 1,)
+    page_html.append(next_html)
+    end_html = '<a href="/cmdb/index/deploy/app/search_result/keyword=%s&page=%d">尾页</a>' % (keyword, pageCount,)
+    page_html.append(end_html)
+    page_string = mark_safe(''.join(page_html))
+    return page_string
 
 
+def pager_deploy_task_list_search(request, page, pageCount, keyword, ):
+    page_html = []
+    first_html = '<a href="/cmdb/index/deploy/task/search_result/keyword=%s&page=%d">首页</a>' % (keyword, 1,)
+    page_html.append(first_html)
+    if page == 1:
+        pre_html = '<a href="/cmdb/index/deploy/task/search_result/keyword=%s&page=%d">上页</a>' % (keyword, 1,)
+    else:
+        pre_html = '<a href="/cmdb/index/deploy/task/search_result/keyword=%s&page=%d">上页</a>' % (keyword, page - 1,)
+    page_html.append(pre_html)
+
+    pageDisplay = 11
+    pageStart = int((page - (pageDisplay + 1) / 2))
+    pageEnd = int(page + (pageDisplay - 1) / 2)
+    if pageCount < pageDisplay:
+        pageStart = 0
+        pageEnd = pageCount
+    else:
+        if page < (pageDisplay + 1) / 2:
+            pageStart = 0
+            pageEnd = pageDisplay
+        else:
+            if pageEnd > pageCount:
+                pageStart = pageStart
+                pageEnd = pageCount
+    for i in range(pageStart, pageEnd):
+        if page == i + 1:
+            a_html = '<a style="color:red;"href="/cmdb/index/deploy/task/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
+        else:
+            a_html = '<a href="/cmdb/index/deploy/task/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
+        page_html.append(a_html)
+    if page == pageCount:
+        next_html = '<a href="/cmdb/index/deploy/task/search_result/keyword=%s&page=%d">下页</a>' % (
+            keyword, pageCount,)
+    else:
+        next_html = '<a href="/cmdb/index/deploy/task/search_result/keyword=%s&page=%d">下页</a>' % (keyword, page + 1,)
+    page_html.append(next_html)
+    end_html = '<a href="/cmdb/index/deploy/task/search_result/keyword=%s&page=%d">尾页</a>' % (keyword, pageCount,)
+    page_html.append(end_html)
+    page_string = mark_safe(''.join(page_html))
+    return page_string
+
+
+def pager_wf_list_search(request, page, pageCount, keyword, ):
+    page_html = []
+    first_html = '<a href="/cmdb/index/wf/search_result/keyword=%s&page=%d">首页</a>' % (keyword, 1,)
+    page_html.append(first_html)
+    if page == 1:
+        pre_html = '<a href="/cmdb/index/wf/search_result/keyword=%s&page=%d">上页</a>' % (keyword, 1,)
+    else:
+        pre_html = '<a href="/cmdb/index/wf/search_result/keyword=%s&page=%d">上页</a>' % (keyword, page - 1,)
+    page_html.append(pre_html)
+
+    pageDisplay = 11
+    pageStart = int((page - (pageDisplay + 1) / 2))
+    pageEnd = int(page + (pageDisplay - 1) / 2)
+    if pageCount < pageDisplay:
+        pageStart = 0
+        pageEnd = pageCount
+    else:
+        if page < (pageDisplay + 1) / 2:
+            pageStart = 0
+            pageEnd = pageDisplay
+        else:
+            if pageEnd > pageCount:
+                pageStart = pageStart
+                pageEnd = pageCount
+    for i in range(pageStart, pageEnd):
+        if page == i + 1:
+            a_html = '<a style="color:red;"href="/cmdb/index/wf/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
+        else:
+            a_html = '<a href="/cmdb/index/wf/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
+        page_html.append(a_html)
+    if page == pageCount:
+        next_html = '<a href="/cmdb/index/wf/search_result/keyword=%s&page=%d">下页</a>' % (keyword, pageCount,)
+    else:
+        next_html = '<a href="/cmdb/index/wf/search_result/keyword=%s&page=%d">下页</a>' % (keyword, page + 1,)
+    page_html.append(next_html)
+    end_html = '<a href="/cmdb/index/wf/search_result/keyword=%s&page=%d">尾页</a>' % (keyword, pageCount,)
+    page_html.append(end_html)
+    page_string = mark_safe(''.join(page_html))
+    return page_string
+
+
+def pager_wf_request_list_search(request, page, pageCount, keyword, ):
+    page_html = []
+    first_html = '<a href="/cmdb/index/wf/requests/search_result/keyword=%s&page=%d">首页</a>' % (keyword, 1,)
+    page_html.append(first_html)
+    if page == 1:
+        pre_html = '<a href="/cmdb/index/wf/requests/search_result/keyword=%s&page=%d">上页</a>' % (keyword, 1,)
+    else:
+        pre_html = '<a href="/cmdb/index/wf/requests/search_result/keyword=%s&page=%d">上页</a>' % (keyword, page - 1,)
+    page_html.append(pre_html)
+
+    pageDisplay = 11
+    pageStart = int((page - (pageDisplay + 1) / 2))
+    pageEnd = int(page + (pageDisplay - 1) / 2)
+    if pageCount < pageDisplay:
+        pageStart = 0
+        pageEnd = pageCount
+    else:
+        if page < (pageDisplay + 1) / 2:
+            pageStart = 0
+            pageEnd = pageDisplay
+        else:
+            if pageEnd > pageCount:
+                pageStart = pageStart
+                pageEnd = pageCount
+    for i in range(pageStart, pageEnd):
+        if page == i + 1:
+            a_html = '<a style="color:red;"href="/cmdb/index/wf/requests/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
+        else:
+            a_html = '<a href="/cmdb/index/wf/requests/search_result/keyword=%s&page=%d">[%d]</a>' % (
+                keyword, i + 1, i + 1)
+        page_html.append(a_html)
+    if page == pageCount:
+        next_html = '<a href="/cmdb/index/wf/requests/search_result/keyword=%s&page=%d">下页</a>' % (
+        keyword, pageCount,)
+    else:
+        next_html = '<a href="/cmdb/index/wf/requests/search_result/keyword=%s&page=%d">下页</a>' % (keyword, page + 1,)
+    page_html.append(next_html)
+    end_html = '<a href="/cmdb/index/wf/requests/search_result/keyword=%s&page=%d">尾页</a>' % (keyword, pageCount,)
+    page_html.append(end_html)
+    page_string = mark_safe(''.join(page_html))
+    return page_string
+
+
+# -------------------------------------pageinfo--------------------------------------------------------------------------------------
 class pageinfo(object):
-    def __init__(self,page,count,perItem):
+    def __init__(self, page, count, perItem):
         self.__page = page
         self.__count = count
         self.__perItem = perItem
 
     @property
     def start(self):
-        start = (self.__page-1)*self.__perItem
-        return  start
+        start = (self.__page - 1) * self.__perItem
+        return start
 
     @property
     def end(self):
-        end = self.__page*self.__perItem
-        return  end
+        end = self.__page * self.__perItem
+        return end
 
     @property
     def pageCount(self):
-        div = divmod(self.__count,self.__perItem)
+        div = divmod(self.__count, self.__perItem)
         if div[1] == 0:
             pageCount = div[0]
         else:
@@ -101,7 +276,7 @@ class pageinfo(object):
         return pageCount
 
 
-def pager(request,page,pageCount):
+def pager_user_list(request, page, pageCount):
     page_html = []
     first_html = '<a href="/cmdb/index/table/user/list/%d">首页</a>' % (1,)
     page_html.append(first_html)
@@ -142,7 +317,7 @@ def pager(request,page,pageCount):
     return page_string
 
 
-def pager_task_list(request,page,pageCount):
+def pager_deploy_task_list(request, page, pageCount):
     page_html = []
     first_html = '<a href="/cmdb/index/deploy/task/list/%d">首页</a>' % (1,)
     page_html.append(first_html)
@@ -183,7 +358,7 @@ def pager_task_list(request,page,pageCount):
     return page_string
 
 
-def pager_perm_list(request,page,pageCount):
+def pager_perm_list(request, page, pageCount):
     page_html = []
     first_html = '<a href="/cmdb/index/permission/list/%d">首页</a>' % (1,)
     page_html.append(first_html)
@@ -224,10 +399,7 @@ def pager_perm_list(request,page,pageCount):
     return page_string
 
 
-
-
-
-def pager_wf_list(request,page,pageCount):
+def pager_wf_list(request, page, pageCount):
     page_html = []
     first_html = '<a href="/cmdb/index/wf/list/%d">首页</a>' % (1,)
     page_html.append(first_html)
@@ -267,7 +439,8 @@ def pager_wf_list(request,page,pageCount):
     page_string = mark_safe(''.join(page_html))
     return page_string
 
-def pager_wf_request_list(request,page,pageCount):
+
+def pager_wf_request_list(request, page, pageCount):
     page_html = []
     first_html = '<a href="/cmdb/index/wf/requests/list/%d">首页</a>' % (1,)
     page_html.append(first_html)
@@ -308,7 +481,7 @@ def pager_wf_request_list(request,page,pageCount):
     return page_string
 
 
-def pager_prometheus_alert_list(request,page,pageCount):
+def pager_prometheus_alert_list(request, page, pageCount):
     page_html = []
     first_html = '<a href="/cmdb/index/monitor/prometheus/alert/list/%d">首页</a>' % (1,)
     page_html.append(first_html)
@@ -334,7 +507,8 @@ def pager_prometheus_alert_list(request,page,pageCount):
                 pageEnd = pageCount
     for i in range(pageStart, pageEnd):
         if page == i + 1:
-            a_html = '<a style="color:red;"href="/cmdb/index/monitor/prometheus/alert/list/%d">[%d]</a>' % (i + 1, i + 1)
+            a_html = '<a style="color:red;"href="/cmdb/index/monitor/prometheus/alert/list/%d">[%d]</a>' % (
+                i + 1, i + 1)
         else:
             a_html = '<a href="/cmdb/index/monitor/prometheus/alert/list/%d">[%d]</a>' % (i + 1, i + 1)
         page_html.append(a_html)
@@ -349,7 +523,7 @@ def pager_prometheus_alert_list(request,page,pageCount):
     return page_string
 
 
-def pager_deploy_app_list(request,page,pageCount):
+def pager_deploy_app_list(request, page, pageCount):
     page_html = []
     first_html = '<a href="/cmdb/index/deploy/app/list/%d">首页</a>' % (1,)
     page_html.append(first_html)
@@ -388,5 +562,3 @@ def pager_deploy_app_list(request,page,pageCount):
     page_html.append(end_html)
     page_string = mark_safe(''.join(page_html))
     return page_string
-
-
