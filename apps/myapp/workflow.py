@@ -154,8 +154,9 @@ def wfbusiness_del(request, *args, **kwargs):
 @custom_permission_required('myapp.view_wf_type')
 def wftype(request, *args, **kwargs):
     wftype = models.wf_type.objects.all()
+    count = wftype.count()
     userDict = request.session.get('is_login', None)
-    msg = {'wftype': wftype, 'login_user': userDict['user'], }
+    msg = {'wftype': wftype, 'login_user': userDict['user'], 'count':count}
     return render_to_response('workflow/wftype.html', msg)
 
 

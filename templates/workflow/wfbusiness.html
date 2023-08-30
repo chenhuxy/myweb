@@ -20,15 +20,15 @@
                                <!-- <button class="btn btn-primary .btn-sm">+ 添加用户</button>-->
                             </a>
                         </div>
-                        <div class="title-search" style="display:inline-block;float:right;">
-        <form action="/cmdb/index/table/user/search/" method="post"  style="margin-top:-10px;">
+                        <!--<div class="title-search" style="display:inline-block;float:right;">
+                            <form action="/cmdb/index/table/user/search/" method="post"  style="margin-top:-10px;">
                             <div style="display:inline-block;">
                                 <i class="fa fa-search" id="i-advanced-search-i" style="position:relative;left:25px"></i>
                                 <input type="search" name="keyword" onfocus="clearContent(this)" onblur="fillContent(this)" placeholder="请输入用户名或邮箱搜索" style="text-indent:30px;">
                                 <input type="submit" value="搜索">
                             </div>
-        </form>
-                        </div>
+                            </form>
+                        </div>-->
                     </div>
 
                     <div class="table-responsive">
@@ -381,8 +381,8 @@
                 if (window.event.returnValue == true){
                     tbody.removeChild(tr);
                     $.ajax({
-                        url:'/cmdb/index/table/user/del/',
-                        data:{userid:id},
+                        url:'/cmdb/index/wf/wfbusiness/del/',
+                        data:{id:id},
                         type:'POST',
                         success:function (data) {
                             window.parent.location.reload();

@@ -23,10 +23,10 @@ class PromTools:
     def alert_get(self):
         try:
             ret = requests.get(self.url,auth=(self.username, self.password), timeout=5,)
-            print(json.loads(ret.text))
+            # print(json.loads(ret.text))
             result = ret.text
         except Exception as e:
-            print ("Error as ",e)
+            # print ("Error as ",e)
             result = ' '
         return result
 
