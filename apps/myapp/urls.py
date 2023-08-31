@@ -84,7 +84,8 @@ urlpatterns = [
     path('index/wf/requests/form_add/', workflow.wrokflow_form_add),
     path('index/wf/requests/add/', workflow.workflow_add),
     url('^index/wf/requests/search/', workflow.workflow_requests_search),
-    url('^index/wf/requests/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)', workflow.workflow_requests_search_result),
+    url('^index/wf/requests/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)',
+        workflow.workflow_requests_search_result),
     url(r'^index/wf/requests/form_update/sn=(?P<sn>\w+)', workflow.workflow_form_update),
     url(r'^index/wf/requests/update/sn=(?P<sn>\w+)', workflow.workflow_update),
     url(r'^index/wf/requests/list/(?P<page>\d*)', workflow.workflow_requests),
@@ -115,6 +116,7 @@ urlpatterns = [
 
     ###------------------------------------------------------------------------ task-deploy--------------------------------------------------------------------------------------###
 
+    path('index/deploy/sum/', deploy.deploy_sum),
     path('index/deploy/scripttype/list/', deploy.deploy_script_type),
     path('index/deploy/scripttype/form_add/', deploy.deploy_script_type_form_add),
     url(r'^index/deploy/scripttype/form_update/id=(?P<id>\d*)', deploy.deploy_script_type_form_update),
@@ -139,6 +141,7 @@ urlpatterns = [
     url('^index/deploy/task/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)',
         deploy.deploy_list_search_result),
     url(r'^index/deploy/task/log/id=(?P<id>\d*)', deploy.deploy_list_log),
+    url(r'^index/deploy/task/cancel/id=(?P<id>\d*)', deploy.deploy_list_cancel),
     # url(r'^index/wf/deploy/get_task_log/', deploy.get_task_log),
     # url(r'^index/wf/deploy/get_task_status/', deploy.get_task_status),
     url(r'^index/deploy/task/get_task_info/', deploy.get_task_info),

@@ -99,17 +99,20 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                Total Users
+                                生产发布统计
                             </div>
 
                             <div class="card-body p-0">
                                 <div class="p-4">
-                                    <canvas id="line-chart" width="100%" height="20"></canvas>
+                                    <!--<canvas id="bar-chart" width="100%" height="20"></canvas>-->
+                                    <canvas id="bar-chart" width="100%" height="30"></canvas>
                                 </div>
 
-                                <div id="main"></div>
+                                <!--<div class="p-4">
+                                    <canvas id="main" width="1600px" height="300px"></canvas>
+                                </div>-->
 
-                                <div class="justify-content-around mt-4 p-4 bg-light d-flex border-top d-md-down-none">
+                                <!--<div class="justify-content-around mt-4 p-4 bg-light d-flex border-top d-md-down-none">
                                     <div class="text-center">
                                         <div class="text-muted small">Total Traffic</div>
                                         <div>12,457 Users (40%)</div>
@@ -129,45 +132,279 @@
                                         <div class="text-muted small">Total Downloads</div>
                                         <div>957,565 Files (100 TB)</div>
                                     </div>
-                                </div>
+                                </div>-->
                             </div>
                         </div>
                     </div>
-                    More Templates <a href="http://www.cssmoban.com/" target="_blank" title="模板之家">模板之家</a> - Collect from <a href="http://www.cssmoban.com/" title="网页模板" target="_blank">网页模板</a>
+                    <!--More Templates <a href="http://www.cssmoban.com/" target="_blank" title="模板之家">模板之家</a> - Collect from <a href="http://www.cssmoban.com/" title="网页模板" target="_blank">网页模板</a>-->
                 </div>
             </div>
         </div>
 {% endblock %}
 {% block javascript %}
 <script>
+/*
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    // 指定图表的配置项和数据
+    var option = {
+    title: {
+      text: '第一个 ECharts 实例'
+    },
+    tooltip: {},
+    legend: {
+      data: ['发布数量']
+    },
+    xAxis: {
+      data: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子']
+    },
+    yAxis: {},
+    series: [
+      {
+        name: '销量',
+        type: 'bar',
+        data: [5, 20, 36, 10, 10, 20]
+      }
+    ]
+    };
 
-      // 基于准备好的dom，初始化echarts实例
-      var myChart = echarts.init(document.getElementById('main'));
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+    */
 
-      // 指定图表的配置项和数据
-      var option = {
-        title: {
-          text: 'ECharts 入门示例'
-        },
-        tooltip: {},
-        legend: {
-          data: ['销量']
-        },
-        xAxis: {
-          data: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子']
-        },
-        yAxis: {},
-        series: [
-          {
-            name: '销量',
-            type: 'bar',
-            data: [5, 20, 36, 10, 10, 20]
-          }
-        ]
-      };
 
-      // 使用刚指定的配置项和数据显示图表。
-      myChart.setOption(option);
+$(document).ready(function () {
+    /**
+     * Line Chart
+     */
+    var lineChart = $('#line-chart');
+
+    if (lineChart.length > 0) {
+        new Chart(lineChart, {
+            type: 'line',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                    label: 'Users',
+                    data: [12, 19, 3, 5, 2, 3, 20, 33, 23, 12, 33, 10],
+                    backgroundColor: 'rgba(66, 165, 245, 0.5)',
+                    borderColor: '#2196F3',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    /**
+     * Bar Chart
+     */
+    var barChart = $('#bar-chart');
+
+    var labels = [];    //类别数组（实际用来盛放X轴坐标值）
+    var data = [];
+    $.ajax({
+        type: 'POST',
+        url:'/cmdb/index/deploy/sum/',
+        dateType:'json',
+        success:function (msg) {
+            //window.parent.location.reload();
+            //$(body).html(msg);
+            //alert('删除成功');
+            msg = JSON.parse(msg);
+            //console.log(msg);
+            labels_get = msg.labels;
+            console.log(labels_get);
+            console.log(typeof(labels_get));
+            data_get = msg.data;
+            console.log(data_get);
+            console.log(typeof(data_get));
+            //alert(msg);
+            for(i=0;i<labels_get.length;i++){
+                labels.push(labels_get[i]);
+            };
+            for(var i in data_get){
+                data.push(data_get[i]);
+            };
+            console.log(labels);
+            console.log(typeof(labels));
+            console.log(data);
+            console.log(typeof(data));
+
+            if (barChart.length > 0) {
+                new Chart(barChart, {
+                    type: 'bar',
+                    data: {
+                        //labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
+                        labels: labels,
+                        datasets: [{
+                            label: '# 发布数量',
+                            //data: [120, 190, 30, 50, 20, 3],
+                            data: data,
+                            backgroundColor: 'rgba(33, 150, 243, 0.5)',
+                            //backgroundColor: [
+                                //'rgba(244, 88, 70, 0.5)',
+                                //'rgba(33, 150, 243, 0.5)',
+                                //'rgba(0, 188, 212, 0.5)',
+                                //'rgba(42, 185, 127, 0.5)',
+                                //'rgba(156, 39, 176, 0.5)',
+                                //'rgba(253, 178, 68, 0.5)'
+                            //],
+                            borderColor: '#2196F3',
+                            //borderColor: [
+                                //'#F45846',
+                                //'#2196F3',
+                                //'#00BCD4',
+                                //'#2ab97f',
+                                //'#9C27B0',
+                                //'#fdb244'
+                            //],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            }
+
+
+        },
+        error:function () {
+            alert('服务器异常');
+        }
+    });
+
+
+    /**
+     * Radar Chart
+     */
+    var radarChart = $('#radar-chart');
+
+    if (radarChart.length > 0) {
+        new Chart(radarChart, {
+            type: 'radar',
+            data: {
+                labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
+                datasets: [{
+                    label: 'Users',
+                    data: [100, 45, 87, 50, 77, 20],
+                    backgroundColor: 'rgba(244, 88, 70, 0.5)',
+                    borderColor: '#F45846',
+                    borderWidth: 1
+                }, {
+                    label: 'Votes',
+                    data: [23, 55, 75, 54, 95, 100],
+                    backgroundColor: 'rgba(33, 150, 243, 0.5)',
+                    borderColor: '#2196F3',
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
+
+    /**
+     * Pie Chart
+     */
+    var pieChart = $('#pie-chart');
+
+    if (pieChart.length > 0) {
+        new Chart(pieChart, {
+            type: 'pie',
+            data: {
+                labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
+                datasets: [{
+                    label: 'Users',
+                    data: [100, 45, 87, 50, 77, 20],
+                    backgroundColor: [
+                        'rgba(244, 88, 70, 0.5)',
+                        'rgba(33, 150, 243, 0.5)',
+                        'rgba(0, 188, 212, 0.5)',
+                        'rgba(42, 185, 127, 0.5)',
+                        'rgba(156, 39, 176, 0.5)',
+                        'rgba(253, 178, 68, 0.5)'
+                    ],
+                    borderColor: [
+                        'rgba(244, 88, 70, 0.5)',
+                        'rgba(33, 150, 243, 0.5)',
+                        'rgba(0, 188, 212, 0.5)',
+                        'rgba(42, 185, 127, 0.5)',
+                        'rgba(156, 39, 176, 0.5)',
+                        'rgba(253, 178, 68, 0.5)'
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
+
+    /**
+     * Widget Line Chart
+     */
+    var wLineChart = $('.widget-line-chart');
+
+    wLineChart.each(function (index, canvas) {
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                    label: 'Users',
+                    data: [12, 19, 3, 5, 2, 3, 20, 33, 23, 12, 33, 10],
+                    borderColor: '#fff',
+                    borderWidth: 1,
+                    fill: false,
+                }]
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            display: false,
+                        },
+                        gridLines: {
+                            display: false,
+                            drawBorder: false,
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            display: false,
+                        },
+                        gridLines: {
+                            display: false,
+                            drawBorder: false,
+                        }
+                    }]
+                }
+            }
+        });
+    });
+});
 
 
 </script>

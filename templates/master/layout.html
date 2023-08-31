@@ -441,7 +441,12 @@
             {% endblock %}
         </div>
         <nav class="navbar footer">
-            copyright@chenhu 2019-2020 All Rights Reserverd
+            copyright@chenhu 2019-<span id="footer"></span> All Rights Reserverd
+            <span>
+                <a href="https://github.com/chenhuxy/myweb" target="_blank">
+                 <i class="icon icon-social-github"></i>
+                </a>
+            </span>
         </nav>
     </div>
 
@@ -450,11 +455,14 @@
     <script src="/static/dist/vendor/bootstrap/js/bootstrap.min.js"></script>
     <script src="/static/dist/vendor/chart.js/chart.min.js"></script>
     <script src="/static/dist/js/carbon.js"></script>
-    <script src="/static/dist/js/demo.js"></script>
+    <!--<script src="/static/dist/js/demo.js"></script>-->
     <script src="/static/extra/jquery.cookie.js"></script>
-    <script src="/static/extra/echarts.js"></script>
+    <script src="/static/extra/echarts.min.js"></script>
     <script>
         $(function(){
+        //更新页脚
+        date = new Date();
+        document.getElementById("footer").innerHTML = date.getFullYear();
         //绑定a链接的点击事件
         //点击a链接的时候将id写进cookie
         var arrSubNav = document.getElementsByClassName('nav-item nav-dropdown');
