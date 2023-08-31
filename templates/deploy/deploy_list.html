@@ -69,6 +69,9 @@
                                     <button class="btn btn-primary" data-toggle="modal" onclick="deploy_log(this)">
                                         <i class="fa fa-pencil-alt"></i> 查看日志
                                     </button>
+                                    <button class="btn btn-secondary" data-toggle="modal" onclick="deploy_cancel(this)" id="deploy_cancel" disabled>
+                                        <i class="icon icon-close"></i> 取消发布
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -128,6 +131,10 @@ $(function () {
             var id = tr.cells[0].innerHTML;
             //只是轮询执行中的任务
             if (task_status == '执行中'){
+                //设置为可撤销状态
+                document.getElementById('deploy_cancel').setAttribute("class", "btn btn-danger");
+                document.getElementById('deploy_cancel').removeAttribute("disabled");
+                //$('#deploy_cancel').removeAttribute("disabled");
                 $.ajax({
                     type:'POST',
                     url:'/cmdb/index/deploy/task/get_task_info/',
@@ -144,11 +151,19 @@ $(function () {
                         //console.log(id,status);
                         //window.parent.location.reload();
                         tr.cells[5].innerHTML = status;
+                        if (status != "执行中"){
+                            //设置取消可撤销状态
+                            document.getElementById('deploy_cancel').setAttribute("disabled", true);
+                            document.getElementById('deploy_cancel').setAttribute("class", "btn btn-secondary");
+                        };
                     },
                     error:function (e) {
                         console.log(e.status);
                     }
                 });
+            }else{
+
+
             };
 
         };
@@ -178,6 +193,18 @@ function deploy_log(obj){
     location.href='/cmdb/index/deploy/task/log/id='+id;
 }
 
+
+function deploy_cancel(obj){
+    //window.open ('deploy/deploy_log.html', 'newwindow', 'height=100, width=400, top=0, left=0,
+     //toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no')
+    //alert('null');
+    var tr = obj.parentNode.parentNode;
+    //var userid = tr.firstElementChild.innerHTML;
+    var id = tr.cells[0].innerHTML;
+    var status = tr.cells[5].innerHTML;
+    //alert(id);
+    location.href='/cmdb/index/deploy/task/cancel/id='+id;
+}
 
 
 

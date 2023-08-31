@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # _*_ coding:utf-8 _*_
+import signal
 import time
 
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
@@ -23,6 +24,8 @@ from django.core.cache import cache
 from myweb.settings import GITLAB_URL, GITLAB_TOKEN
 from apps.myapp.paramiko_ssh_helper import ssh_remote
 from celery.result import AsyncResult
+from celery.app.control import Control
+from myweb.celery import app
 from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR
 
 
@@ -117,7 +120,7 @@ def deploy_app(request, *args, **kwargs):
 def deploy_app_search(request, *args, **kwargs):
     keyword = request.POST.get('keyword').strip()
     page = '1'
-    print(keyword, page)
+    # print(keyword, page)
     if keyword:
         return redirect('/cmdb/index/deploy/app/search_result/keyword=' + keyword + '&page=' + page)
     else:
@@ -132,7 +135,7 @@ def deploy_app_search_result(request, *args, **kwargs):
     count = deploy.count()
     userDict = request.session.get('is_login', None)
     page = common.try_int(kwargs['page'], 1)
-    print(keyword, page)
+    # print(keyword, page)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
     pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
     deploy = deploy[pageinfo.start:pageinfo.end]
@@ -269,7 +272,7 @@ def deploy_list(request, *args, **kwargs):
 def deploy_list_search(request, *args, **kwargs):
     keyword = request.POST.get('keyword').strip()
     page = '1'
-    print(keyword, page)
+    # print(keyword, page)
     if keyword:
         return redirect('/cmdb/index/deploy/task/search_result/keyword=' + keyword + '&page=' + page)
     else:
@@ -284,7 +287,7 @@ def deploy_list_search_result(request, *args, **kwargs):
     count = deploy.count()
     userDict = request.session.get('is_login', None)
     page = common.try_int(kwargs['page'], 1)
-    print(keyword, page)
+    # print(keyword, page)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
     pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
     deploy = deploy.order_by('-id')[pageinfo.start:pageinfo.end]
@@ -408,7 +411,7 @@ def deploy_list_log(request, *args, **kwargs):
     msg = {'deploy': deploy, 'login_user': userDict['user'], 'count': count,
            'proj_name': proj_name, 'task_id': task_id, 'tag': tag, 'proj_id': proj_id, 'id': id}
     # print(task_id, type(task_id), result, type(result),result.status,result.result,result.traceback,result.date_done,)
-    print(msg)
+    # print(msg)
     return render_to_response('deploy/deploy_list_log.html', msg)
 
 
@@ -446,4 +449,47 @@ def get_task_info(request, *args, **kwargs):
     # print(id,type(id),task_id,)
     task_status = models.deploy_list_detail.objects.filter(id=id).values('status')[0]['status']
     msg = {'status': task_status, 'id': id, }
+    return HttpResponse(json.dumps(msg))
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_deploy_list_detail')
+def deploy_list_cancel(request, *args, **kwargs):
+    id = kwargs['id']
+    deploy = models.deploy_list_detail.objects.filter(id=id)
+    task_id = deploy.values('task_id')[0]['task_id']
+    userDict = request.session.get('is_login', None)
+    # revoke未生效1
+    # result = AsyncResult(task_id)
+    # result.revoke(terminate=True,)
+    # revoke未生效2
+    # celery_control = Control(app=app)
+    # res = celery_control.revoke(task_id=task_id,terminate=True)
+    # print(res,type(res))
+    msg = {'deploy': deploy, 'login_user': userDict['user'], 'task_id': task_id, 'id': id}
+    # print(task_id, type(task_id), result, type(result),result.status,result.result,result.traceback,result.date_done,)
+    # print(msg)
+    cancel_cmd = "ps -ef |grep OneKeyDeploy.py |grep -v grep |awk '{print $3}' |xargs kill -9"
+    # 取消异步执行
+    # tasks.ssh_remote_cancel_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
+    tasks.ssh_remote_cancel_exec_cmd(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
+    models.deploy_list_detail.objects.filter(task_id=task_id).update(status='已取消', )
+    return redirect('/cmdb/index/deploy/task/list/')
+
+
+@custom_login_required
+def deploy_sum(request, *args, **kwargs):
+    userDict = request.session.get('is_login', None)
+    deploy_app = models.deploy_app.objects.all()
+    labels = []
+    data = []
+    for item in deploy_app:
+        labels.append(item.proj_name)
+        deploy_list_detail = models.deploy_list_detail.objects.filter(proj_name=item.proj_name).count()
+        data.append(deploy_list_detail)
+    # print(labels, type(labels))
+    # print(data, type(data))
+    msg = {'labels': labels, 'login_user': userDict['user'],
+           'data': data, }
+    # print(msg)
     return HttpResponse(json.dumps(msg))

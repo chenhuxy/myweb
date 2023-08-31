@@ -366,3 +366,19 @@ def ssh_remote_exec_cmd_wf(self, ip, port, username, password, cmd, unit, proj_n
     # return result
     # 不返回result到celery result，仅返回task_id
     return
+
+
+# 手动撤销发布
+# @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 3, 'countdown': 10}, )
+@shared_task(bind=True)
+def ssh_remote_cancel_exec_cmd(self, ip, port, username, password, cmd):
+    transport = paramiko.Transport((ip, port))
+    transport.connect(username=username, password=password)
+    ssh = paramiko.SSHClient()
+    ssh._transport = transport
+    stdin, stdout, stderr = ssh.exec_command(cmd)
+    ssh.close()
+    # 返回result到celery result,并返回task_id
+    # return result
+    # 不返回result到celery result，仅返回task_id
+    return
