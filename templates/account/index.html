@@ -225,11 +225,11 @@ $(document).ready(function () {
             msg = JSON.parse(msg);
             //console.log(msg);
             labels_get = msg.labels;
-            console.log(labels_get);
-            console.log(typeof(labels_get));
+            //console.log(labels_get);
+            //console.log(typeof(labels_get));
             data_get = msg.data;
-            console.log(data_get);
-            console.log(typeof(data_get));
+            //console.log(data_get);
+            //console.log(typeof(data_get));
             //alert(msg);
             for(i=0;i<labels_get.length;i++){
                 labels.push(labels_get[i]);
@@ -237,19 +237,20 @@ $(document).ready(function () {
             for(var i in data_get){
                 data.push(data_get[i]);
             };
-            console.log(labels);
-            console.log(typeof(labels));
-            console.log(data);
-            console.log(typeof(data));
+            //console.log(labels);
+            //console.log(typeof(labels));
+            //console.log(data);
+            //console.log(typeof(data));
 
             if (barChart.length > 0) {
                 new Chart(barChart, {
                     type: 'bar',
                     data: {
                         //labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
+
                         labels: labels,
                         datasets: [{
-                            label: '# 发布数量',
+                            label: '发布数量',
                             //data: [120, 190, 30, 50, 20, 3],
                             data: data,
                             backgroundColor: 'rgba(33, 150, 243, 0.5)',
@@ -275,15 +276,49 @@ $(document).ready(function () {
                     },
                     options: {
                         legend: {
-                            display: false
+                            display: true
                         },
                         scales: {
                             yAxes: [{
                                 ticks: {
-                                    beginAtZero: true
+                                    beginAtZero: true,
+                                    display: true,
+                                }
+                            }],
+                            xAxes: [{
+                                ticks: {
+                                    autoSkip: false, //标签太多自动跳过1个，此参数参考chart.js源码6925行修改，默认true
                                 }
                             }]
+                        },
+                        //tooltips: {
+                        //    intersect: false,
+                        //    mode: 'index',
+                        //},
+                        hover: {
+                            animationDuration: 0  // 防止鼠标移上去，数字闪烁
+                        },
+                        animation: {           // 这部分是数值显示的功能实现
+                              onComplete: function () {
+                                    var chartInstance = this.chart,
+                                    barChart = chartInstance.ctx;
+                                    //console.log(chartInstance);
+                                    //console.log(barChart);
+                                    // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                                    barChart.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                                    barChart.fillStyle = "black";
+                                    barChart.textAlign = 'center';
+                                    barChart.textBaseline = 'bottom';
+                                    this.data.datasets.forEach(function (dataset, i) {
+                                        var meta = chartInstance.controller.getDatasetMeta(i);
+                                        meta.data.forEach(function (bar, index) {
+                                            var data = dataset.data[index];
+                                            barChart.fillText(data, bar._model.x, bar._model.y-5);
+                                        });
+                                    });
+                              }
                         }
+
                     }
                 });
             }
