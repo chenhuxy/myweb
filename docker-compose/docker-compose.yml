@@ -35,7 +35,7 @@ services:
       start_period: 60s
 
   myweb:
-    image: chenhuxy/myweb:v2.3.1
+    image: chenhuxy/myweb:v2.3.2
     environment:
       LANG: "en_US.utf8"
     volumes:
@@ -57,6 +57,9 @@ services:
       timeout: 5s
       retries: 3
       start_period: 60s
+    extra_hosts:
+      - "gitlab.utfinancing.com:192.168.13.213"
+      - "hygw.utfinancing.com:10.5.5.102"
 
 networks:
   myweb-net:
