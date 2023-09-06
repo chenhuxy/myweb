@@ -496,9 +496,25 @@ def workflow_detail(request, *args, **kwargs):
 def workflow_approve(request, *args, **kwargs):
     sn = request.GET.get('sn', None)
     wf_info = models.wf_info.objects.filter(sn=sn)
+    next_assignee_username = wf_info.values('next_assignee')[0]['next_assignee']
     userDict = request.session.get('is_login', None)
+    login_user =  userDict['user']
     msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
-    return render_to_response('workflow/workflow_approve.html', msg)
+    # 2023/09/06 判断当前登录用户是否为审批人
+    if login_user == next_assignee_username:
+        return render_to_response('workflow/workflow_approve.html', msg)
+    else:
+        return render_to_response('404.html',msg)
+
+@custom_login_required
+@custom_permission_required('myapp.view_wf_info')
+@custom_permission_required('myapp.view_wf_info_process_history')
+def workflow_tasks_status(request, *args, **kwargs):
+    sn = request.POST.get('sn', None)
+    # print(sn,type(sn),)
+    task_status = models.wf_info.objects.filter(sn=sn).values('status')[0]['status']
+    msg = {'status': task_status, 'sn': sn, }
+    return HttpResponse(json.dumps(msg))
 
 
 @custom_login_required
