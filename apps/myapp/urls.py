@@ -96,6 +96,7 @@ urlpatterns = [
     url(r'^index/wf/tasks/list/(?P<page>\d*)', workflow.workflow_tasks),
     url(r'^index/wf/tasks/detail/', workflow.workflow_detail),
     url(r'^index/wf/tasks/approve/', workflow.workflow_approve),
+    url(r'^index/wf/tasks/get_task_status/', workflow.workflow_tasks_status),
     path('index/wf/tasks/process/', workflow.workflow_process),
     path('index/wf/wftype/list/', workflow.wftype),
     path('index/wf/wftype/form_add/', workflow.wftypeForm_add),

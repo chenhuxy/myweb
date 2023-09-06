@@ -138,6 +138,58 @@
 {% endblock %}
 {% block javascript %}
 <script>
+
+// ajax获取工单状态
+
+$(function () {
+    function get_task_info(){
+        var tbody = document.getElementById('tab2');
+        var trArr = tbody.rows;
+        //console.log(tbody,trArr);
+        for(var i=0;i<trArr.length;i++){
+            var tr = trArr[i];
+            var task_status = tr.cells[5].innerHTML;
+            var sn = tr.cells[1].innerHTML;
+            //只是轮询处理中的工单
+            if (task_status == '处理中'){
+                $.ajax({
+                    type:'POST',
+                    url:'/cmdb/index/wf/tasks/get_task_status/',
+                    data:{
+                        sn:sn,
+                    },
+                    async: false, //关掉异步方式，避免多个请求还会数据错乱
+                    success:function (result) {
+                        msg = JSON.parse(result);
+                        console.log(msg);
+                        status = msg.status;
+                        sn = msg.sn;
+                        //console.log(sn,status);
+                        //window.parent.location.reload();
+                        tr.cells[5].innerHTML = status;
+                    },
+                    error:function (e) {
+                        console.log(e.status);
+                    }
+                });
+            }else{
+
+
+            };
+
+        };
+
+
+
+    };
+
+    setInterval(function (){
+        get_task_info();
+    },1000);
+
+});　
+
+
     function workflowDetail(obj) {
         var tr = obj.parentNode.parentNode;
         var sn = tr.cells[1].innerText;
