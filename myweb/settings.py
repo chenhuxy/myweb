@@ -374,3 +374,10 @@ SSH_PASSWORD = 'redhat'
 SSH_WORKDIR = '/root/gitlab/download'
 SSH_SCRIPT_NAME = 'auto-OneKeyDeploy'
 SSH_CMD = 'cd ' + SSH_WORKDIR + '&& python ' + SSH_SCRIPT_NAME + '.py'
+
+# WORKFLOW_EMAIL 配置
+EXTERNAL_URL = 'http://127.0.0.1:8000'
+SEND_FROM = 'xxx'
+WF_EMAIL_TITLE = '【运维发布系统流程审批提醒】'
+ACTIVE_EMAIL_TITLE = '【运维发布系统账号激活邮件】'
+VERIFY_CODE_EMAIL_TITLE = '【运维发布系统找回密码邮件】'
