@@ -32,15 +32,15 @@ from celery.result import AsyncResult
 from apps.myapp import consumers
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
 import pickle
-from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR
+from myweb.settings import *
 from celery.result import AsyncResult
 
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 30, 'countdown': 60})
 def send_email(email, username):
-    title = '【CMDB激活邮件】'
+    title = ACTIVE_EMAIL_TITLE
     msg = ''
-    send_from = '834163059@qq.com'
+    send_from = SEND_FROM
     send_to = [email, ]
     fail_silently = False
     token = token_helper.get_random_uuid()
@@ -48,7 +48,7 @@ def send_email(email, username):
     template = loader.get_template('account/email.html')
     # 渲染模板
     # email_body = '亲爱的'+username+':<br/>感谢您的注册,请点击下方链接激活账号.<a href="/cmdb/index/table/user/" target="_blank"></a><br/>.'
-    html_str = template.render({"username": username, 'token': token, })
+    html_str = template.render({"username": username, 'token': token, 'external_url':EXTERNAL_URL})
     # send_mail的参数分别是  邮件标题，邮件内容，发件箱(settings.py中设置过的那个)，收件箱列表(可以发送给多个人),失败静默(若发送失败，报错提示我们)
     send_mail(title, msg, send_from, send_to, fail_silently, html_message=html_str)
     # print(html_str,type(html_str))
@@ -59,9 +59,9 @@ def send_email(email, username):
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 1, 'countdown': 3})
 def send_email_code(email, verify_code):
-    title = '【CMDB找回密码邮件】'
+    title = VERIFY_CODE_EMAIL_TITLE
     msg = ''
-    send_from = '834163059@qq.com'
+    send_from = SEND_FROM
     send_to = [email, ]
     fail_silently = False
     # verify_code = token_helper.get_random_code()
@@ -81,13 +81,13 @@ def send_email_code(email, verify_code):
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 1, 'countdown': 3})
 def workflow_send_email(sn, username, email):
-    title = '【流程审批提醒】'
+    title = WF_EMAIL_TITLE
     msg = ''
-    send_from = '834163059@qq.com'
+    send_from = SEND_FROM
     send_to = [email, ]
     fail_silently = False
     template = loader.get_template('workflow/workflow_email.html')
-    html_str = template.render({"username": username, 'sn': sn, })
+    html_str = template.render({"username": username, 'sn': sn, 'external_url':EXTERNAL_URL})
     send_mail(title, msg, send_from, send_to, fail_silently, html_message=html_str)
 
 
