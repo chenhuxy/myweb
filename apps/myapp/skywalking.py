@@ -7,6 +7,7 @@ import smtplib
 from email.mime.text import MIMEText
 import time
 from myweb.settings import *
+from django.shortcuts import HttpResponse
 
 
 def send_mail(request,*args,**kwargs):
@@ -36,4 +37,4 @@ def send_mail(request,*args,**kwargs):
         smtp.connect(mail_sever)
         smtp.login(user=mail_user,password=mail_pass)
         smtp.sendmail(sender,receiver.split(','),msg.as_string())
-    return "邮件发送成功"
+    return HttpResponse("邮件发送成功")
