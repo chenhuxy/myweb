@@ -105,7 +105,7 @@ def auth(request,*args,**kwargs):
         user = authenticate(username=username,password=password_origin)
         remember = request.POST.get('remember',None)
         is_empty = all([username,password_origin])
-        print(username, password_origin,remember,is_empty,user,type(user))
+        # print(username, password_origin,remember,is_empty,user,type(user))
         if is_empty:
             #count = userInfo.objects.filter(username=username,password=password,is_active=1).count()
             #print(count,)

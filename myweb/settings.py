@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-import time
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -47,85 +46,6 @@ INSTALLED_APPS = [
     'channels',  # websocket使用
 
 ]
-
-
-# 日志配置
-
-log_path = os.path.join(BASE_DIR, 'logs')  # log_path是存放日志的路径
-if not os.path.exists(log_path): os.mkdir(log_path)  # 如果不存在这个logs文件夹，就自动创建一个
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        # 日志格式
-        'standard': {
-            'format': '[%(asctime)s] [%(filename)s:%(lineno)d] [%(module)s:%(funcName)s] '
-                      '[%(levelname)s]- %(message)s'},
-        # 简单格式
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
-    },
-    # 过滤
-    'filters': {
-    },
-    # 定义具体处理日志的方式
-    'handlers': {
-        # 默认记录所有日志
-        'default': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(log_path, 'all-{}.log'.format(time.strftime('%Y-%m-%d'))),
-            'maxBytes': 1024 * 1024 * 100,  # 文件大小
-            'backupCount': 5,  # 备份数
-            'formatter': 'standard',  # 输出格式
-            'encoding': 'utf-8',  # 设置默认编码，否则打印出来汉字乱码
-        },
-        # 输出错误日志
-        'error': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(log_path, 'error-{}.log'.format(time.strftime('%Y-%m-%d'))),
-            'maxBytes': 1024 * 1024 * 5,  # 文件大小
-            'backupCount': 5,  # 备份数
-            'formatter': 'standard',  # 输出格式
-            'encoding': 'utf-8',  # 设置默认编码
-        },
-        # 控制台输出
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard'
-        },
-        # 输出info日志
-        'info': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(log_path, 'info-{}.log'.format(time.strftime('%Y-%m-%d'))),
-            'maxBytes': 1024 * 1024 * 5,
-            'backupCount': 5,
-            'formatter': 'standard',
-            'encoding': 'utf-8',  # 设置默认编码
-        },
-    },
-    # 配置用哪几种 handlers 来处理日志
-    'loggers': {
-        # 类型 为 django 处理所有类型的日志， 默认调用
-        'django': {
-            'handlers': ['default', 'console'],
-            'level': 'INFO',
-            'propagate': False
-        },
-        # log 调用时需要当作参数传入
-        'log': {
-            'handlers': ['error', 'info', 'console', 'default'],
-            'level': 'INFO',
-            'propagate': True
-        },
-    }
-}
-
 
 # 指定ASGI的路由地址
 
@@ -194,7 +114,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'myweb',
+        'NAME': 'django_test',
         'USER': 'root',
         'PASSWORD': 'redhat',
         'HOST': '127.0.0.1',
@@ -291,8 +211,9 @@ EMAIL_USE_TLS = False  # 是否使用TLS安全传输协议(用于在两个通信
 EMAIL_USE_SSL = False  # 是否使用SSL加密，qq企业邮箱要求使用
 EMAIL_HOST = 'xxx'  # 发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
 EMAIL_PORT = 25  # 发件箱的SMTP服务器端口
-EMAIL_HOST_USER = 'xxx'  # 发送邮件的邮箱地址
+EMAIL_HOST_USER = 'xxx'  # 发送邮件的邮箱用户名
 EMAIL_HOST_PASSWORD = 'xxx'  # 发送邮件的邮箱密码(这里使用的是授权码)
+EMAIL_SEND_FROM = 'xxx'  # 发送邮件的邮箱地址
 
 # cache配置
 # pip install django-redis-cache(Python 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (
@@ -333,18 +254,18 @@ CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/2'
 CELERY_TASK_SERIALIZER = 'json'
 
 # zabbix配置
-ZABBIX_URL = 'http://1.1.1.1/zabbix'
-ZABBIX_USER = 'xxx'
-ZABBIX_PASSWORD = 'xxx'
+ZABBIX_URL = 'http://10.180.10.84/zabbix'
+ZABBIX_USER = 'hu.chen'
+ZABBIX_PASSWORD = 'Qoros0507'
 
 # prometheus配置
-PROM_URL = 'http://1.1.1.1/prom'
-PROM_USER = 'xxx'
-PROM_PASSWROD = 'xxx'
+PROM_URL = 'http://hygw.utfinancing.com/prom'
+PROM_USER = 'admin'
+PROM_PASSWROD = 'yd@4Lwyi'
 
 # gitlab配置
-GITLAB_URL = 'http://1.1.1.1'
-GITLAB_TOKEN = 'xxx'
+GITLAB_URL = 'http://gitlab.utfinancing.com'
+GITLAB_TOKEN = 'glpat-kqPgKptRo6_ekUAiBvHb'
 
 # 自定义用户表配置
 AUTH_USER_MODEL = "myapp.userInfo"
@@ -377,7 +298,10 @@ SSH_CMD = 'cd ' + SSH_WORKDIR + '&& python ' + SSH_SCRIPT_NAME + '.py'
 
 # WORKFLOW_EMAIL 配置
 EXTERNAL_URL = 'http://127.0.0.1:8000'
-SEND_FROM = 'xxx'
-WF_EMAIL_TITLE = '【运维发布系统流程审批提醒】'
-ACTIVE_EMAIL_TITLE = '【运维发布系统账号激活邮件】'
-VERIFY_CODE_EMAIL_TITLE = '【运维发布系统找回密码邮件】'
+WF_EMAIL_SUBJECT = '【运维发布系统流程审批提醒】'
+ACTIVE_EMAIL_SUBJECT = '【运维发布系统账号激活邮件】'
+VERIFY_CODE_EMAIL_SUBJECT = '【运维发布系统找回密码邮件】'
+
+# SKYWALKING_EMAIL 配置
+SKYWALKING_EMAIL_SUBJECT = 'Skywalking链路监控告警'
+SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗号分割
