@@ -38,9 +38,9 @@ from celery.result import AsyncResult
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 30, 'countdown': 60})
 def send_email(email, username):
-    title = ACTIVE_EMAIL_TITLE
+    title = ACTIVE_EMAIL_SUBJECT
     msg = ''
-    send_from = SEND_FROM
+    send_from = EMAIL_SEND_FROM
     send_to = [email, ]
     fail_silently = False
     token = token_helper.get_random_uuid()
@@ -59,9 +59,9 @@ def send_email(email, username):
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 1, 'countdown': 3})
 def send_email_code(email, verify_code):
-    title = VERIFY_CODE_EMAIL_TITLE
+    title = VERIFY_CODE_EMAIL_SUBJECT
     msg = ''
-    send_from = SEND_FROM
+    send_from = EMAIL_SEND_FROM
     send_to = [email, ]
     fail_silently = False
     # verify_code = token_helper.get_random_code()
@@ -81,9 +81,9 @@ def send_email_code(email, verify_code):
 
 @shared_task(autoretry_for=(Exception,), retry_kwargs={'max_retries': 1, 'countdown': 3})
 def workflow_send_email(sn, username, email):
-    title = WF_EMAIL_TITLE
+    title = WF_EMAIL_SUBJECT
     msg = ''
-    send_from = SEND_FROM
+    send_from = EMAIL_SEND_FROM
     send_to = [email, ]
     fail_silently = False
     template = loader.get_template('workflow/workflow_email.html')

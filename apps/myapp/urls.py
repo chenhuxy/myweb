@@ -12,6 +12,7 @@ from apps.myapp import workflow
 from apps.myapp import example
 from apps.myapp import assets
 from apps.myapp import deploy
+from apps.myapp import skywalking
 
 from apps.myapp import tasks
 
@@ -70,6 +71,7 @@ urlpatterns = [
     ###---------------------------------------------------------------------- monitor-----------------------------------------------------------------------------------###
 
     path('index/monitor/zabbix/alert/list/', zabbix.zabbix_trigger),
+    path('index/monitor/skywalking/alert/send/', skywalking.send_mail),
     path('index/monitor/gitlab/', gitlab_helper.git_project),
     url(r'^index/monitor/prometheus/alert/list/(?P<page>\d*)', prometheus.prometheus_alert),
     # path('index/table/',views.tables),
