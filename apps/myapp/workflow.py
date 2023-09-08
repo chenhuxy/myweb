@@ -702,7 +702,6 @@ def workflow_process(request, *args, **kwargs):
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_wf_business')
 def wftypeChange(request, *args, **kwargs):
     if request.method == 'POST':
         try:
@@ -743,7 +742,6 @@ def wftypeChange(request, *args, **kwargs):
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_wf_business')
 def wftypeChange2(request, *args, **kwargs):
     if request.method == 'POST':
         try:
