@@ -24,7 +24,7 @@ SECRET_KEY = '0k3^xbe$m)*r@9)97=-vt097ag^45ln1ort7wa@n03%x9*h3sk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-#DEBUG = True
+# DEBUG = True
 
 DEBUG = False
 
@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'channels',  # websocket使用
 
 ]
-
 
 # 日志配置
 
@@ -290,8 +289,9 @@ EMAIL_USE_TLS = False  # 是否使用TLS安全传输协议(用于在两个通信
 EMAIL_USE_SSL = False  # 是否使用SSL加密，qq企业邮箱要求使用
 EMAIL_HOST = 'xxx'  # 发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
 EMAIL_PORT = 25  # 发件箱的SMTP服务器端口
-EMAIL_HOST_USER = 'xxx'  # 发送邮件的邮箱地址
+EMAIL_HOST_USER = 'xxx'  # 发送邮件的邮箱用户名
 EMAIL_HOST_PASSWORD = 'xxx'  # 发送邮件的邮箱密码(这里使用的是授权码)
+EMAIL_SEND_FROM = 'xxx'  # 发送邮件的邮箱地址
 
 # cache配置
 # pip install django-redis-cache(Python 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (
@@ -316,7 +316,7 @@ CACHES = {
     'default': {
         #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', #缓存到本地内存中
         "BACKEND": "django_redis.cache.RedisCache",  #缓存到redis中
-        "LOCATION": "redis://redis:6379/1",
+        "LOCATION": "redis://localhost:6379/1",
         'TIMEOUT': 600, #默认5分钟
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
@@ -332,17 +332,17 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379/2'
 CELERY_TASK_SERIALIZER = 'json'
 
 # zabbix配置
-ZABBIX_URL = 'http://1.1.1.1/zabbix'
+ZABBIX_URL = 'http://10.180.10.84/zabbix'
 ZABBIX_USER = 'xxx'
 ZABBIX_PASSWORD = 'xxx'
 
 # prometheus配置
-PROM_URL = 'xxx'
+PROM_URL = 'http://xxx'
 PROM_USER = 'xxx'
 PROM_PASSWROD = 'xxx'
 
 # gitlab配置
-GITLAB_URL = 'xxx'
+GITLAB_URL = 'http://xxx'
 GITLAB_TOKEN = 'xxx'
 
 # 自定义用户表配置
@@ -373,3 +373,13 @@ SSH_PASSWORD = 'redhat'
 SSH_WORKDIR = '/root/gitlab/download'
 SSH_SCRIPT_NAME = 'auto-OneKeyDeploy'
 SSH_CMD = 'cd ' + SSH_WORKDIR + '&& python ' + SSH_SCRIPT_NAME + '.py'
+
+# WORKFLOW_EMAIL 配置
+EXTERNAL_URL = 'http://ip:8000'
+WF_EMAIL_SUBJECT = '【运维发布系统流程审批提醒】'
+ACTIVE_EMAIL_SUBJECT = '【运维发布系统账号激活邮件】'
+VERIFY_CODE_EMAIL_SUBJECT = '【运维发布系统找回密码邮件】'
+
+# SKYWALKING_EMAIL 配置
+SKYWALKING_EMAIL_SUBJECT = 'Skywalking链路监控告警'
+SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗号分割
