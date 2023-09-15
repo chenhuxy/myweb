@@ -48,7 +48,7 @@ def send_email(email, username):
     template = loader.get_template('account/email.html')
     # 渲染模板
     # email_body = '亲爱的'+username+':<br/>感谢您的注册,请点击下方链接激活账号.<a href="/cmdb/index/table/user/" target="_blank"></a><br/>.'
-    html_str = template.render({"username": username, 'token': token, 'external_url':EXTERNAL_URL})
+    html_str = template.render({"username": username, 'token': token, 'external_url': EXTERNAL_URL})
     # send_mail的参数分别是  邮件标题，邮件内容，发件箱(settings.py中设置过的那个)，收件箱列表(可以发送给多个人),失败静默(若发送失败，报错提示我们)
     send_mail(title, msg, send_from, send_to, fail_silently, html_message=html_str)
     # print(html_str,type(html_str))
@@ -87,7 +87,7 @@ def workflow_send_email(sn, username, email):
     send_to = [email, ]
     fail_silently = False
     template = loader.get_template('workflow/workflow_email.html')
-    html_str = template.render({"username": username, 'sn': sn, 'external_url':EXTERNAL_URL})
+    html_str = template.render({"username": username, 'sn': sn, 'external_url': EXTERNAL_URL})
     send_mail(title, msg, send_from, send_to, fail_silently, html_message=html_str)
 
 
@@ -287,26 +287,28 @@ def ssh_remote_exec_cmd(self, ip, port, username, password, cmd):
     lines = stdout.read().decode()
     # print(lines,type(lines))
 
+    num = 0
     while True:
         # nextline = remote_file.readline().strip()
         nextline = stdout.readline().strip()
         # print(nextline)
-        num = 0
+        flag = nextline.endswith('EOF')
         # 遍历任务失败日志
         if "failed=" in nextline:
-            num += nextline.split('failed=')[1]
-        # 判断任务状态
-        if not nextline:
-            if "返回值:" in lines:
-                if num > 0:
-                    task_status = '失败'
-                else:
-                    task_status = '成功'
-            else:
-                task_status = '失败'
-            # 将任务日志和任务状态写入数据库
-            models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
+            # print (nextline.split('failed=')[1], type(nextline.split('failed=')[1]))
+            num += int(nextline.split('failed=')[1])
+            # print (num)
+        if flag:
             break
+    # 判断任务状态
+    if num > 0:
+        task_status = '失败'
+    else:
+        task_status = '成功'
+    # print (task_status)
+    # print (num)
+    # 将任务日志和任务状态写入数据库
+    models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
 
     ssh.close()
     # 返回result到celery result,并返回task_id
@@ -340,26 +342,28 @@ def ssh_remote_exec_cmd_wf(self, ip, port, username, password, cmd, unit, proj_n
     lines = stdout.read().decode()
     # print(lines,type(lines))
 
+    num = 0
     while True:
         # nextline = remote_file.readline().strip()
         nextline = stdout.readline().strip()
         # print(nextline)
-        num = 0
+        flag = nextline.endswith('EOF')
         # 遍历任务失败日志
         if "failed=" in nextline:
-            num += nextline.split('failed=')[1]
-        # 判断任务状态
-        if not nextline:
-            if "返回值:" in lines:
-                if num > 0:
-                    task_status = '失败'
-                else:
-                    task_status = '成功'
-            else:
-                task_status = '失败'
-            # 将任务日志和任务状态写入数据库
-            models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
+            # print (nextline.split('failed=')[1], type(nextline.split('failed=')[1]))
+            num += int(nextline.split('failed=')[1])
+            # print (num)
+        if flag:
             break
+    # 判断任务状态
+    if num > 0:
+        task_status = '失败'
+    else:
+        task_status = '成功'
+    # print (task_status)
+    # print (num)
+    # 将任务日志和任务状态写入数据库
+    models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
 
     ssh.close()
     # 返回result到celery result,并返回task_id
