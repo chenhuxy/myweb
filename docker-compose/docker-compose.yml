@@ -7,7 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "redhat"
       TZ: "Asia/Shanghai"
-      LANG: "en_US.utf8"
+      LANG: "C.UTF-8"
     volumes:
     - ./data/mysql:/var/lib/mysql
     - ./conf/mysql/:/docker-entrypoint-initdb.d
