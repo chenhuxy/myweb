@@ -292,21 +292,19 @@ def ssh_remote_exec_cmd(self, ip, port, username, password, cmd):
         nextline = stdout.readline().strip()
         # print(nextline)
         num = 0
-        # 遍历任务失败日志
-        if "failed=" in nextline:
-            num += nextline.split('failed=')[1]
+        flag = nextline.endswith('EOF')
+        if not flag:
+            # 遍历任务失败日志
+            if "failed=" in nextline:
+                num += nextline.split('failed=')[1]
         # 判断任务状态
-        if not nextline:
-            if "返回值:" in lines:
-                if num > 0:
-                    task_status = '失败'
-                else:
-                    task_status = '成功'
-            else:
-                task_status = '失败'
-            # 将任务日志和任务状态写入数据库
-            models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
-            break
+        if num > 0:
+            task_status = '失败'
+        else:
+            task_status = '成功'
+        # 将任务日志和任务状态写入数据库
+        models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
+        break
 
     ssh.close()
     # 返回result到celery result,并返回task_id
@@ -345,21 +343,19 @@ def ssh_remote_exec_cmd_wf(self, ip, port, username, password, cmd, unit, proj_n
         nextline = stdout.readline().strip()
         # print(nextline)
         num = 0
-        # 遍历任务失败日志
-        if "failed=" in nextline:
-            num += nextline.split('failed=')[1]
+        flag = nextline.endswith('EOF')
+        if not flag:
+            # 遍历任务失败日志
+            if "failed=" in nextline:
+                num += nextline.split('failed=')[1]
         # 判断任务状态
-        if not nextline:
-            if "返回值:" in lines:
-                if num > 0:
-                    task_status = '失败'
-                else:
-                    task_status = '成功'
-            else:
-                task_status = '失败'
-            # 将任务日志和任务状态写入数据库
-            models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
-            break
+        if num > 0:
+            task_status = '失败'
+        else:
+            task_status = '成功'
+        # 将任务日志和任务状态写入数据库
+        models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
+        break
 
     ssh.close()
     # 返回result到celery result,并返回task_id
