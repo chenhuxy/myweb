@@ -288,25 +288,23 @@ def ssh_remote_exec_cmd(self, ip, port, username, password, cmd):
     # print(lines,type(lines))
 
     num = 0
-    while True:
-        # nextline = remote_file.readline().strip()
-        nextline = stdout.readline().strip()
-        # print(nextline)
-        flag = nextline.endswith('EOF')
-        # 遍历任务失败日志
-        if "failed=" in nextline:
+
+    # 遍历任务失败日志
+    for item in lines.split('\n'):
+        if "failed=" in item:
             # print (nextline.split('failed=')[1], type(nextline.split('failed=')[1]))
-            num += int(nextline.split('failed=')[1])
+            num += int(item.strip().split('failed=')[1])
             # print (num)
-        if flag:
-            break
+        if "返回值：" in item:
+            num += int(item.strip().split('返回值：')[1])
+
     # 判断任务状态
     if num > 0:
         task_status = '失败'
     else:
         task_status = '成功'
-    # print (task_status)
-    # print (num)
+    # print(task_status)
+    # print(num)
     # 将任务日志和任务状态写入数据库
     models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
 
@@ -343,25 +341,23 @@ def ssh_remote_exec_cmd_wf(self, ip, port, username, password, cmd, unit, proj_n
     # print(lines,type(lines))
 
     num = 0
-    while True:
-        # nextline = remote_file.readline().strip()
-        nextline = stdout.readline().strip()
-        # print(nextline)
-        flag = nextline.endswith('EOF')
-        # 遍历任务失败日志
-        if "failed=" in nextline:
+
+    # 遍历任务失败日志
+    for item in lines.split('\n'):
+        if "failed=" in item:
             # print (nextline.split('failed=')[1], type(nextline.split('failed=')[1]))
-            num += int(nextline.split('failed=')[1])
+            num += int(item.strip().split('failed=')[1])
             # print (num)
-        if flag:
-            break
+        if "返回值：" in item:
+            num += int(item.strip().split('返回值：')[1])
+
     # 判断任务状态
     if num > 0:
         task_status = '失败'
     else:
         task_status = '成功'
-    # print (task_status)
-    # print (num)
+    # print(task_status)
+    # print(num)
     # 将任务日志和任务状态写入数据库
     models.deploy_list_detail.objects.filter(task_id=self.request.id).update(status=task_status, )
 
