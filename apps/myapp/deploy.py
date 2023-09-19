@@ -359,6 +359,7 @@ def deploy_list_add(request, *args, **kwargs):
             ret = tasks.ssh_remote_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD,
                                                   SSH_CMD + ' ' + proj_id + ' ' + proj_name + ' ' + tag + ' ' + str(
                                                       max_id + 1))
+
             # tasks.add_deploy_list_detail.delay(proj_name,tag,result)
 
             status = '提交成功！'
@@ -458,23 +459,32 @@ def deploy_list_cancel(request, *args, **kwargs):
     id = kwargs['id']
     deploy = models.deploy_list_detail.objects.filter(id=id)
     task_id = deploy.values('task_id')[0]['task_id']
+    task_staus = deploy.values('status')[0]['status']
     userDict = request.session.get('is_login', None)
-    # revoke未生效1
-    # result = AsyncResult(task_id)
-    # result.revoke(terminate=True,)
-    # revoke未生效2
-    # celery_control = Control(app=app)
-    # res = celery_control.revoke(task_id=task_id,terminate=True)
-    # print(res,type(res))
-    msg = {'deploy': deploy, 'login_user': userDict['user'], 'task_id': task_id, 'id': id}
-    # print(task_id, type(task_id), result, type(result),result.status,result.result,result.traceback,result.date_done,)
-    # print(msg)
-    cancel_cmd = "ps -ef |grep OneKeyDeploy.py |grep -v grep |awk '{print $3}' |xargs kill -9"
-    # 取消异步执行
-    # tasks.ssh_remote_cancel_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
-    tasks.ssh_remote_cancel_exec_cmd(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
-    models.deploy_list_detail.objects.filter(task_id=task_id).update(status='已取消', )
-    return redirect('/cmdb/index/deploy/task/list/')
+    if task_staus == '执行中':
+        # revoke未生效1
+        # result = AsyncResult(task_id)
+        # result.revoke(terminate=True,)
+        # revoke未生效2
+        # celery_control = Control(app=app)
+        # res = celery_control.revoke(task_id=task_id,terminate=True)
+        # print(res,type(res))
+        msg = {'deploy': deploy, 'login_user': userDict['user'], 'task_id': task_id, 'id': id}
+        # print(task_id, type(task_id), result, type(result),result.status,result.result,result.traceback,result.date_done,)
+        # print(msg)
+        cancel_cmd = "ps -ef |grep OneKeyDeploy.py |grep -v grep |awk '{print $3}' |xargs kill -9"
+        # 取消异步执行
+        # tasks.ssh_remote_cancel_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
+        tasks.ssh_remote_cancel_exec_cmd(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
+        models.deploy_list_detail.objects.filter(task_id=task_id).update(status='已取消', )
+        return redirect('/cmdb/index/deploy/task/list/')
+    elif task_staus == '已取消':
+        msg = {'status': '任务已经取消过了，不要重复操作！'}
+        return render_to_response('500.html', msg)
+    else:
+        msg = {'status': '任务已经结束，不能执行此操作！'}
+        return render_to_response('500.html', msg)
+
 
 
 @custom_login_required

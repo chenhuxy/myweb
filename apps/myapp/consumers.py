@@ -106,15 +106,16 @@ class TasklogConsumer(WebsocketConsumer):
 
                 # 如果还在执行则从远程读取
                 else:
-                    try:
-                        remote_file_name = SSH_WORKDIR + '/logs/' + proj_name + '/' + SSH_SCRIPT_NAME + '-' + id + '.log'
-                        print(remote_file_name)
-                        transport = paramiko.Transport((SSH_HOST, SSH_PORT))
-                        transport.connect(username=SSH_USERNAME, password=SSH_PASSWORD)
-                        ssh = paramiko.SSHClient()
-                        ssh._transport = transport
-                        sftp = ssh.open_sftp()
-                        remote_file = sftp.open(remote_file_name)
+                    remote_file_name = SSH_WORKDIR + '/logs/' + proj_name + '/' + SSH_SCRIPT_NAME + '-' + id + '.log'
+                    print(remote_file_name)
+                    transport = paramiko.Transport((SSH_HOST, SSH_PORT))
+                    transport.connect(username=SSH_USERNAME, password=SSH_PASSWORD)
+                    ssh = paramiko.SSHClient()
+                    ssh._transport = transport
+                    sftp = ssh.open_sftp()
+                    remote_file = sftp.open(remote_file_name)
+                    print(remote_file,type(remote_file))
+                    if remote_file:
                         while True:
                             # nextline = remote_file.readline().strip()
                             nextline = remote_file.readline()
@@ -131,13 +132,10 @@ class TasklogConsumer(WebsocketConsumer):
                                 # models.deploy_list_detail.objects.filter(task_id=task_id).update(task_log=lines,status='已完成')
                                 models.deploy_list_detail.objects.filter(task_id=task_id).update(task_log=lines, )
                                 break
-                    except Exception as e:
-                        print(e)
-                    finally:
                         # 关闭打开的文件
                         remote_file.close()
-                        # 关闭ssh连接
-                        ssh.close()
+                    # 关闭ssh连接
+                    ssh.close()
 
                 # 关闭websocket连接
                 self.disconnect(self.channel_group_name)

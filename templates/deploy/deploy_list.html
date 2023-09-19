@@ -69,7 +69,10 @@
                                     <button class="btn btn-primary" data-toggle="modal" onclick="deploy_log(this)">
                                         <i class="fa fa-pencil-alt"></i> 查看日志
                                     </button>
-                                    <button class="btn btn-secondary" data-toggle="modal" onclick="deploy_cancel(this)" id="deploy_cancel" disabled>
+                                    <!--<button class="btn btn-secondary" data-toggle="modal" onclick="deploy_cancel(this)" id="deploy_cancel" disabled>
+                                        <i class="icon icon-close"></i> 取消发布
+                                    </button>-->
+                                    <button class="btn btn-danger" data-toggle="modal" onclick="deploy_cancel(this)" id="deploy_cancel">
                                         <i class="icon icon-close"></i> 取消发布
                                     </button>
                                 </td>
@@ -132,8 +135,8 @@ $(function () {
             //只是轮询执行中的任务
             if (task_status == '执行中'){
                 //设置为可撤销状态
-                document.getElementById('deploy_cancel').setAttribute("class", "btn btn-danger");
-                document.getElementById('deploy_cancel').removeAttribute("disabled");
+                //document.getElementById('deploy_cancel').setAttribute("class", "btn btn-danger");
+                //document.getElementById('deploy_cancel').removeAttribute("disabled");
                 //$('#deploy_cancel').removeAttribute("disabled");
                 $.ajax({
                     type:'POST',
@@ -145,17 +148,18 @@ $(function () {
                     async: false, //关掉异步方式，避免多个请求还会数据错乱
                     success:function (result) {
                         msg = JSON.parse(result);
-                        console.log(msg);
+                        //console.log(msg);
                         status = msg.status;
                         id = msg.id;
                         //console.log(id,status);
                         //window.parent.location.reload();
                         tr.cells[5].innerHTML = status;
+                        /*
                         if (status != "执行中"){
                             //设置取消可撤销状态
                             document.getElementById('deploy_cancel').setAttribute("disabled", true);
                             document.getElementById('deploy_cancel').setAttribute("class", "btn btn-secondary");
-                        };
+                        };*/
                     },
                     error:function (e) {
                         console.log(e.status);
@@ -174,7 +178,7 @@ $(function () {
 
     setInterval(function (){
         get_task_info();
-    },1000);
+    },10000);
 
 });　
 

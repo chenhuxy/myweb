@@ -36,7 +36,7 @@ services:
       start_period: 60s
 
   myweb:
-    image: chenhuxy/myweb:v2.3.8
+    image: chenhuxy/myweb:v2.3.9
     environment:
       LANG: "en_US.utf8"
     volumes:

@@ -402,11 +402,11 @@ def workflow_form_update(request, *args, **kwargs):
         obj = models.wf_info.objects.filter(sn=sn)
         status = obj.values('status')[0]['status']
         if status == "已提交":
-            msg = {'error': '流程进行中，不能修改！'}
-            return render_to_response('workflow/500.html', msg)
+            msg = {'status': '流程进行中，不能修改！'}
+            return render_to_response('500.html', msg)
         elif status == "已完成":
-            msg = {'error': '流程已结束，不能修改！'}
-            return render_to_response('workflow/500.html', msg)
+            msg = {'status': '流程已结束，不能修改！'}
+            return render_to_response('500.html', msg)
         else:
             title = obj.values('title')
             sponsor = obj.values('sponsor')
@@ -601,11 +601,11 @@ def workflow_commit(request, *args, **kwargs):
         wf_info = models.wf_info.objects.filter(sn=sn)
         status = wf_info.values('status')[0]['status']
         if status == "已提交":
-            msg = {'error': '流程进行中，不能提交！'}
-            return render_to_response('workflow/500.html', msg)
+            msg = {'status': '流程进行中，不能提交！'}
+            return render_to_response('500.html', msg)
         elif status == "已完成":
-            msg = {'error': '流程已结束，不能提交！'}
-            return render_to_response('workflow/500.html', msg)
+            msg = {'status': '流程已结束，不能提交！'}
+            return render_to_response('500.html', msg)
         else:
             # c1 = tasks.workflow_commit.apply_async((sn,), link=tasks.workflow_send_email.s(username, email))
             # print(list(c1.collect()),c1.children,c1.get(),)
@@ -645,8 +645,11 @@ def workflow_withdraw(request, *args, **kwargs):
         wf_info = models.wf_info.objects.filter(sn=sn)
         flow_id = wf_info.values('flow_id')[0]['flow_id']
         if flow_id > 0:
-            msg = {'error': '流程进行中，不能撤回！'}
-            return render_to_response('workflow/500.html', msg)
+            msg = {'status': '流程进行中，不能撤回！'}
+            return render_to_response('500.html', msg)
+        elif flow_id < 0:
+            msg = {'status': '流程未提交，不需要撤回！'}
+            return render_to_response('500.html', msg)
         else:
             tasks.workflow_withdraw(sn)
             userDict = request.session.get('is_login', None)
