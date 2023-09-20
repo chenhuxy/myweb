@@ -26,7 +26,7 @@ from apps.myapp.paramiko_ssh_helper import ssh_remote
 from celery.result import AsyncResult
 from celery.app.control import Control
 from myweb.celery import app
-from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR
+from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR, SSH_SCRIPT_NAME
 
 
 @custom_login_required
@@ -56,7 +56,7 @@ def deploy_script_type_form_update(request, *args, **kwargs):
     scripttype = models.deploy_script_type.objects.filter(id=id)
     userDict = request.session.get('is_login', None)
     msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'scripttype': scripttype, }
-    print(msg)
+    # print(msg)
     return render_to_response('deploy/script_type_update.html', msg)
 
 
@@ -157,7 +157,7 @@ def deploy_app_form_add(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
     msg = {'business': business, 'userinfo': userinfo, 'deploy': deploy,
            'login_user': userDict['user'], 'status': '', 'approval': approval, }
-    print(msg)
+    # print(msg)
     return render_to_response('deploy/deploy_app_add.html', msg)
 
 
@@ -173,7 +173,7 @@ def deploy_app_add(request, *args, **kwargs):
         proj_name = request.POST.get('proj_name', None)
         proj_id = request.POST.get('proj_id', None)
         is_exist = models.deploy_app.objects.filter(proj_name=proj_name)
-        print(is_exist)
+        # print(is_exist)
         if not (is_exist):
             is_empty = all([proj_id, proj_name, unit])
             if is_empty:
@@ -198,7 +198,7 @@ def deploy_app_form_update(request, *args, **kwargs):
     business = models.wf_business.objects.all().exclude(unit__id=id)
     userDict = request.session.get('is_login', None)
     msg = {'id': id, 'login_user': userDict['user'], 'status': u'操作成功', 'deploy': deploy, 'business': business}
-    print(msg)
+    # print(msg)
     return render_to_response('deploy/deploy_app_update.html', msg)
 
 
@@ -208,7 +208,7 @@ def deploy_app_update(request, *args, **kwargs):
     id = kwargs['id']
     unit_id = request.POST.get('unit', None)
     unit = models.wf_business.objects.filter(id=unit_id).values('name')
-    print(unit)
+    # print(unit)
     proj_name = request.POST.get('proj_name', None)
     proj_id = request.POST.get('proj_id', None)
     update_time = timezone.now()
@@ -224,16 +224,16 @@ def deploy_ajax(request, *args, **kwargs):
     if request.method == 'POST':
         try:
             wfbusiness_id = request.POST.get('wfbusiness', None)
-            print(wfbusiness_id)
+            # print(wfbusiness_id)
             wfbusiness = models.wf_business.objects.filter(id=wfbusiness_id)
             director_id = wfbusiness.values('director_id')[0]['director_id']
             director = models.userInfo.objects.filter(id=director_id).values('username')[0]['username']
-            print(wfbusiness, director_id, director, )
+            # print(wfbusiness, director_id, director, )
             userDict = request.session.get('is_login', None)
             # data = serializers.serialize('json',wfbusiness) #序列化
             # data = json.dumps(wfbusiness)
             data = {'director_id': director_id, 'director': director, }
-            print(data)
+            # print(data)
             # return HttpResponse(json.dumps(data))
         except:
             data = {'director_id': '0', 'director': '------------- 请选择 -------------', }
@@ -246,7 +246,7 @@ def deploy_ajax(request, *args, **kwargs):
 def deploy_app_del(request, *args, **kwargs):
     id = request.POST.get('id')
     models.deploy_app.objects.filter(id=id).delete()
-    print('delete', id)
+    # print('delete', id)
     msg = {'code': 1, 'result': '删除app id:' + id, }
     return render_to_response('deploy/deploy_app.html', msg)
 
@@ -333,14 +333,14 @@ def deploy_list_add(request, *args, **kwargs):
     except:
         # 如果数据库为空，则从 ID 为 1 的数据开始提取
         max_id = 0
-    print(max_id, type(max_id))
+    # print(max_id, type(max_id))
     if request.method == 'POST':
         unit = request.POST.get('unit', None)
         proj_name = request.POST.get('proj_name', None)
         proj_id = request.POST.get('proj_id', None)
         tag = request.POST.get('tag', None)
         scriptType = request.POST.get('scriptType', None)
-        print(proj_name, type(proj_name), proj_id, type(proj_id), tag, type(tag), scriptType, type(scriptType))
+        # print(proj_name, type(proj_name), proj_id, type(proj_id), tag, type(tag), scriptType, type(scriptType))
         if scriptType == 'python':
             interpreter = 'python'
         if scriptType == 'shell':
@@ -356,7 +356,7 @@ def deploy_list_add(request, *args, **kwargs):
 
             # result = tasks.ssh_remote.delay('192.168.38.129', 22, 'root', 'redhat',
             # 'python /root/gitlab/download/OneKeyDeploy.py' + ' ' + proj_id + ' ' + proj_name + ' ' + tag)
-            ret = tasks.ssh_remote_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD,
+            ret = tasks.deploy_ssh_remote_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD,
                                                   SSH_CMD + ' ' + proj_id + ' ' + proj_name + ' ' + tag + ' ' + str(
                                                       max_id + 1))
 
@@ -460,6 +460,9 @@ def deploy_list_cancel(request, *args, **kwargs):
     deploy = models.deploy_list_detail.objects.filter(id=id)
     task_id = deploy.values('task_id')[0]['task_id']
     task_staus = deploy.values('status')[0]['status']
+    proj_id = deploy.values('proj_id')[0]['proj_id']
+    proj_name = deploy.values('proj_name')[0]['proj_name']
+    tag = deploy.values('tag')[0]['tag']
     userDict = request.session.get('is_login', None)
     if task_staus == '执行中':
         # revoke未生效1
@@ -472,10 +475,11 @@ def deploy_list_cancel(request, *args, **kwargs):
         msg = {'deploy': deploy, 'login_user': userDict['user'], 'task_id': task_id, 'id': id}
         # print(task_id, type(task_id), result, type(result),result.status,result.result,result.traceback,result.date_done,)
         # print(msg)
-        cancel_cmd = "ps -ef |grep OneKeyDeploy.py |grep -v grep |awk '{print $3}' |xargs kill -9"
+        cancel_cmd = "ps -ef |grep " + SSH_SCRIPT_NAME + " |grep " + proj_id + " |grep " + proj_name + " |grep " + tag + " |grep " + id + " |grep -v grep |awk '{print $3}' |xargs kill -9"
+        # print(cancel_cmd)
         # 取消异步执行
-        # tasks.ssh_remote_cancel_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
-        tasks.ssh_remote_cancel_exec_cmd(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
+        # tasks.deploy_cancel_ssh_remote_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
+        tasks.deploy_cancel_ssh_remote_exec_cmd(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, cancel_cmd)
         models.deploy_list_detail.objects.filter(task_id=task_id).update(status='已取消', )
         return redirect('/cmdb/index/deploy/task/list/')
     elif task_staus == '已取消':
@@ -484,7 +488,6 @@ def deploy_list_cancel(request, *args, **kwargs):
     else:
         msg = {'status': '任务已经结束，不能执行此操作！'}
         return render_to_response('500.html', msg)
-
 
 
 @custom_login_required

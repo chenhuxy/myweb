@@ -10,18 +10,13 @@
     <link rel="stylesheet" href="/static/dist/css/styles.css">
 </head>
 <body>
-<div class="page-wrapper flex-row align-items-center">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-12 text-center">
-                <span class="display-1 d-block">404</span>
-                <div class="mb-4" style="color:red;">
-                    对不起，页面走丢了！{{status}}
-                </div>
-                <!--<a href="#" class="btn btn-link">Back to Home</a>-->
-            </div>
-        </div>
+    <div>
+        {{username}}：</br>
+        您提交的流程已完成审批，请点击下方链接查看详情！</br>
+        <a href="{{external_url}}/cmdb/index/wf/detail/?sn={{sn}}">
+            {{external_url}}/cmdb/index/wf/detail/?sn={{sn}}
+        </a></br>
+        如果链接无法点击，请将它复制到你的浏览器地址栏中进入访问。
     </div>
-</div>
 </body>
 </html>

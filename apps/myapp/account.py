@@ -156,7 +156,7 @@ def register(request, *args, **kwargs):
                     # 记录 token 对应的邮箱是谁 v  k
                     cache.set(token, email, 600)
                     '''
-                    tasks.send_email.delay(email, username)
+                    tasks.account_send_email.delay(email, username)
                     # password = encrypt_helper.md5_encrypt(password2)
                     # queryset=userInfo.objects.create(username=username,password=password,
                     #                               email=email,is_active=is_active,)
@@ -203,7 +203,7 @@ def forget_pass_form_2(request, *args, **kwargs):
     username = request.POST.get('username', None)
     if username:
         is_exist = bool(userInfo.objects.filter(username=username))
-        print(username, is_exist, type(username), type(is_exist))
+        # print(username, is_exist, type(username), type(is_exist))
         if not is_exist:
             status = '该用户不存在！'
             msg = {'status': status}
@@ -232,7 +232,7 @@ def forget_pass_send(request, *args, **kwargs):
         # print(email,type(email))
         username = request.POST.get('username')
         verify_code = token_helper.get_random_code()
-        tasks.send_email_code.delay(email, verify_code)
+        tasks.account_send_email_code.delay(email, verify_code)
         request.session['verify_code'] = verify_code
         status = '邮件已发送！'
         # msg = {'status':status,}
@@ -281,7 +281,7 @@ def forget_pass_change(request, *args, **kwargs):
 def search(request, *args, **kwargs):
     keyword = request.POST.get('keyword').strip()
     page = '1'
-    print(keyword, page)
+    # print(keyword, page)
     if keyword:
         return redirect('/cmdb/index/table/user/search_result/keyword=' + keyword + '&page=' + page)
     else:
@@ -296,7 +296,7 @@ def search_result(request, *args, **kwargs):
     count = userinfo.count()
     userDict = request.session.get('is_login', None)
     page = common.try_int(kwargs['page'], 1)
-    print(keyword, page)
+    # print(keyword, page)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
     pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
     userinfo = userinfo[pageinfo.start:pageinfo.end]
@@ -365,7 +365,7 @@ def usergroupForm_update(request, *args, **kwargs):
     perm_selected = Permission.objects.filter(group=usergroup_obj)
     msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'usergroup': usergroup,
            'perm': perm, 'perm_selected': perm_selected, }
-    print(msg)
+    # print(msg)
     return render_to_response('account/usergroup_update.html', msg)
 
 
@@ -581,7 +581,7 @@ def userForm_get_profile(request, *args, **kwargs):
     #       'usertype_selected':usertype_selected,'group':group,'group_selected':group_selected,}
     msg = {'username': username, 'userinfo': userinfo, 'login_user': userDict['user'], 'status': '操作成功',
            'group_selected': group_selected, 'group': group, 'perm_selected': perm_selected, 'perm': perm, }
-    print(msg, )
+    # print(msg, )
     return render_to_response('account/profile.html', msg)
 
 
@@ -593,7 +593,8 @@ def userUpdate(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
     userid = kwargs['userid']
     username = request.POST.get('username', None)
-    password_origin = request.POST.get('password', None)
+    # password_origin = request.POST.get('password', None)
+    # print(password_origin)
     # password = encrypt_helper.md5_encrypt(password_origin)
     first_name = request.POST.get('first_name', None)
     last_name = request.POST.get('last_name', None)
@@ -620,7 +621,8 @@ def userUpdate(request, *args, **kwargs):
         # queryset.group.set(group)
         queryset.groups.set(group)  # 设置组/角色
         queryset.user_permissions.set(perm)  # 设置权限
-        queryset.set_password(password_origin)  # 设置密码
+        # 取消密码修改，通过用户个人账户修改或者管理员重置密码方式修改
+        # queryset.set_password(password_origin)  # 设置密码
         queryset.save()  # 保存
         return redirect('/cmdb/index/table/user/list/')
         # return render_to_response('user.html',msg)
@@ -681,6 +683,7 @@ def user_change_password(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
     # is_valid = userInfo.objects.filter(username=username,password=encrypt_helper.md5_encrypt(password_origin)).count()
     # if is_valid != 1:
+    # 校验原密码是否输入和数据库一致
     is_valid = userInfo.objects.get(username=username).check_password(password_origin)
     if not is_valid:
         msg = {'status': '原密码输入错误，请重新输入', 'login_user': userDict['user'], }
@@ -709,7 +712,7 @@ def resetPwd(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
     # userInfo.objects.filter(id=userid).update(password=encrypt_helper.md5_encrypt('123456'),update_time=update_time,)
     user = get_object_or_404(userInfo, pk=userid)
-    res = user.set_password('123456')
+    res = user.set_password('password')
     ret = user.save()
     # print(ret, type(ret), res)
     msg = {'login_user': userDict['user'], 'ret': ret, 'res': res}
