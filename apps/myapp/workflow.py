@@ -49,7 +49,7 @@ def wfbusiness_form_add(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
     msg = {'wfbusiness': wfbusiness, 'userinfo': userinfo,
            'login_user': userDict['user'], 'status': '', 'approval': approval, }
-    print(msg)
+    # print(msg)
     return render_to_response('workflow/wfbusiness_add.html', msg)
 
 
@@ -64,7 +64,7 @@ def wfbusiness_add(request, *args, **kwargs):
         admin_id = request.POST.get('admin', None)
         approval = request.POST.getlist('approval', None)
         is_exist = models.wf_business.objects.filter(name=wfbusiness)
-        print(is_exist)
+        # print(is_exist)
         if not (is_exist):
             is_empty = all([wfbusiness, ])
             if is_empty:
@@ -92,7 +92,7 @@ def wfbusiness_form_update(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
     msg = {'id': id, 'login_user': userDict['user'], 'status': u'操作成功', 'wfbusiness': wfbusiness,
            'admin': admin, 'approval': approval, }
-    print(msg)
+    # print(msg)
     return render_to_response('workflow/wfbusiness_update.html', msg)
 
 
@@ -145,7 +145,7 @@ def wfbusiness_ajax(request, *args, **kwargs):
 def wfbusiness_del(request, *args, **kwargs):
     id = request.POST.get('id')
     models.wf_business.objects.filter(id=id).delete()
-    print('delete', id)
+    # print('delete', id)
     msg = {'code': 1, 'result': '删除工单类型id:' + id, }
     return render_to_response('workflow/wfbusiness.html', msg)
 
@@ -156,7 +156,7 @@ def wftype(request, *args, **kwargs):
     wftype = models.wf_type.objects.all()
     count = wftype.count()
     userDict = request.session.get('is_login', None)
-    msg = {'wftype': wftype, 'login_user': userDict['user'], 'count':count}
+    msg = {'wftype': wftype, 'login_user': userDict['user'], 'count': count}
     return render_to_response('workflow/wftype.html', msg)
 
 
@@ -182,7 +182,7 @@ def wftypeAdd(request, *args, **kwargs):
     if request.method == 'POST':
         wftype = request.POST.get('wftype', None)
         is_exist = models.wf_type.objects.filter(name=wftype)
-        print(is_exist)
+        # print(is_exist)
         if not (is_exist):
             is_empty = all([wftype, ])
             if is_empty:
@@ -207,7 +207,7 @@ def wftypeForm_update(request, *args, **kwargs):
     wftype = models.wf_type.objects.filter(id=id)
     userDict = request.session.get('is_login', None)
     msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'wftype': wftype, }
-    print(msg)
+    # print(msg)
     return render_to_response('workflow/wftype_update.html', msg)
 
 
@@ -227,7 +227,7 @@ def wftypeUpdate(request, *args, **kwargs):
 def wftypeDel(request, *args, **kwargs):
     id = request.POST.get('id')
     models.wf_type.objects.filter(id=id).delete()
-    print('delete', id)
+    # print('delete', id)
     msg = {'code': 1, 'result': '删除工单类型id:' + id, }
     return render_to_response('workflow/wftype.html', msg)
 
@@ -254,7 +254,7 @@ def wf(request, *args, **kwargs):
 def wf_search(request, *args, **kwargs):
     keyword = request.POST.get('keyword').strip()
     page = '1'
-    print(keyword, page)
+    # print(keyword, page)
     if keyword:
         return redirect('/cmdb/index/wf/search_result/keyword=' + keyword + '&page=' + page)
     else:
@@ -269,7 +269,7 @@ def wf_search_result(request, *args, **kwargs):
     count = wf_info.count()
     userDict = request.session.get('is_login', None)
     page = common.try_int(kwargs['page'], 1)
-    print(keyword, page)
+    # print(keyword, page)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
     pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
     wf_info = wf_info.order_by('-id')[pageinfo.start:pageinfo.end]
@@ -294,7 +294,7 @@ def wrokflow_form_add(request, *args, **kwargs):
     if request.method == 'GET':
         msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', 'wf_type': wf_type,
                'user_info': user_info, 'wf_business': wf_business, 'deploy_list': deploy_list}
-        print(msg, )
+        # print(msg, )
         return render_to_response('workflow/workflow_add.html', msg)
     if request.method == 'POST':
 
@@ -332,7 +332,7 @@ def wrokflow_form_add(request, *args, **kwargs):
             status = '上传完成'
             msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': status,
                    'wf_type': wf_type, 'user_group': user_group, }
-            print(msg, )
+            # print(msg, )
             return render_to_response('workflow/workflow_add.html', msg)
         except Exception as e:
             print('error:', e)
@@ -435,7 +435,7 @@ def workflow_form_update(request, *args, **kwargs):
                    'status': '操作成功', 'proj_name_selected': proj_name_selected,
                    'proj_tag_selected': proj_tag_selected,
                    'deploy_list': deploy_list, 'tags': tags, 'content': content, 'memo': memo, 'business': business}
-            print(msg)
+            # print(msg)
             return render_to_response('workflow/workflow_update.html', msg)
 
 
@@ -457,13 +457,13 @@ def workflow_update(request, *args, **kwargs):
         proj_name = request.POST.get('proj_name', None)
         proj_tag = request.POST.get('proj_tag', None)
 
-        print(id, sponsor, type, content, memo, )
-        print(proj_name, proj_tag)
+        # print(id, sponsor, type, content, memo, )
+        # print(proj_name, proj_tag)
         try:
             proj_id = models.deploy_app.objects.filter(proj_name=proj_name).values('proj_id')[0]['proj_id']
         except:
             proj_id = None
-        print(proj_id, )
+        # print(proj_id, )
         # userDict = request.session.get('is_login', None)
         models.wf_info.objects.filter(sn=sn).update(title=title, sponsor=sponsor, type=type_select,
                                                     content=content, memo=memo, update_time=update_time,
@@ -498,13 +498,22 @@ def workflow_approve(request, *args, **kwargs):
     wf_info = models.wf_info.objects.filter(sn=sn)
     next_assignee_username = wf_info.values('next_assignee')[0]['next_assignee']
     userDict = request.session.get('is_login', None)
-    login_user =  userDict['user']
-    msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
-    # 2023/09/06 判断当前登录用户是否为审批人
-    if login_user == next_assignee_username:
-        return render_to_response('workflow/workflow_approve.html', msg)
+    login_user = userDict['user']
+    # 2023/09/20 判断流程当前状态
+    wf_status = wf_info.values('status')[0]['status']
+    if wf_status != '已完成':
+        # 2023/09/06 判断当前登录用户是否为审批人
+        if login_user == next_assignee_username:
+            msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
+            return render_to_response('workflow/workflow_approve.html', msg)
+        else:
+            msg = {'wf_info': wf_info, 'login_user': userDict['user'],
+                   'status': '前登录用户不是当前流程的审批人，请切换用户再试！', }
+            return render_to_response('500.html', msg)
     else:
-        return render_to_response('404.html',msg)
+        msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '此流程已结束！', }
+        return render_to_response('500.html', msg)
+
 
 @custom_login_required
 @custom_permission_required('myapp.view_wf_info')
@@ -564,7 +573,7 @@ def workflow_requests(request, *args, **kwargs):
 def workflow_requests_search(request, *args, **kwargs):
     keyword = request.POST.get('keyword').strip()
     page = '1'
-    print(keyword, page)
+    # print(keyword, page)
     if keyword:
         return redirect('/cmdb/index/wf/requests/search_result/keyword=' + keyword + '&page=' + page)
     else:
@@ -580,7 +589,7 @@ def workflow_requests_search_result(request, *args, **kwargs):
         sponsor=userDict['user']).filter(title__icontains=keyword)
     count = wf_info.count()
     page = common.try_int(kwargs['page'], 1)
-    print(keyword, page)
+    # print(keyword, page)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
     pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
     wf_info = wf_info.order_by('-id')[pageinfo.start:pageinfo.end]
@@ -665,7 +674,7 @@ def workflow_upload(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
     if request.method == 'POST':
         files = request.FILES.get('mf', None)
-        print(files, )
+        # print(files, )
         if not files:
             status = '没有文件上传'
             msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': status,
@@ -683,7 +692,7 @@ def workflow_upload(request, *args, **kwargs):
         status = '上传完成'
         msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': status,
                'wf_type': wf_type, 'user_group': user_group, }
-        print(msg, )
+        # print(msg, )
         return render_to_response('workflow/workflow_add.html', msg)
 
 
@@ -709,25 +718,25 @@ def wftypeChange(request, *args, **kwargs):
     if request.method == 'POST':
         try:
             deploy_list_id = request.POST.get('deploy_list_id', None)
-            print(deploy_list_id)
+            # print(deploy_list_id)
 
             deploy = models.deploy_app.objects.filter(id=deploy_list_id)
-            print(deploy)
+            # print(deploy)
             proj_name = deploy.values('proj_name')[0]['proj_name']
-            print(proj_name)
+            # print(proj_name)
             proj_id = deploy.values('proj_id')[0]['proj_id']
-            print(proj_id)
+            # print(proj_id)
             git_tools = gitlab.Gitlab(GITLAB_URL, GITLAB_TOKEN)
             proj = git_tools.projects.get(proj_id)
-            print(proj)
+            # print(proj)
             branches = proj.branches.list()
-            print(branches)
+            # print(branches)
             # tags = proj.tags.list()
             tags = proj.tags.list()
             tags_name = []
             for item in tags:
                 tags_name.append(item.name)
-            print(type(tags), tags)
+            # print(type(tags), tags)
 
             # print(json.dumps(tags))
             userDict = request.session.get('is_login', None)
@@ -735,7 +744,7 @@ def wftypeChange(request, *args, **kwargs):
             # data = serializers.serialize('json',tags)
             # print(data)
             # print(json.dumps(data))
-            print(type(msg), msg)
+            # print(type(msg), msg)
             return HttpResponse(json.dumps(msg, cls=json_helper.MyEncoder, indent=4))
             # return render_to_response('workflow/workflow_add.html',msg)
         except Exception as e:
@@ -749,24 +758,24 @@ def wftypeChange2(request, *args, **kwargs):
     if request.method == 'POST':
         try:
             proj_name = request.POST.get('proj_name', None)
-            print(proj_name)
+            # print(proj_name)
 
             deploy = models.deploy_app.objects.filter(proj_name=proj_name)
-            print(deploy)
+            # print(deploy)
 
             proj_id = deploy.values('proj_id')[0]['proj_id']
-            print(proj_id)
+            # print(proj_id)
             git_tools = gitlab.Gitlab(GITLAB_URL, GITLAB_TOKEN)
             proj = git_tools.projects.get(proj_id)
-            print(proj)
+            # print(proj)
             branches = proj.branches.list()
-            print(branches)
+            # print(branches)
             # tags = proj.tags.list()
             tags = proj.tags.list()
             tags_name = []
             for item in tags:
                 tags_name.append(item.name)
-            print(type(tags), tags)
+            # print(type(tags), tags)
 
             # print(json.dumps(tags))
             userDict = request.session.get('is_login', None)
@@ -774,7 +783,7 @@ def wftypeChange2(request, *args, **kwargs):
             # data = serializers.serialize('json',tags)
             # print(data)
             # print(json.dumps(data))
-            print(type(msg), msg)
+            # print(type(msg), msg)
             return HttpResponse(json.dumps(msg))
             # return render_to_response('workflow/workflow_add.html',msg)
         except Exception as e:
