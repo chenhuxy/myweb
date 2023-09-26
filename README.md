@@ -2,7 +2,7 @@
 
 ### 一些功能截图：
 ![image](pictures/dashboard.png)
-![image](pictures/登录.png)
+![image](pictures/登录.jpg)
 ![image](pictures/注册.jpg)
 ![image](pictures/用户及权限认证.jpg)
 ![image](pictures/工单.jpg)
