@@ -367,8 +367,8 @@
                 if (window.event.returnValue == true){
                     tbody.removeChild(tr);
                     $.ajax({
-                        url:'/cmdb/index/table/user/del/',
-                        data:{userid:id},
+                        url:'/cmdb/index/assets/contract/del/',
+                        data:{id:id},
                         type:'POST',
                         success:function (data) {
                             window.parent.location.reload();
