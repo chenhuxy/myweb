@@ -20,7 +20,7 @@
                                             <label for="single-select" class="require">资产</label>
                                             <select id="single-select" class="form-control" name="asset">
                                                 {% for item in asset %}
-                                                <option value={{item.id}}>{{item}}</option>
+                                                <option value={{item.id}}>{{item}}---{{item.device_type.name}}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>

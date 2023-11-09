@@ -376,7 +376,7 @@ function delAll() {
                 tbody.removeChild(tr);
                 $.ajax({
                     url:'/cmdb/index/deploy/app/del/',
-                    data:{userid:id},
+                    data:{id:id},
                     type:'POST',
                     success:function (data) {
                         window.parent.location.reload();
