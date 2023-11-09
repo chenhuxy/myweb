@@ -87,7 +87,7 @@ urlpatterns = [
     url(r'^index/wf/detail/', workflow.workflow_detail, ),
     path('index/wf/requests/form_add/', workflow.wrokflow_form_add, ),
     path('index/wf/requests/add/', workflow.workflow_add, ),
-    path('index/wf/requests/add/api/', workflow.workflow_add_api, ),
+    # path('index/wf/requests/add/api/', workflow.workflow_add_api, ),
     url(r'^index/wf/requests/search/', workflow.workflow_requests_search, ),
     url(r'^index/wf/requests/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)',
         workflow.workflow_requests_search_result, ),
