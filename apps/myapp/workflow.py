@@ -352,6 +352,7 @@ def workflow_add(request, *args, **kwargs):
         sponsor = request.POST.get('sponsor', None)
         memo = request.POST.get('memo', None)
         type_id = request.POST.get('type', None)
+
         try:
             type_select = models.wf_type.objects.get(id=type_id, )
         except:
@@ -372,6 +373,8 @@ def workflow_add(request, *args, **kwargs):
 
         is_empty = all([title, content, type_select, wfbusiness_select, ])
 
+        # print(title, content, type_select, wfbusiness_select)
+
         # 2023/08/16
         deploy_id = request.POST.get('proj_name', None)
         proj_tag = request.POST.get('proj_tag', None)
@@ -391,7 +394,7 @@ def workflow_add(request, *args, **kwargs):
             status = '带有*的选项不能为空！'
             msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'error': status,
                    'wf_type': wf_type, 'userinfo': userinfo, }
-            return render_to_response('workflow/500.html', msg)
+            return render_to_response('500.html', msg)
 
 
 @custom_login_required
@@ -558,6 +561,7 @@ def workflow_requests(request, *args, **kwargs):
     wf_type = models.wf_type.objects.all()
     page = common.try_int(kwargs['page'], 1)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+
     count = models.wf_info.objects.filter(sponsor=userDict['user']).count()
     pageinfo = page_helper.pageinfo(page, count, perItem)
     # 工单列表降序排列
@@ -790,3 +794,66 @@ def wftypeChange2(request, *args, **kwargs):
             print(e)
             data = {'tags_name': e, }
             return HttpResponse(json.dumps(data))
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_wf_info')
+def workflow_add_api(request, *args, **kwargs):
+    wf_info = models.wf_info.objects.all()
+    wf_type = models.wf_type.objects.all()
+    # userDict = request.session.get('is_login', None)
+    userinfo = models.userInfo.objects.all()
+
+    if request.method == 'POST':
+        sn = token_helper.get_random_uuid()
+        title = json.loads(request.body).get('title')
+        sponsor = json.loads(request.body).get('sponsor', None)
+        memo = json.loads(request.body).get('memo', None)
+        type_id = json.loads(request.body).get('type', None)
+
+        try:
+            type_select = models.wf_type.objects.get(id=type_id, )
+        except:
+            type_select = None
+        '''
+                    #get:instance,filter:QuerySet,Error:
+                    Cannot assign "<QuerySet [<wf_type: wf_type object (1)>]>": "wf_info.types" must be a "wf_type" instance
+
+                    action_id = request.POST.get('action',None)
+                    action_select = models.wf_action.objects.get(id=action_id,)
+                    '''
+        content = json.loads(request.body).get('content', None)
+        wfbusiness_id = json.loads(request.body).get('wf_business', None)
+        try:
+            wfbusiness_select = models.wf_business.objects.get(id=wfbusiness_id)
+        except:
+            wfbusiness_select = None
+
+        is_empty = all([title, content, type_select, wfbusiness_select, ])
+
+        # print(title, content, type_select, wfbusiness_select)
+
+        # 2023/08/16
+        deploy_id = json.loads(request.body).get('proj_name', None)
+        proj_tag = json.loads(request.body).get('proj_tag', None)
+        if deploy_id is not None:
+            proj_name = models.deploy_app.objects.filter(id=deploy_id).values('proj_name')[0]['proj_name']
+            proj_id = models.deploy_app.objects.filter(id=deploy_id).values('proj_id')[0]['proj_id']
+        else:
+            proj_name = None
+            proj_id = None
+
+        if is_empty:
+            models.wf_info.objects.create(sn=sn, title=title, sponsor=sponsor, type=type_select,
+                                          content=content, memo=memo, business=wfbusiness_select, proj_name=proj_name,
+                                          proj_tag=proj_tag, proj_id=proj_id)
+            # return redirect('/cmdb/index/wf/requests/list/')
+            tasks.workflow_commit(sn)
+            return HttpResponse('接口请求成功！')
+        else:
+            status = '带有*的选项不能为空！'
+            # msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'error': status,
+            #       'wf_type': wf_type, 'userinfo': userinfo, }
+            msg = {'wf_info': wf_info, 'error': status,
+                   'wf_type': wf_type, 'userinfo': userinfo, }
+            return render_to_response('500.html', msg)
