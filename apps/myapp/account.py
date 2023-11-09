@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # _*_ coding:utf-8 _*_
-
-
+from django.db.models import Q
 from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.shortcuts import HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 import time
 import json
+
+# from django.urls import reverse
 from django.utils.safestring import mark_safe
 from apps.myapp.models import *
 from apps.myapp import common
@@ -284,8 +285,10 @@ def search(request, *args, **kwargs):
     # print(keyword, page)
     if keyword:
         return redirect('/cmdb/index/table/user/search_result/keyword=' + keyword + '&page=' + page)
+        # return redirect(reverse("account.search_result", kwargs={"keyword": keyword, "page": page}))
     else:
         return redirect('/cmdb/index/table/user/list/')
+        # return redirect(reverse("account.user", kwargs={"page": page}))
 
 
 @custom_login_required
