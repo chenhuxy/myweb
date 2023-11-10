@@ -21,7 +21,7 @@ class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('action_time', 'user', 'content_type', '__str__')
     list_display_links = ('action_time',)
     list_filter = ('action_time', 'user', 'content_type')
-    list_per_page = 15
+    list_per_page = 10
     readonly_fields = (
         'action_time', 'user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'change_message')
 
@@ -40,6 +40,7 @@ admin.site.register(monitor, monitorAdmin)
 
 class deploy_script_typeAdmin(admin.ModelAdmin):
     list_display = ('name',)
+    list_per_page = 10
 
 
 class deploy_appAdmin(admin.ModelAdmin):
@@ -47,6 +48,7 @@ class deploy_appAdmin(admin.ModelAdmin):
     search_fields = ('proj_name', 'unit')
     list_filter = ('proj_name', 'unit')
     list_display_links = ('proj_name',)
+    list_per_page = 10
 
 
 class deploy_list_detailAdmin(admin.ModelAdmin):
@@ -54,6 +56,7 @@ class deploy_list_detailAdmin(admin.ModelAdmin):
     search_fields = ('proj_name', 'tag', 'status')
     list_filter = ('proj_name', 'tag', 'status')
     list_display_links = ('proj_name',)
+    list_per_page = 10
 
 
 # admin.site.register(business,businessAdmin)
@@ -71,6 +74,7 @@ class userInfoAdmin(admin.ModelAdmin):
     # list_display_links = ('username','usertype',)
     # list_editable = ('username','password','email','usertype',)
     # exclude = ('password',)##隐藏某个字段
+    list_per_page = 10
 
 
 '''
@@ -96,6 +100,7 @@ class wf_infoAdmin(admin.ModelAdmin):
     list_filter = ('sponsor', 'status',)
     list_display_links = ('sponsor',)
     # list_editable = ('content',)
+    list_per_page = 10
 
 
 class wf_info_process_historyAdmin(admin.ModelAdmin):
@@ -104,6 +109,7 @@ class wf_info_process_historyAdmin(admin.ModelAdmin):
     list_filter = ('sponsor', 'status',)
     list_display_links = ('sponsor',)
     # list_editable = ('content',)
+    list_per_page = 10
 
 
 class wf_typeAdmin(admin.ModelAdmin):
@@ -111,6 +117,7 @@ class wf_typeAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('name',)
     list_display_links = ('name',)
+    list_per_page = 10
 
 
 class businessAdmin(admin.ModelAdmin):
@@ -118,6 +125,7 @@ class businessAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('name',)
     list_display_links = ('name',)
+    list_per_page = 10
 
 
 admin.site.register(wf_info, wf_infoAdmin)
@@ -143,60 +151,70 @@ class DeviceTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
     search_fields = ('name',)
+    list_per_page = 10
 
 
 class DeviceStatusAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
     search_fields = ('name',)
+    list_per_page = 10
 
 
 class AssetAdmin(admin.ModelAdmin):
     list_display = ('cabinet_num', 'cabinet_order',)
     list_filter = ('cabinet_num', 'cabinet_order',)
     search_fields = ('cabinet_num', 'cabinet_order',)
+    list_per_page = 10
 
 
 class ServerAdmin(admin.ModelAdmin):
     list_display = ('hostname', 'sn', 'manufactory', 'model', 'type', 'bios',)
     list_filter = ('hostname', 'sn', 'manufactory', 'model', 'type', 'bios',)
     search_fields = ('hostname', 'sn', 'manufactory', 'model', 'type', 'bios',)
+    list_per_page = 10
 
 
 class NetworkDeviceAdmin(admin.ModelAdmin):
     list_display = ('name', 'sn', 'manufactory', 'model',)
     list_filter = ('name', 'sn', 'manufactory', 'model',)
     search_fields = ('name', 'sn', 'manufactory', 'model',)
+    list_per_page = 10
 
 
 class CPUAdmin(admin.ModelAdmin):
     list_display = ('name', 'model', 'core_num',)
     list_filter = ('name', 'model', 'core_num',)
     search_fields = ('name', 'model', 'core_num',)
+    list_per_page = 10
 
 
 class MemoryAdmin(admin.ModelAdmin):
     list_display = ('slot', 'model', 'capacity', 'ifac_type',)
     list_filter = ('slot', 'model', 'capacity', 'ifac_type',)
     search_fields = ('slot', 'model', 'capacity', 'ifac_type',)
+    list_per_page = 10
 
 
 class DiskAdmin(admin.ModelAdmin):
     list_display = ('slot', 'model', 'capacity', 'ifac_type',)
     list_filter = ('slot', 'model', 'capacity', 'ifac_type',)
     search_fields = ('slot', 'model', 'capacity', 'ifac_type',)
+    list_per_page = 10
 
 
 class NICAdmin(admin.ModelAdmin):
     list_display = ('name', 'model', 'ipaddr', 'mac',)
     list_filter = ('name', 'model', 'ipaddr', 'mac',)
     search_fields = ('name', 'model', 'ipaddr', 'mac',)
+    list_per_page = 10
 
 
 class ContractAdmin(admin.ModelAdmin):
     list_display = ('name', 'sn', 'cost', 'start_date', 'end_date', 'license_num',)
     list_filter = ('name', 'sn', 'cost', 'start_date', 'end_date', 'license_num',)
     search_fields = ('name', 'sn', 'cost', 'start_date', 'end_date', 'license_num',)
+    list_per_page = 10
 
 
 '''
@@ -211,18 +229,21 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
     search_fields = ('name',)
+    list_per_page = 10
 
 
 class IDCAdmin(admin.ModelAdmin):
     list_display = ('region_display_name', 'display_name', 'floor',)
     list_filter = ('region_display_name', 'display_name', 'floor',)
     search_fields = ('region_display_name', 'display_name', 'floor',)
+    list_per_page = 10
 
 
 class HandleLogAdmin(admin.ModelAdmin):
     list_display = ('handle_type',)
     list_filter = ('handle_type',)
     search_fields = ('handle_type',)
+    list_per_page = 10
 
 
 # admin.site.register(UserProfile,UserProfileAdmin)
