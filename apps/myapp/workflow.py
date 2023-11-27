@@ -366,6 +366,7 @@ def workflow_add(request, *args, **kwargs):
                     '''
         content = request.POST.get('content', None)
         wfbusiness_id = request.POST.get('wf_business', None)
+        print(wfbusiness_id)
         try:
             wfbusiness_select = models.wf_business.objects.get(id=wfbusiness_id)
         except:
@@ -373,7 +374,7 @@ def workflow_add(request, *args, **kwargs):
 
         is_empty = all([title, content, type_select, wfbusiness_select, ])
 
-        # print(title, content, type_select, wfbusiness_select)
+        print(title, content, type_select, wfbusiness_select)
 
         # 2023/08/16
         deploy_id = request.POST.get('proj_name', None)
@@ -545,10 +546,18 @@ def workflow_tasks(request, *args, **kwargs):
 
     wf_info_process = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(
         flow_id__gt=0).order_by('-id')
+    # 2023/11/27
+    # queryset转为list
+    # print(list(wf_info_process))
+    # print(wf_info_process)
+    # 从流程历史sn查找当前流程状态
+    wf_info_process_new = models.wf_info.objects.filter(sn__in=[x.sn for x in wf_info_process]).order_by('-id')
+    # print(wf_info_process_new)
     wf_type = models.wf_type.objects.all()
 
     msg = {'wf_info': wf_info, 'wf_info_process': wf_info_process, 'login_user': userDict['user'], 'status': '',
-           'wf_type': wf_type, 'count_pending': count_pending, 'count_processing': count_processing, }
+           'wf_type': wf_type, 'count_pending': count_pending, 'count_processing': count_processing,
+           'wf_info_process_new': wf_info_process_new}
     # print(msg,)
     return render_to_response('workflow/workflow_tasks.html', msg)
 
