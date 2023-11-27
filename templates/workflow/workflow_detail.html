@@ -209,12 +209,33 @@
                     <div class="card">
                         <div class="card-header bg-light">
                             流程信息
+                                <span style="text-align:center;color:red">
+                                    {% for item in wf_info %}
+                                    <!--
+                                        审批路径：{% for item in item.business.approval.all|dictsort:'workflow_order' reversed %}
+                                                {% if forloop.first %}
+                                                    {{ item.username }}({{ item.workflow_order }})
+                                                {% else %}
+                                                    >>>{{ item.username }}({{ item.workflow_order }})
+                                                {% endif %}
+                                            {% endfor %}
+                                    -->
+                                    审批路径：{% for item in item.business.approval.all|dictsort:'workflow_order' %}
+                                                {% if forloop.first %}
+                                                    {{ item.username }}
+                                                {% else %}
+                                                    >>>{{ item.username }}
+                                                {% endif %}
+                                            {% endfor %}
+                                    {% endfor %}
+                                </span>
                         </div>
 
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table">
                                     <tbody>
+
                                     {% for item in wf_info_process_start %}
                                     <tr>
                                         <td>{{item.create_time}}</td>
