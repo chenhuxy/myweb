@@ -16,7 +16,7 @@ services:
     ports:
     - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-predhat"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -36,7 +36,7 @@ services:
       start_period: 60s
 
   myweb:
-    image: chenhuxy/myweb:v2.3.18
+    image: chenhuxy/myweb:v2.3.19
     environment:
       LANG: "en_US.utf8"
     volumes:
