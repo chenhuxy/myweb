@@ -89,10 +89,14 @@ def index(request):
     prometheus_alert_count = prometheus.prometheus_alert_count()
 
     userDict = request.session.get('is_login', None)
+    wf_count_pending = wf_info.objects.filter(next_assignee=userDict['user']).filter(
+        flow_id__gte=0).filter(
+        ~Q(status='已完成')).count()
     msg = {'userinfo': userinfo, 'login_user': userDict['user'],
            'user_count': user_count, 'deploy_count': deploy_count, 'wf_count': wf_count,
            # 'zabbix_alert_count':zabbix_alert_count,'prometheus_alert_count':prometheus_alert_count,}
-           'prometheus_alert_count': prometheus_alert_count, 'deploy_list_count': deploy_list_count}
+           'prometheus_alert_count': prometheus_alert_count, 'deploy_list_count': deploy_list_count,
+           'wf_count_pending': wf_count_pending}
     return render_to_response('account/index.html', msg, )
 
 
