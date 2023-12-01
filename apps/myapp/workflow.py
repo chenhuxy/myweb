@@ -366,29 +366,37 @@ def workflow_add(request, *args, **kwargs):
         '''
         content = request.POST.get('content', None)
         wfbusiness_id = request.POST.get('wf_business', None)
-        print(wfbusiness_id)
+        # print(wfbusiness_id)
         try:
             wfbusiness_select = models.wf_business.objects.get(id=wfbusiness_id)
         except:
             wfbusiness_select = None
 
-        is_empty = all([title, content, type_select, wfbusiness_select, ])
+        # print(title, content, type_select, wfbusiness_select)
 
-        print(title, content, type_select, wfbusiness_select)
+        # 2023/12/01 判断是否为‘生产发布’类型工单请求，生产发布：id=1
+        if type_id == '1':
+            # 2023/08/16
+            proj_name_id = request.POST.get('proj_name', None)
+            proj_tag = request.POST.get('proj_tag', None)
+            if proj_name_id is not None:
+                proj_name = models.deploy_app.objects.filter(id=proj_name_id).values('proj_name')[0]['proj_name']
+                proj_id = models.deploy_app.objects.filter(id=proj_name_id).values('proj_id')[0]['proj_id']
 
-        # 2023/08/16
-        deploy_id = request.POST.get('proj_name', None)
-        proj_tag = request.POST.get('proj_tag', None)
-        if deploy_id is not None:
-            proj_name = models.deploy_app.objects.filter(id=deploy_id).values('proj_name')[0]['proj_name']
-            proj_id = models.deploy_app.objects.filter(id=deploy_id).values('proj_id')[0]['proj_id']
+            else:
+                proj_name = None
+                proj_id = None
+            is_empty = all([title, content, type_select, wfbusiness_select, sponsor, proj_name, proj_tag, proj_id])
         else:
             proj_name = None
             proj_id = None
+            proj_tag = None
+            is_empty = all([title, content, type_select, wfbusiness_select, sponsor])
 
         if is_empty:
             models.wf_info.objects.create(sn=sn, title=title, sponsor=sponsor, type=type_select,
-                                          content=content, memo=memo, business=wfbusiness_select, proj_name=proj_name,
+                                          content=content, memo=memo, business=wfbusiness_select,
+                                          proj_name=proj_name,
                                           proj_tag=proj_tag, proj_id=proj_id)
             return redirect('/cmdb/index/wf/requests/list/')
         else:
@@ -398,7 +406,8 @@ def workflow_add(request, *args, **kwargs):
             return render_to_response('500.html', msg)
     else:
         status = '请使用post提交请求！'
-        msg = {'error': status, }
+        msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'error': status,
+               'wf_type': wf_type, 'userinfo': userinfo, }
         return render_to_response('500.html', msg)
 
 
@@ -829,6 +838,8 @@ def workflow_add_api(request, *args, **kwargs):
             type_select = models.wf_type.objects.get(id=type_id, )
         except:
             type_select = None
+            return HttpResponse(json.dumps({"error": "type 参数值错误！"}))
+
         '''
         #get:instance,filter:QuerySet,Error:
         Cannot assign "<QuerySet [<wf_type: wf_type object (1)>]>": "wf_info.types" must be a "wf_type" instance
@@ -842,20 +853,30 @@ def workflow_add_api(request, *args, **kwargs):
             wfbusiness_select = models.wf_business.objects.get(id=wfbusiness_id)
         except:
             wfbusiness_select = None
+            return HttpResponse(json.dumps({"error": "wf_business 参数值错误！"}))
+        # print(title, content, type_select, wfbusiness_select, type_id, type(type_id))
 
-        is_empty = all([title, content, type_select, wfbusiness_select, ])
+        # 2023/12/01 判断是否为‘生产发布’类型工单请求，生产发布：id=1
+        if type_id == '1':
+            # 2023/08/16
+            # proj_name_id = json.loads(request.body).get('proj_name', None)
+            proj_name = json.loads(request.body).get('proj_name', None)
+            proj_tag = json.loads(request.body).get('proj_tag', None)
 
-        # print(title, content, type_select, wfbusiness_select)
-
-        # 2023/08/16
-        deploy_id = json.loads(request.body).get('proj_name', None)
-        proj_tag = json.loads(request.body).get('proj_tag', None)
-        if deploy_id is not None:
-            proj_name = models.deploy_app.objects.filter(id=deploy_id).values('proj_name')[0]['proj_name']
-            proj_id = models.deploy_app.objects.filter(id=deploy_id).values('proj_id')[0]['proj_id']
+            try:
+                # proj_name = models.deploy_app.objects.filter(id=proj_name_id).values('proj_name')[0]['proj_name']
+                proj_id = models.deploy_app.objects.filter(proj_name=proj_name).values('proj_id')[0]['proj_id']
+            except:
+                # proj_name = None
+                proj_id = None
+                return HttpResponse(json.dumps({"error": "proj_name 参数值错误！"}))
+            # is_empty = all([title, content, type_select, wfbusiness_select, sponsor, proj_name_id, proj_tag])
+            is_empty = all([title, content, type_select, wfbusiness_select, sponsor, proj_name, proj_tag, proj_id])
         else:
             proj_name = None
             proj_id = None
+            proj_tag = None
+            is_empty = all([title, content, type_select, wfbusiness_select, sponsor, ])
 
         if is_empty:
             models.wf_info.objects.create(sn=sn, title=title, sponsor=sponsor, type=type_select,
@@ -864,8 +885,8 @@ def workflow_add_api(request, *args, **kwargs):
                                           proj_tag=proj_tag, proj_id=proj_id)
             # return redirect('/cmdb/index/wf/requests/list/')
             tasks.workflow_commit(sn)
-            return HttpResponse('msg={"status":"接口请求成功！"}')
+            return HttpResponse(json.dumps({"status": "接口请求成功！"}))
         else:
-            return HttpResponse('msg={"error":"带有*的选项不能为空！"}')
+            return HttpResponse(json.dumps({"error": "缺少参数！"}))
     else:
-        return HttpResponse('msg={"error":"请使用post提交请求！"}')
+        return HttpResponse(json.dumps({"error": "请使用post提交请求！"}))
