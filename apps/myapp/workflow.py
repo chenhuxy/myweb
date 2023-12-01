@@ -2,7 +2,7 @@
 # _*_ coding:utf-8 _*_
 
 
-from apps.myapp.auth_helper import custom_login_required, custom_permission_required
+from apps.myapp.auth_helper import custom_login_required, custom_permission_required, secret_required
 from django.shortcuts import render_to_response
 from django.shortcuts import HttpResponse
 from apps.myapp import models
@@ -26,7 +26,7 @@ from apps.myapp import common
 from apps.myapp import page_helper
 from apps.myapp import json_helper
 from celery.result import AsyncResult
-from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR
+from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR, API_SECRET
 
 
 @custom_login_required
@@ -358,12 +358,12 @@ def workflow_add(request, *args, **kwargs):
         except:
             type_select = None
         '''
-                    #get:instance,filter:QuerySet,Error:
-                    Cannot assign "<QuerySet [<wf_type: wf_type object (1)>]>": "wf_info.types" must be a "wf_type" instance
+        #get:instance,filter:QuerySet,Error:
+        Cannot assign "<QuerySet [<wf_type: wf_type object (1)>]>": "wf_info.types" must be a "wf_type" instance
 
-                    action_id = request.POST.get('action',None)
-                    action_select = models.wf_action.objects.get(id=action_id,)
-                    '''
+        action_id = request.POST.get('action',None)
+        action_select = models.wf_action.objects.get(id=action_id,)
+        '''
         content = request.POST.get('content', None)
         wfbusiness_id = request.POST.get('wf_business', None)
         print(wfbusiness_id)
@@ -396,6 +396,10 @@ def workflow_add(request, *args, **kwargs):
             msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'error': status,
                    'wf_type': wf_type, 'userinfo': userinfo, }
             return render_to_response('500.html', msg)
+    else:
+        status = '请使用post提交请求！'
+        msg = {'error': status, }
+        return render_to_response('500.html', msg)
 
 
 @custom_login_required
@@ -805,8 +809,9 @@ def wftypeChange2(request, *args, **kwargs):
             return HttpResponse(json.dumps(data))
 
 
-@custom_login_required
-@custom_permission_required('myapp.add_wf_info')
+# @custom_login_required
+# @custom_permission_required('myapp.add_wf_info')
+@secret_required
 def workflow_add_api(request, *args, **kwargs):
     wf_info = models.wf_info.objects.all()
     wf_type = models.wf_type.objects.all()
@@ -825,12 +830,12 @@ def workflow_add_api(request, *args, **kwargs):
         except:
             type_select = None
         '''
-                    #get:instance,filter:QuerySet,Error:
-                    Cannot assign "<QuerySet [<wf_type: wf_type object (1)>]>": "wf_info.types" must be a "wf_type" instance
+        #get:instance,filter:QuerySet,Error:
+        Cannot assign "<QuerySet [<wf_type: wf_type object (1)>]>": "wf_info.types" must be a "wf_type" instance
 
-                    action_id = request.POST.get('action',None)
-                    action_select = models.wf_action.objects.get(id=action_id,)
-                    '''
+        action_id = request.POST.get('action',None)
+        action_select = models.wf_action.objects.get(id=action_id,)
+        '''
         content = json.loads(request.body).get('content', None)
         wfbusiness_id = json.loads(request.body).get('wf_business', None)
         try:
@@ -854,15 +859,13 @@ def workflow_add_api(request, *args, **kwargs):
 
         if is_empty:
             models.wf_info.objects.create(sn=sn, title=title, sponsor=sponsor, type=type_select,
-                                          content=content, memo=memo, business=wfbusiness_select, proj_name=proj_name,
+                                          content=content, memo=memo, business=wfbusiness_select,
+                                          proj_name=proj_name,
                                           proj_tag=proj_tag, proj_id=proj_id)
             # return redirect('/cmdb/index/wf/requests/list/')
             tasks.workflow_commit(sn)
-            return HttpResponse('接口请求成功！')
+            return HttpResponse('msg={"status":"接口请求成功！"}')
         else:
-            status = '带有*的选项不能为空！'
-            # msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'error': status,
-            #       'wf_type': wf_type, 'userinfo': userinfo, }
-            msg = {'wf_info': wf_info, 'error': status,
-                   'wf_type': wf_type, 'userinfo': userinfo, }
-            return render_to_response('500.html', msg)
+            return HttpResponse('msg={"error":"带有*的选项不能为空！"}')
+    else:
+        return HttpResponse('msg={"error":"请使用post提交请求！"}')

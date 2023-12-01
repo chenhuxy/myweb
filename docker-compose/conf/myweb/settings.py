@@ -383,3 +383,6 @@ VERIFY_CODE_EMAIL_SUBJECT = '【运维发布系统找回密码邮件】'
 # SKYWALKING_EMAIL 配置
 SKYWALKING_EMAIL_SUBJECT = 'Skywalking链路监控告警'
 SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗号分割
+
+# secret
+API_SECRET = 'yYEtEMvGMVmCaxpOWIjOWjtvTk'
