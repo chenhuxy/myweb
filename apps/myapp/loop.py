@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-#coding:utf-8
+# coding:utf-8
 
 from threading import Timer
 from apps.myapp import models
-
 
 '''
 def fun_timer():
@@ -11,13 +10,12 @@ def fun_timer():
 '''
 
 
-
-def wfbusiness_deploy_query(job,name,proj_id,repo,branch,tag,opertator,update_time,):
-    state=job.state
-    #return state
-    print(state,job.id,)
-    #obj = models.wf_business_deploy_history.objects.last().id
-    #print(obj, type(obj))
+def wfbusiness_deploy_query(job, name, proj_id, repo, branch, tag, opertator, update_time, ):
+    state = job.state
+    # return state
+    print(state, job.id, )
+    # obj = models.wf_business_deploy_history.objects.last().id
+    # print(obj, type(obj))
     id = models.wf_business_deploy_history.objects.last().id
     models.wf_business_deploy_history.objects.filter(id=id).update(state=state)
 
@@ -30,9 +28,8 @@ class LoopTimer(Timer):
                t.cancel()     # stop the timer's action if it's still waiting
        """
 
-
-    def __init__(self,interval,function,args=[],kwargs={}):
-        Timer.__init__(self,interval,function,args,kwargs)
+    def __init__(self, interval, function, args=[], kwargs={}):
+        Timer.__init__(self, interval, function, args, kwargs)
 
     def run(self):
         '''self.finished.wait(self.interval)
@@ -45,9 +42,10 @@ class LoopTimer(Timer):
             if self.finished.is_set():
                 self.finished.set()
                 break
-            self.function(*self.args,**self.kwargs)
+            self.function(*self.args, **self.kwargs)
+
+
 '''
 t = LoopTimer(120,fun_timer)
 t.start()
 '''
-

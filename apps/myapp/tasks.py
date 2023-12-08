@@ -364,7 +364,7 @@ def deploy_wf_ssh_remote_exec_cmd(self, ip, port, username, password, cmd, unit,
             # print (num)
         if "返回值：" in item:
             num += int(item.strip().split('返回值：')[1])
-        if "HTTP Error 404: Not Found" in item:
+        if "下载失败" in item:
             num += 1
 
     # 判断任务状态

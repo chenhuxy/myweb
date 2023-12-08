@@ -1,0 +1,496 @@
+{% extends "master/layout.html" %}
+{% block content %}
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div>操作日志列表</div>
+                </div>
+
+
+                <div class="card-body">
+
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered" id="tab">
+                            <thead>
+                            <tr>
+                                <!--<th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>-->
+                                <th>id</th>
+                                <th>操作时间</th>
+                                <th>操作用户</th>
+                                <th>用户ip</th>
+                                <th>请求url</th>
+                                <th>请求方法</th>
+                                <!--<th>请求内容</th>-->
+                                <th>状态码</th>
+                                <th>操作耗时（ms）</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in oplogs %}
+
+                                {% if item.rp_status_code >= 400 %}
+                                <tr>
+                                    <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
+                                    <td style="color: red">{{item.id}}</td>
+                                    <td style="color: red">{{item.re_time}}</td>
+                                    <td style="color: red">{{item.re_user}}</td>
+                                    <td style="color: red">{{item.re_ip}}</td>
+                                    <td style="color: red">{{item.re_url}}</td>
+                                    <td style="color: red">{{item.re_method}}</td>
+                                    <!--<td style="color: red">{{item.re_content}}</td>-->
+                                    <td style="color: red">{{item.rp_status_code}}</td>
+                                    <td style="color: red">{{item.rp_duration}}</td>
+                                </tr>
+                                {% elif item.rp_duration >= api_access_timeout %}
+                                <tr>
+                                    <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
+                                    <td style="color: orange">{{item.id}}</td>
+                                    <td style="color: orange">{{item.re_time}}</td>
+                                    <td style="color: orange">{{item.re_user}}</td>
+                                    <td style="color: orange">{{item.re_ip}}</td>
+                                    <td style="color: orange">{{item.re_url}}</td>
+                                    <td style="color: orange">{{item.re_method}}</td>
+                                    <!--<td style="color: orange">{{item.re_content}}</td>-->
+                                    <td style="color: orange">{{item.rp_status_code}}</td>
+                                    <td style="color: orange">{{item.rp_duration}}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
+                                    <td>{{item.id}}</td>
+                                    <td>{{item.re_time}}</td>
+                                    <td>{{item.re_user}}</td>
+                                    <td>{{item.re_ip}}</td>
+                                    <td>{{item.re_url}}</td>
+                                    <td>{{item.re_method}}</td>
+                                    <!--<td>{{item.re_content}}</td>-->
+                                    <td>{{item.rp_status_code}}</td>
+                                    <td>{{item.rp_duration}}</td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <!--<span>
+                            <input type="checkbox" onclick="checkAll_1()" name="checkall"/>
+                            <button class="btn btn-secondary" data-toggle="modal" id="delAll" onclick="delAll()" style="padding:2px;margin-top:-10px;" disabled>
+                                <i class="fa fa-trash"></i> 全部删除
+                            </button>
+                        </span>-->
+                        <span style="float: right;">
+                            共有{{count}}条，
+                            每页显示：
+                            <select id="pageSelect" onchange="pageChange(this)">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                                <option value="50">50</option>
+                            </select>
+                            条&nbsp;&emsp;
+                            {{page}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="modal-1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary border-0">
+                <h5 class="modal-title text-white">添加用户</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-5">
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <label for="username" class="require"></label>
+                        用户名:<input id="username" type="text" class="form-control require" placeholder="Username">
+                    </div>
+                    <div class="input-group mb-3">
+                        <label for="password" class="require"></label>
+                        密 码:<input id="password" type="text" class="form-control require" placeholder="Password">
+                    </div>
+                    <div class="input-group mb-3">
+                        <label for="email" class="require"></label>
+                        邮 箱:<input id="email" type="text" class="form-control require" placeholder="Email">
+                    </div>
+                    <div class="input-group mb-3">
+                        <label for="single-select">用户类型:</label>
+                        <select id="single-select" class="form-control">
+                            {% for item in usertype %}
+                            <option value={{item.id}}>{{item.role}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="modal-2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary border-0">
+                <h5 class="modal-title text-white">提示</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-5">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Pellentesque lacinia non massa a euismod.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% for item in userinfo %}
+<div class="modal fade" id="modal-3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger border-0">
+                <h5 class="modal-title text-white">提示</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-5">
+                确定删除？
+            </div>
+            <div class="modal-footer border-0">
+
+                <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger">确定</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+{% block javascript %}
+<script>
+
+
+    $(function () {
+        var perItem = $.cookie('page_num');
+        if (perItem){
+            $('#pageSelect').val(perItem);
+
+        }
+    })
+
+
+    function pageChange(arg) {
+        var value=$(arg).val();
+        $.cookie('page_num',value,{path:'/'});
+        window.parent.location.reload();
+    }
+
+
+    function clearContent(arg) {
+            arg.placeholder="";
+    }
+
+
+    function fillContent(arg) {
+            arg.placeholder="请输入用户名或邮箱搜索";
+    }
+
+
+    function resetPwd(obj) {
+        var tr = obj.parentNode.parentNode;
+        var tbody = tr.parentNode;
+        //var id = tr.firstElementChild.innerHTML;
+        var id = tr.cells[1].innerHTML;
+
+
+            $.ajax({
+                url:'/cmdb/index/table/user/resetPwd/',
+                data:{userid:id},
+                type:'POST',
+                success:function (data) {
+                    //window.parent.location.reload();
+                    //$(body).html(data);
+                    alert('密码重置成功！')
+                },
+                error:function () {
+                    alert('服务器异常');
+                }
+            });
+    }
+
+    function del(obj) {
+        var tr = obj.parentNode.parentNode;
+        var tbody = tr.parentNode;
+        //var id = tr.firstElementChild.innerHTML;
+        var id = tr.cells[1].innerHTML;
+        //alert(id)
+        if (confirm("确定删除？")){
+            window.event.returnValue = true;
+        }else {
+            window.event.returnValue = false;
+        }
+        if (window.event.returnValue == true){
+            tbody.removeChild(tr);
+            $.ajax({
+                url:'/cmdb/index/table/user/del/',
+                data:{userid:id},
+                type:'POST',
+                success:function (data) {
+                    window.parent.location.reload();
+                    //$(body).html(data);
+                    //alert('删除成功')
+                },
+                error:function () {
+                    alert('服务器异常');
+                }
+            });
+        }else{
+
+        }
+    }
+
+
+    function update(obj) {
+        //obj.preventDefault();
+        var tr = obj.parentNode.parentNode;
+        //var userid = tr.firstElementChild.innerHTML;
+        var userid = tr.cells[1].innerHTML;
+        //var username = tr.cells[1].innerHTML;
+        //var password = tr.cells[2].innerHTML;
+        //var email = tr.cells[3].innerHTML;
+        //var usertype = tr.cells[4].innerHTML;
+        location.href='/cmdb/index/table/user/form_update/userid='+userid;
+        //alert(userid);
+ /*            $.ajax({
+               url: '/cmdb/index/table/user/form_update/',
+               data: {userid:id,username:username,password:password,email:email,usertype:usertype},
+               type: 'POST',
+                success: function (data) {
+                    //window.parent.location.href='/cmdb/index/table/user/form_update/'
+                    //alert('更新成功')
+                    //window.parent.location.reload();
+                   //$(body).html(data);
+              },
+               error: function () {
+                 alert('服务器异常');
+              }
+          });
+        //window.parent.location.href='/cmdb/index/table/user/form_update/'
+*/
+    }
+
+
+	function checkOne() {
+        var checks = document.getElementsByName("checkone")
+        var checkall=document.getElementsByName("checkall");
+        //console.log(checks.length,checks)
+        var flag = 0;
+        for (var i = 0; i < checks.length; i++) {
+            console.log(checks[i].checked)
+            if (checks[i].checked) {
+                var flag = flag + 1
+            }
+        }
+        console.log(flag)
+        if (flag){
+            if (flag == checks.length){
+                checkall.item(0).checked=true;
+                checkall.item(1).checked=true;
+                console.log(checkall.item(0).checked);
+                console.log(checkall.item(1).checked);
+            }
+            else{
+                checkall.item(0).checked=false;
+                checkall.item(1).checked=false;
+                console.log(checkall.item(0).checked);
+                console.log(checkall.item(1).checked);
+            }
+            document.getElementById("delAll").removeAttribute("disabled")
+            document.getElementById("delAll").setAttribute("class", "btn btn-danger")
+        } else {
+            checkall.item(0).checked=false;
+            checkall.item(1).checked=false;
+            document.getElementById("delAll").setAttribute("disabled", true)
+            document.getElementById("delAll").setAttribute("class", "btn btn-secondary")
+        }
+            //break;
+    }
+
+
+    function checkAll_0() {
+        //获得当前第一个checkbox的状态
+        var checkall = document.getElementsByName("checkall");
+        //得到当前checked状态
+        var checked_0 = checkall.item(0).checked;
+        var checked_1 = checked_0;
+        checkall.item(1).checked = checked_1;
+        var checked =  checked_0 && checked_1;
+        //console.log(checkall.item(0).checked,checkall.item(1).checked);
+        //获得所有分类项的checkbox
+        var checks = document.getElementsByName("checkone");
+        for (var i = 0; i < checks.length; i++) {
+            //修改每一个checkbox的状态
+            checks[i].checked = checked;
+
+        }
+        if (checked_0){
+            document.getElementById("delAll").removeAttribute("disabled")
+            document.getElementById("delAll").setAttribute("class","btn btn-danger")
+
+        }else {
+            document.getElementById("delAll").setAttribute("disabled",true)
+            document.getElementById("delAll").setAttribute("class","btn btn-secondary")
+        }
+    }
+	
+
+     function checkAll_1() {
+        //获得当前第一个checkbox的状态
+         var checkall = document.getElementsByName("checkall");
+         //得到当前checked状态
+         var checked_1 = checkall.item(1).checked;
+         var checked_0 = checked_1;
+         checkall.item(0).checked = checked_0;
+         var checked =  checked_0 && checked_1;
+         //console.log(checkall.item(0).checked,checkall.item(1).checked);
+         //获得所有分类项的checkbox
+         var checks = document.getElementsByName("checkone");
+         for (var i = 0; i < checks.length; i++) {
+             //修改每一个checkbox的状态
+             checks[i].checked = checked;
+         }
+         if (checked_1){
+            document.getElementById("delAll").removeAttribute("disabled")
+            document.getElementById("delAll").setAttribute("class","btn btn-danger")
+        }else {
+            document.getElementById("delAll").setAttribute("disabled",true)
+            document.getElementById("delAll").setAttribute("class","btn btn-secondary")
+        }
+     }
+	 
+
+    function delAll() {
+        var checks = document.getElementsByName("checkone");
+        if (confirm("确定删除？")){
+            window.event.returnValue = true;
+        }else {
+            window.event.returnValue = false;
+        }
+        for (var i = 0; i < checks.length; i++) {
+            if (checks[i].checked){
+                var tr = checks[i].parentNode.parentNode;
+                var tbody = tr.parentNode;
+                var id = tr.cells[1].innerHTML;
+
+
+                if (window.event.returnValue == true){
+                    tbody.removeChild(tr);
+                    $.ajax({
+                        url:'/cmdb/index/table/user/del/',
+                        data:{userid:id},
+                        type:'POST',
+                        success:function (data) {
+                            window.parent.location.reload();
+                            //$(body).html(data);
+                            //alert('删除成功')
+                        },
+                        error:function () {
+                            alert('服务器异常');
+                        }
+                    });
+                   i--;
+                }else{
+
+                }
+            }
+        }
+    }
+
+
+    function myTrim(x) {
+        return x.replace(/^\s+|\s+$/gm,'');
+    }
+
+/*前端搜索打开此条注释
+    window.onload=function(){
+        var oTab=document.getElementById("tab");
+        var oBt=document.getElementsByTagName("input");
+
+        oBt[1].onclick=function(){
+
+            var flag=0;
+            for(var i=0;i<oTab.tBodies[0].rows.length;i++)
+            {
+                var str1=oTab.tBodies[0].rows[i].cells[2].innerHTML.toUpperCase();
+                var str2=oBt[0].value.toUpperCase();
+                oTab.tBodies[0].rows[i].style.background = '';    //清除上次搜索痕迹
+                //if (str2.trim()!="") {                                   //未输入或输入为空时，不做搜索
+      //使用string.toUpperCase()(将字符串中的字符全部转换成大写)或string.toLowerCase()(将字符串中的字符全部转换成小写)
+      //所谓忽略大小写的搜索就是将用户输入的字符串全部转换大写或小写，然后把信息表中的字符串的全部转换成大写或小写，最后再去比较两者转换后的字符就行了*/
+      /*******************************JS实现表格忽略大小写搜索*********************************/
+                //if (!str2) return;  //内容不存在即返回
+/*                if (str1 == str2) {
+                    oTab.tBodies[0].rows[i].style.background = 'yellow';
+                    //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+                } else {
+                    oTab.tBodies[0].rows[i].style.background = '';
+                }*/
+    /***********************************JS实现表格的模糊搜索*************************************/
+    //表格的模糊搜索的就是通过JS中的一个search()方法，使用格式，string1.search(string2);如果
+    //用户输入的字符串是其一个子串，就会返回该子串在主串的位置，不匹配则会返回-1，故操作如下
+/*                if (str1.search(str2) != -1) {
+                    oTab.tBodies[0].rows[i].style.background = 'yellow';
+                    //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+                } else {
+                    oTab.tBodies[0].rows[i].style.background = '';
+                }*/
+    /***********************************JS实现表格的多关键字搜索********************************/
+        //表格的多关键字搜索，加入用户所输入的多个关键字之间用空格隔开，就用split方法把一个长字符串以空格为标准，分成一个字符串数组，
+        //然后以一个循环将切成的数组的子字符串与信息表中的字符串比较
+/*前端搜索打开此条注释                    var arr = str2.trim().split(' ');
+                    for (var j = 0; j < arr.length; j++) {
+                        console.log(arr, arr.length, arr[j], str2)
+                        if (arr != [''] && arr[j] != '') {          //未输入或输入为空时，不做搜索
+                            if (str1.search(arr[j]) != -1) {
+                                oTab.tBodies[0].rows[i].style.background = 'yellow';
+                                //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+                                flag++;
+                            }
+                        }
+                    }
+                //}//else{
+                    //oTab.tBodies[0].rows[i].style.background = '';
+                //}
+            }
+            alert('共找到'+flag+'条');
+        }
+    }
+前端搜索打开此条注释*/
+
+</script>
+{% endblock %}

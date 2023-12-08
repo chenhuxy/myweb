@@ -4,24 +4,24 @@
 
 # Create your views here.
 
-from django.shortcuts import render,render_to_response,HttpResponse
+from django.shortcuts import render, render_to_response, HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import urllib
 import urllib.parse
+
+
 # Create your views here.
 
 
-
-@api_view(['GET', 'PUT', 'DELETE','POST'])
+@api_view(['GET', 'PUT', 'DELETE', 'POST'])
 def index(request):
-    print (request.method)
-    print (request.data)
-    return Response([{'asset':'1','request_hostname':'c1.puppet.com'}])
+    print(request.method)
+    print(request.data)
+    return Response([{'asset': '1', 'request_hostname': 'c1.puppet.com'}])
 
 
-
-@api_view(['GET','POST','PUT','DELETE'])
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 def serverinfo(request):
     print(request.POST)
     print(request.method)
@@ -29,5 +29,3 @@ def serverinfo(request):
         print(urllib.parse.unquote(request.data))
         print(request.data)
     return Response('receive ok!')
-
-

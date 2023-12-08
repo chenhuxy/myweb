@@ -141,6 +141,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 自定义操作日志记录中间件
+    'apps.middlewares.LogMiddleware.OpLog',
 ]
 
 ROOT_URLCONF = 'myweb.urls'
@@ -386,3 +388,6 @@ SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗�
 
 # secret
 API_SECRET = 'yYEtEMvGMVmCaxpOWIjOWjtvTk'
+
+# 定义接口请求超时时间
+API_ACCESS_TIMEOUT = 3000  # ms

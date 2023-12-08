@@ -13,12 +13,16 @@ from apps.myapp import example
 from apps.myapp import assets
 from apps.myapp import deploy
 from apps.myapp import skywalking
+from apps.myapp import audit
 
 # from rest_framework import routers
 # from apps.myapp import api
 
 
 urlpatterns = [
+
+    # audit-------------------------------------------------------------------------------------------------------------
+    url(r'^index/audit/oplog/list/(?P<page>\d*)', audit.oplog, ),
 
     # login-------------------------------------------------------------------------------------------------------------
 
