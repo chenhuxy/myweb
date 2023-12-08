@@ -11,7 +11,7 @@ from apps.myapp import encrypt_helper
 
 
 class OpLog(MiddlewareMixin):
-    __exclude_urls = ['/cmdb/index/deploy/task/get_task_info/', '/admin/']  # 定义不需要记录日志的url
+    __exclude_urls = ['/cmdb/index/deploy/task/get_task_info/', '/admin/', '/static/']  # 定义不需要记录日志的url
 
     def __init__(self, *args):
         super(OpLog, self).__init__(*args)
@@ -46,7 +46,7 @@ class OpLog(MiddlewareMixin):
         # 筛选空参数
         if re_content:
             # 加密请求参数敏感信息
-            if re_content['pwd']:
+            if 'pwd' in re_content:
                 # print(re_content, re_content['pwd'], type(re_content['pwd']))
                 # This QueryDict instance is immutable
                 re_content = re_content.copy()
