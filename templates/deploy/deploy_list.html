@@ -53,15 +53,21 @@
                             </tr>
                             </thead>
                             <tbody  id="task_table">
-                            <div id="deploy">{% for item in deploy %}</div>
+                            {% for item in deploy %}
                             <tr>
                                 <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
-                                <td id="id">{{item.id}}</td>
-                                <td id="proj_name">{{item.proj_name}}</td>
-                                <td id="proj_id" style="display:none">{{item.proj_id}}</td>
-                                <td id="tag">{{ item.tag }}</td>
-                                <td id="task_id" style="display:none">{{ item.task_id }}</td>
-                                <td id="task_status">{{ item.status }}</td>
+                                <td>{{item.id}}</td>
+                                <td>{{item.proj_name}}</td>
+                                <td style="display:none">{{item.proj_id}}</td>
+                                <td>{{ item.tag }}</td>
+                                <td style="display:none">{{ item.task_id }}</td>
+                                {% if item.status == "失败" %}
+                                <td style="color: red">{{ item.status }}</td>
+                                {% elif item.status == "已取消" %}
+                                <td style="color: orange">{{ item.status }}</td>
+                                {% else %}
+                                <td>{{ item.status }}</td>
+                                {% endif %}
                                 <td>{{item.update_time}}</td>
                                 <td>
                                     <!--<button class="btn btn-primary" data-toggle="modal" data-target="#modal-2">更新</button>-->
