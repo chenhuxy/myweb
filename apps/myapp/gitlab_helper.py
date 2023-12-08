@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding:utf-8
+# coding:utf-8
 
 """
 gitlab 经常使用到的api
@@ -15,27 +15,27 @@ import pickle
 
 
 class GitTools:
-    def __init__(self,git_url,git_token):
+    def __init__(self, git_url, git_token):
         self.git_url = git_url
         self.git_token = git_token
 
     def projects(self):
-        gl=gitlab.Gitlab(self.git_url,self.git_token)
-        #projects1 = gl.projects.list()
-        projects = gl.projects.list(all=True,as_list=False)
-        #for p in gl.projects.list(all=True, as_list=False):
+        gl = gitlab.Gitlab(self.git_url, self.git_token)
+        # projects1 = gl.projects.list()
+        projects = gl.projects.list(all=True, as_list=False)
+        # for p in gl.projects.list(all=True, as_list=False):
         #    print(p.name, p.id)
-        #for p in gl.projects.list(page=1):
+        # for p in gl.projects.list(page=1):
         #    print(p.name, p.id)
-        #project = gl.projects.get('proj')
-        #project2 = gl.projects.list(search='kw', visibility='public')
-        #project3 = gl.projects.create({'name': 'proj'})
+        # project = gl.projects.get('proj')
+        # project2 = gl.projects.list(search='kw', visibility='public')
+        # project3 = gl.projects.create({'name': 'proj'})
         res = {}
         for p in projects:
-            #print(p.id,p.name,p.http_url_to_repo)
-            return {'id':p.id,'name':p.name,'repo':p.http_url_to_repo}
+            # print(p.id,p.name,p.http_url_to_repo)
+            return {'id': p.id, 'name': p.name, 'repo': p.http_url_to_repo}
 
-        #return projects
+        # return projects
 
     '''
     def projects(self):
@@ -55,18 +55,17 @@ class GitTools:
         return dic
         '''
 
-
-    def get_branches(self,project):
+    def get_branches(self, project):
         branches = project.branches.list()
-        #branch = project.branches.get('branch')
-        #branch2 = project.branches.create({'branch_name': 'branch',
+        # branch = project.branches.get('branch')
+        # branch2 = project.branches.create({'branch_name': 'branch',
         #                                   'ref': 'master'})
-        #project.branches.delete('branch')
-        #branch.protect()
-        #branch.unprotect()
+        # project.branches.delete('branch')
+        # branch.protect()
+        # branch.unprotect()
         return branches
 
-    def tags(self,project):
+    def tags(self, project):
         tags = project.tags.list(all=True)
         tags = project.tags.list('1.0')
         tag = project.tags.create({'tag_name': '1.0', 'ref': 'master'})
@@ -74,13 +73,13 @@ class GitTools:
         project.tags.delete('1.0')
         tag.delete()
 
-    def commits(self,project):
+    def commits(self, project):
         commits = project.commits.list()
         for c in commits:
             print(c.author_name, c.message, c.title)
         commit = project.commits.get('e3d5a71b')
 
-    def mrs(self,project):
+    def mrs(self, project):
         mrs = project.mergerequests.list()
         print(mrs)
         mr = project.mergerequests.get('mr_id')
@@ -96,7 +95,7 @@ class GitTools:
         mr.merge()
         mrs = project.mergerequests.list(state='merged', sort='asc')  # all, merged, opened or closed
 
-    def do_commit(self,project):
+    def do_commit(self, project):
         data = {
             'branch_name': 'master',  # v3
             'commit_message': 'blah blah blah',
@@ -126,15 +125,11 @@ class GitTools:
             print(file_diff)
 
 
-
-
-def git_project(request,*args,**kwargs):
+def git_project(request, *args, **kwargs):
     git_url = 'http://10.180.11.8'
     git_token = 'F7nAGXozy4dsfJvxiLu_'
-    git_tools = GitTools(git_url,git_token)
-    msg=git_tools.projects()
-    print(msg,type(msg))
-    return render_to_response('monitor/gitlab.html',msg)
-    #return HttpResponse(msg)
-
-
+    git_tools = GitTools(git_url, git_token)
+    msg = git_tools.projects()
+    print(msg, type(msg))
+    return render_to_response('monitor/gitlab.html', msg)
+    # return HttpResponse(msg)

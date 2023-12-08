@@ -4,7 +4,7 @@
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from apps.app01 import models
-#from rest_framework.decorators import detail_route, list_route
+# from rest_framework.decorators import detail_route, list_route
 from rest_framework import response
 from django.shortcuts import HttpResponse
 
@@ -35,7 +35,7 @@ class BLogViewSet(viewsets.ModelViewSet):
     queryset = models.Blog.objects.all()
     serializer_class = BlogSerializer
 
-    #@list_route()
+    # @list_route()
     def detail(self, request):
         print(request)
         # return HttpResponse('ok')

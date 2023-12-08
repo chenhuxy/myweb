@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding:utf-8
+# coding:utf-8
 
 
 import json
@@ -10,7 +10,7 @@ from myweb.settings import *
 from django.shortcuts import HttpResponse
 
 
-def send_mail(request,*args,**kwargs):
+def send_mail(request, *args, **kwargs):
     info = json.loads(request.body.decode())
     # print("#########：",info, type(info))
     for i in info:
@@ -35,6 +35,6 @@ def send_mail(request,*args,**kwargs):
         msg['To'] = receiver
         smtp = smtplib.SMTP()
         smtp.connect(mail_sever)
-        smtp.login(user=mail_user,password=mail_pass)
-        smtp.sendmail(sender,receiver.split(','),msg.as_string())
+        smtp.login(user=mail_user, password=mail_pass)
+        smtp.sendmail(sender, receiver.split(','), msg.as_string())
     return HttpResponse("邮件发送成功")

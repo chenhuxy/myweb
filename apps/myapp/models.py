@@ -7,6 +7,29 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractUser
 
+
+# OpLogs----------------------------------------------------------------------------------------------------------------
+class OpLogs(models.Model):
+    id = models.AutoField(primary_key=True)
+    re_time = models.CharField(max_length=32, verbose_name='请求时间')
+    re_user = models.CharField(max_length=32, verbose_name='请求用户')
+    re_ip = models.CharField(max_length=32, verbose_name='请求IP')
+    re_url = models.CharField(max_length=255, verbose_name='请求url')
+    re_method = models.CharField(max_length=32, verbose_name='请求方法')
+    re_content = models.TextField(null=True, verbose_name='请求参数')
+    rp_content = models.TextField(null=True, verbose_name='响应参数')
+    rp_status_code = models.IntegerField(verbose_name='状态码')
+    rp_duration = models.IntegerField(verbose_name='响应耗时/ms')
+
+    class Meta:
+        db_table = 'op_logs'
+        verbose_name = '操作日志'
+        verbose_name_plural = verbose_name
+
+    def __unicode__(self):
+        return self.re_user
+
+
 # users-----------------------------------------------------------------------------------------------------------------
 
 '''
