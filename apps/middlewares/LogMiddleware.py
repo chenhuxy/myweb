@@ -50,7 +50,8 @@ class OpLog(MiddlewareMixin):
                 # print(re_content, re_content['pwd'], type(re_content['pwd']))
                 # This QueryDict instance is immutable
                 re_content = re_content.copy()
-                re_content['pwd'] = encrypt_helper.md5_encrypt(re_content['pwd'])
+                # re_content['pwd'] = encrypt_helper.md5_encrypt(re_content['pwd'])
+                re_content['pwd'] = "***"
             re_content = json.dumps(re_content)
         else:
             re_content = None
