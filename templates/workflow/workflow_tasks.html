@@ -1,10 +1,10 @@
 {% extends "master/layout.html" %}
 {% block content %}
-        <div class="content">
+    <div class="content">
         {% block formTitle %}
             <!--<form method="post" action="/cmdb/index/wf/process/">-->
         {% endblock %}
-<div class="container-fluid">
+            <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card p-4">
@@ -76,10 +76,21 @@
                                                     {% endfor %}
                                                     </tbody>
                                                 </table>
-
-
+                                                <span style="float: right;">
+                                                    共有{{count_pending}}条，
+                                                    每页显示：
+                                                    <select id="pageSelect" onchange="pageChange(this)">
+                                                        <option value="10">10</option>
+                                                        <option value="20">20</option>
+                                                        <option value="30">30</option>
+                                                        <option value="50">50</option>
+                                                    </select>
+                                                    条&nbsp;&emsp;
+                                                    {{page_pending}}
+                                                </span>
                                             </div>
                                         </div>
+
                                         <div class="tab-pane" id="home4" role="tabpanel" aria-expanded="false">
                                             <div class="table-responsive">
                                                 <table class="table table-hover table-bordered" id="tab2">
@@ -98,7 +109,7 @@
                                                     </tr>
                                                     </thead>
                                                     <tbody>
-                                                    
+
                                                     {% for item in wf_info_process_new %}
                                                     <tr>
                                                         <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
@@ -125,13 +136,23 @@
                                                     {% endfor %}
                                                     </tbody>
                                                 </table>
-
-
+                                                <span style="float: right;">
+                                                    共有{{count_processing}}条，
+                                                    每页显示：
+                                                    <select id="pageSelect2" onchange="pageChange2(this)">
+                                                        <option value="10">10</option>
+                                                        <option value="20">20</option>
+                                                        <option value="30">30</option>
+                                                        <option value="50">50</option>
+                                                    </select>
+                                                    条&nbsp;&emsp;
+                                                    {{page_processing}}
+                                                </span>
                                             </div>
                                         </div>
+
                                     </div>
-
-
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -139,10 +160,38 @@
      {% block formFooter %}
         <!--</form>-->
      {% endblock %}
-        </div>
+    </div>
+
 {% endblock %}
 {% block javascript %}
 <script>
+
+    $(function () {
+        var perItem = $.cookie('page_num');
+        if (perItem){
+            $('#pageSelect').val(perItem);
+            $('#pageSelect2').val(perItem);
+
+        }
+    })
+
+
+    function pageChange(arg) {
+        var value=$(arg).val();
+        $.cookie('page_num',value,{path:'/'});
+        window.parent.location.reload();
+    }
+
+
+    function clearContent(arg) {
+            arg.placeholder="";
+    }
+
+
+    function fillContent(arg) {
+            arg.placeholder="标题或流程编号";
+    }
+
 
 // ajax获取工单状态
 

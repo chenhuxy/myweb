@@ -548,14 +548,21 @@ def workflow_tasks_status(request, *args, **kwargs):
 @custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_tasks(request, *args, **kwargs):
     userDict = request.session.get('is_login', None)
+
+    page = common.try_int(kwargs['page'], 1)
+    perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+
     count_pending = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(
         ~Q(status='已完成')).count()
     count_processing = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(
         flow_id__gt=0).count()
 
+    pageinfo_pending = page_helper.pageinfo(page, count_pending, perItem)
+    pageinfo_processing = page_helper.pageinfo(page, count_processing, perItem)
+
     # 工单列表降序排列
     wf_info = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(
-        ~Q(status='已完成')).order_by('-id')
+        ~Q(status='已完成')).order_by('-id')[pageinfo_pending.start:pageinfo_pending.end]
 
     wf_info_process = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(
         flow_id__gt=0).order_by('-id')
@@ -564,13 +571,18 @@ def workflow_tasks(request, *args, **kwargs):
     # print(list(wf_info_process))
     # print(wf_info_process)
     # 从流程历史sn查找当前流程状态
-    wf_info_process_new = models.wf_info.objects.filter(sn__in=[x.sn for x in wf_info_process]).order_by('-id')
+    wf_info_process_new = models.wf_info.objects.filter(sn__in=[x.sn for x in wf_info_process]).order_by('-id')[
+                          pageinfo_processing.start:pageinfo_processing.end]
     # print(wf_info_process_new)
     wf_type = models.wf_type.objects.all()
 
+    page_string_pending = page_helper.pager_wf_task_list(request, page, pageinfo_pending.pageCount)
+    page_string_processing = page_helper.pager_wf_task_list(request, page, pageinfo_processing.pageCount)
+
     msg = {'wf_info': wf_info, 'wf_info_process': wf_info_process, 'login_user': userDict['user'], 'status': '',
            'wf_type': wf_type, 'count_pending': count_pending, 'count_processing': count_processing,
-           'wf_info_process_new': wf_info_process_new}
+           'wf_info_process_new': wf_info_process_new, 'page_pending': page_string_pending,
+           'page_processing': page_string_processing}
     # print(msg,)
     return render_to_response('workflow/workflow_tasks.html', msg)
 
