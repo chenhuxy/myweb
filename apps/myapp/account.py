@@ -207,13 +207,24 @@ def forget_pass_form_1(request, *args, **kwargs):
 def forget_pass_form_2(request, *args, **kwargs):
     username = request.POST.get('username', None)
     if username:
+
         is_exist = bool(userInfo.objects.filter(username=username))
         # print(username, is_exist, type(username), type(is_exist))
+
+        # 2023/12/12 增加是否被禁用判断
+        is_active = userInfo.objects.filter(username=username).values('is_active')[0]['is_active']
+        print(is_active, type(is_active))
+
         if not is_exist:
             status = '该用户不存在！'
             msg = {'status': status}
             # return render_to_response('forget_pass_2-error.html', msg)
             # return redirect('/cmdb/login/forget_pass/step/1/')
+            return render_to_response('account/forget_pass_1.html', msg)
+
+        elif not is_active:
+            status = '该用户已经禁用！'
+            msg = {'status': status}
             return render_to_response('account/forget_pass_1.html', msg)
         else:
             email = userInfo.objects.filter(username=username).values('email')
