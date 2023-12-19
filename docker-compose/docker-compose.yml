@@ -10,14 +10,15 @@ services:
       LANG: "C.UTF-8"
     volumes:
     - ./data/mysql:/var/lib/mysql
-    - ./conf/mysql/:/docker-entrypoint-initdb.d
+    - ./conf/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    - ./conf/mysql/my.cnf:/etc/my.cnf
     networks:
     - myweb-net
     ports:
     - "3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-predhat"]
-      interval: 10s
+      interval: 60s
       timeout: 5s
       retries: 10
       start_period: 60s
@@ -30,18 +31,35 @@ services:
     - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping", "-h", "localhost"]
-      interval: 10s
+      interval: 60s
       timeout: 5s
       retries: 10
       start_period: 60s
 
+  nginx:
+    image: nginx
+    networks:
+    - myweb-net
+    ports:
+    - "80:80"
+    volumes:
+    - ./conf/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    - static_vol:/usr/share/nginx/html/static
+    depends_on:
+      myweb:
+        condition: "service_healthy"
+
   myweb:
-    image: chenhuxy/myweb:v2.3.24
+    image: chenhuxy/myweb:v2.4.0
     environment:
       LANG: "en_US.utf8"
+      #http_proxy: "http://1.1.1.1:3128"
+      #no_proxy: "localhost,127.0.0.1,::1"
     volumes:
     - ./conf/myweb/settings.py:/myweb/myweb/settings.py
+    - ./conf/myweb/uwsgi.ini:/myweb/apps/uwsgi/uwsgi.ini
     - ./logs/:/myweb/logs
+    - static_vol:/myweb/static
     depends_on:
       mysql:
         condition: "service_healthy"
@@ -52,15 +70,16 @@ services:
     - myweb-net
     ports:
     - "8000:8000"
+    - "8001:8001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/admin"]
-      interval: 10s
+      interval: 60s
       timeout: 5s
       retries: 3
       start_period: 60s
-    extra_hosts:
-      - "gitlab.utfinancing.com:192.168.13.213"
-      - "hygw.utfinancing.com:10.5.5.102"
+    #extra_hosts:
+    #  - "xxx.com:1.1.1.1"
+    #  - "xxx.com:2.2.2.2"
 
 networks:
   myweb-net:
@@ -68,3 +87,6 @@ networks:
     #enable_ipv6: true
     ipam:
       driver: default
+
+volumes:
+  static_vol:
