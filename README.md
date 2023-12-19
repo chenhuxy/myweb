@@ -25,7 +25,7 @@
         执行scripts目录下sql脚本
 
        
-3.启动成功，浏览器访问ip：8000/cmdb
+3.启动成功，浏览器访问 ip/cmdb
 
 	用户名：admin
 
@@ -48,6 +48,8 @@
         source venv/bin/activate
          
         pip3 install -r requirements/require.txt
+
+	pip3 install uwsgi==2.0.23
           
 3.安装MySQL
 
@@ -56,6 +58,11 @@
 4.安装Redis
 
         yum install redis -y && systemctl start redis
+
+安装nginx
+
+	yum install nginx -y && systemctl start nginx
+	配置在 myweb/docker-compose/conf/nginx/default.conf
   
 5.修改settings.py中数据库及Redis配置
         
@@ -70,9 +77,13 @@
    
 8.启动server
 
-        nohup python3 manage.py runserver 0.0.0.0:8000 &
+        nohup python3 manage.py runserver 0.0.0.0:8000 &  (websocket访问使用，channel集成在runserver中，所以需要启动)
+
+	uwsgi --ini /myweb/apps/uwsgi/uwsgi.ini   (使用uwsgi启动，替代runserver启动，)
+
+	
    
-9.启动成功，浏览器访问ip：8000/cmdb
+9.启动成功，浏览器访问 nginx  ip/cmdb
 	
 	用户名：admin
 
