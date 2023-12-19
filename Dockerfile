@@ -11,6 +11,6 @@ RUN yum install python3 python3-devel gcc -y --nogpgcheck \
 && chmod +x /myweb/entrypoint.sh \
 && pip3 install uwsgi==2.0.23 \
 && pip3 --trusted-host pypi.tuna.tsinghua.edu.cn install --user -r /myweb/requirements/require.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-EXPOSE 8000
+EXPOSE 8000 8001
 WORKDIR /myweb
 ENTRYPOINT ["./entrypoint.sh"]
