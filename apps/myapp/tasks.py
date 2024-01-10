@@ -311,6 +311,8 @@ def deploy_ssh_remote_exec_cmd(self, ip, port, username, password, cmd):
             num += int(item.strip().split('返回值：')[1])
         if "下载失败" in item:
             num += 1
+        if "ERROR:" in item:
+            num += 1
 
     # 判断任务状态
     if num > 0:
@@ -365,6 +367,8 @@ def deploy_wf_ssh_remote_exec_cmd(self, ip, port, username, password, cmd, unit,
         if "返回值：" in item:
             num += int(item.strip().split('返回值：')[1])
         if "下载失败" in item:
+            num += 1
+        if "ERROR:" in item:
             num += 1
 
     # 判断任务状态

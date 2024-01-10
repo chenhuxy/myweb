@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # _*_ coding:utf-8 _*_
+import datetime
 import signal
 import time
+
+from django.db.models.functions import ExtractYear, ExtractMonth
 
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
 from django.shortcuts import render_to_response
@@ -15,7 +18,7 @@ import os, json
 from django.http import JsonResponse
 from django.core import serializers
 from celery import chord, group, chain
-from django.db.models import Q
+from django.db.models import Q, Count
 from apps.myapp.gitlab_helper import GitTools
 import gitlab
 import paramiko, subprocess
@@ -357,8 +360,8 @@ def deploy_list_add(request, *args, **kwargs):
             # result = tasks.ssh_remote.delay('192.168.38.129', 22, 'root', 'redhat',
             # 'python /root/gitlab/download/OneKeyDeploy.py' + ' ' + proj_id + ' ' + proj_name + ' ' + tag)
             ret = tasks.deploy_ssh_remote_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD,
-                                                  SSH_CMD + ' ' + proj_id + ' ' + proj_name + ' ' + tag + ' ' + str(
-                                                      max_id + 1))
+                                                         SSH_CMD + ' ' + proj_id + ' ' + proj_name + ' ' + tag + ' ' + str(
+                                                             max_id + 1))
 
             # tasks.add_deploy_list_detail.delay(proj_name,tag,result)
 
@@ -504,5 +507,51 @@ def deploy_sum(request, *args, **kwargs):
     # print(data, type(data))
     msg = {'labels': labels, 'login_user': userDict['user'],
            'data': data, }
+    # print(msg)
+    return HttpResponse(json.dumps(msg))
+
+
+@custom_login_required
+def deploy_sum_yearly(request, *args, **kwargs):
+    # 2024/01/09 当前年份数据统计
+    today = datetime.datetime.today()
+    year = today.year
+    # month = today.month
+    # print(today, year, month)
+
+    data_monthly = []
+    '''
+    # update_time__month 查询不到数据
+    for month in range(1, 13):
+        deploy_monthly = models.deploy_list_detail.objects.filter(
+            update_time__year=year, update_time__month=month
+        ).count()
+        data_monthly.append(deploy_monthly)
+    '''
+
+    for i in range(1, 13):
+        if i == 12:
+            start_date = datetime.date(year, i, 1)
+            end_date = datetime.date(year + 1, 1, 1)
+        else:
+            start_date = datetime.date(year, i, 1)
+            end_date = datetime.date(year, i + 1, 1)
+        deploy_monthly = models.deploy_list_detail.objects.filter(update_time__range=(start_date, end_date)).count()
+        # print(deploy_monthly)
+        data_monthly.append(deploy_monthly)
+
+    data_yearly_success = models.deploy_list_detail.objects.filter(update_time__year=year).filter(
+        status='成功').count()
+    data_yearly_fail = models.deploy_list_detail.objects.filter(update_time__year=year).filter(
+        status='失败').count()
+    data_yearly_withdraw = models.deploy_list_detail.objects.filter(update_time__year=year).filter(
+        status='已取消').count()
+
+    userDict = request.session.get('is_login', None)
+
+    msg = {'login_user': userDict['user'], 'data_monthly': data_monthly,
+           'data_yearly_success': data_yearly_success, 'data_yearly_fail': data_yearly_fail,
+           'data_yearly_withdraw': data_yearly_withdraw
+           }
     # print(msg)
     return HttpResponse(json.dumps(msg))
