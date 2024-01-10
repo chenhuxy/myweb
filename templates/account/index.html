@@ -274,6 +274,7 @@ $(document).ready(function () {
                         }
                     }]
                 },
+                /*  通过插件chartjs-plugin-datalabels@0.7.0实现
                 hover: {
                             animationDuration: 0  // 防止鼠标移上去，数字闪烁
                         },
@@ -297,6 +298,7 @@ $(document).ready(function () {
                             });
                       }
                 }
+                */
 
             }
         })
@@ -396,6 +398,7 @@ $(document).ready(function () {
                 //    intersect: false,
                 //    mode: 'index',
                 //},
+                /*  通过插件chartjs-plugin-datalabels@0.7.0实现
                 hover: {
                     animationDuration: 0  // 防止鼠标移上去，数字闪烁
                 },
@@ -419,6 +422,7 @@ $(document).ready(function () {
                             });
                       }
                 }
+                */
 
             }
         });
@@ -462,6 +466,9 @@ $(document).ready(function () {
      * Pie Chart
      */
     var pieChart = $('#pie-chart');
+
+    //var ctx = $('#pie-chart').getContext('2d'); //不生效
+    var ctx = document.getElementById("pie-chart").getContext('2d');
 
     $.ajax({
         type: 'POST',
@@ -522,6 +529,26 @@ $(document).ready(function () {
                     ],
                     borderWidth: 1
                 }]
+            },
+            options: {
+                tooltips: {
+                    //enabled: false
+                    enabled: true
+                },
+                plugins: {
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => {
+                                sum += data;
+                            });
+                            let percentage = (value*100 / sum).toFixed(2)+"%";
+                            return percentage;
+                        },
+                        color: '#fff',
+                    }
+                }
             }
 
         });
