@@ -274,6 +274,13 @@ $(document).ready(function () {
                         }
                     }]
                 },
+                plugins: {
+                    datalabels: {
+                        enabled: true, // 启用 datalabels 插件
+                        //color: '#fff',   //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
+                    }
+                },
                 /*  通过插件chartjs-plugin-datalabels@0.7.0实现
                 hover: {
                             animationDuration: 0  // 防止鼠标移上去，数字闪烁
@@ -393,6 +400,13 @@ $(document).ready(function () {
                             autoSkip: false, //标签太多自动跳过1个，此参数参考chart.js源码6925行修改，默认true
                         }
                     }]
+                },
+                plugins: {
+                    datalabels: {
+                        enabled: true, // 启用 datalabels 插件
+                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        align: 'center', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
+                    }
                 },
                 //tooltips: {
                 //    intersect: false,
@@ -532,11 +546,12 @@ $(document).ready(function () {
             },
             options: {
                 tooltips: {
-                    //enabled: false
-                    enabled: true
+                    //enabled: false,
+                    enabled: true   //鼠标放上显示具体数量
                 },
                 plugins: {
                     datalabels: {
+                        enabled: true, // 启用 datalabels 插件
                         formatter: (value, ctx) => {
                             let sum = 0;
                             let dataArr = ctx.chart.data.datasets[0].data;
@@ -546,7 +561,8 @@ $(document).ready(function () {
                             let percentage = (value*100 / sum).toFixed(2)+"%";
                             return percentage;
                         },
-                        color: '#fff',
+                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        //align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
                     }
                 }
             }

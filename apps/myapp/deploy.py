@@ -516,6 +516,7 @@ def deploy_sum_yearly(request, *args, **kwargs):
     # 2024/01/09 当前年份数据统计
     today = datetime.datetime.today()
     year = today.year
+    # year = 2023
     # month = today.month
     # print(today, year, month)
 
