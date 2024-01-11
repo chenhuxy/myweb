@@ -100,16 +100,48 @@
                 </div>
 
                 <div class="row ">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="card">
                             <div class="card-header">
-                                生产发布统计
+                                当年发布数量统计
                             </div>
 
                             <div class="card-body p-0">
                                 <div class="p-4">
                                     <!--<canvas id="bar-chart" width="100%" height="20"></canvas>-->
-                                    <canvas id="bar-chart" width="100%" height="30"></canvas>
+                                    <canvas id="line-chart" width="100%" height="20"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                当年发布状态统计
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="p-4">
+                                    <!--<canvas id="bar-chart" width="100%" height="20"></canvas>-->
+                                    <canvas id="pie-chart" width="100%" height="20"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row ">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                历史发布统计
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="p-4">
+                                    <!--<canvas id="bar-chart" width="100%" height="20"></canvas>-->
+                                    <canvas id="bar-chart" width="100%" height="20"></canvas>
                                 </div>
 
                                 <!--<div class="p-4">
@@ -183,14 +215,45 @@ $(document).ready(function () {
      */
     var lineChart = $('#line-chart');
 
+    $.ajax({
+        type: 'POST',
+        url:'/cmdb/index/deploy/sum/yearly/',
+        dateType:'json',
+        async: false, //关掉异步方式，避免多个请求还会数据错乱
+        success:function (msg) {
+            //window.parent.location.reload();
+            //$(body).html(msg);
+            //alert('删除成功');
+            msg = JSON.parse(msg);
+            //console.log(msg);
+            //labels_get = msg.labels;
+            //console.log(labels_get);
+            //console.log(typeof(labels_get));
+            data_monthly = msg.data_monthly;
+            //console.log(data_get);
+            //console.log(typeof(data_get));
+            //alert(msg);
+            //for(i=0;i<labels_get.length;i++){
+            //    labels.push(labels_get[i]);
+            //};
+            //for(var i in data_get){
+            //    data_monthly.push(data_get[i]);
+            //};
+            //console.log(labels);
+            //console.log(typeof(labels));
+            //console.log(data);
+            //console.log(typeof(data));
+
     if (lineChart.length > 0) {
         new Chart(lineChart, {
             type: 'line',
             data: {
                 labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                 datasets: [{
-                    label: 'Users',
-                    data: [12, 19, 3, 5, 2, 3, 20, 33, 23, 12, 33, 10],
+                    //label: 'Users',
+                    label: '发布数量',
+                    //data: [120, 19, 3, 5, 2, 3, 20, 33, 23, 12, 33, 10],
+                    data: data_monthly,
                     backgroundColor: 'rgba(66, 165, 245, 0.5)',
                     borderColor: '#2196F3',
                     borderWidth: 1
@@ -198,18 +261,60 @@ $(document).ready(function () {
             },
             options: {
                 legend: {
-                    display: false
+                    //display: false
+                    display: true
                 },
                 scales: {
                     yAxes: [{
                         ticks: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            //display: false,
+                            display: true
+
                         }
                     }]
+                },
+                plugins: {
+                    datalabels: {
+                        enabled: true, // 启用 datalabels 插件
+                        //color: '#fff',   //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
+                    }
+                },
+                /*  通过插件chartjs-plugin-datalabels@0.7.0实现
+                hover: {
+                            animationDuration: 0  // 防止鼠标移上去，数字闪烁
+                        },
+                animation: {           // 这部分是数值显示的功能实现
+                      onComplete: function () {
+                            var chartInstance = this.chart,
+                            barChart = chartInstance.ctx;
+                            //console.log(chartInstance);
+                            //console.log(barChart);
+                            // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                            barChart.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                            barChart.fillStyle = "black";
+                            barChart.textAlign = 'center';
+                            barChart.textBaseline = 'bottom';
+                            this.data.datasets.forEach(function (dataset, i) {
+                                var meta = chartInstance.controller.getDatasetMeta(i);
+                                meta.data.forEach(function (bar, index) {
+                                    var data = dataset.data[index];
+                                    barChart.fillText(data, bar._model.x, bar._model.y-5);
+                                });
+                            });
+                      }
                 }
+                */
+
             }
-        });
+        })
     }
+    },
+    error:function () {
+        alert('服务器异常');
+    }
+    });
 
     /**
      * Bar Chart
@@ -222,6 +327,7 @@ $(document).ready(function () {
         type: 'POST',
         url:'/cmdb/index/deploy/sum/',
         dateType:'json',
+        async: false, //关掉异步方式，避免多个请求还会数据错乱
         success:function (msg) {
             //window.parent.location.reload();
             //$(body).html(msg);
@@ -246,92 +352,100 @@ $(document).ready(function () {
             //console.log(data);
             //console.log(typeof(data));
 
-            if (barChart.length > 0) {
-                new Chart(barChart, {
-                    type: 'bar',
-                    data: {
-                        //labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
+    if (barChart.length > 0) {
+        new Chart(barChart, {
+            type: 'bar',
+            data: {
+                //labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
 
-                        labels: labels,
-                        datasets: [{
-                            label: '发布数量',
-                            //data: [120, 190, 30, 50, 20, 3],
-                            data: data,
-                            backgroundColor: 'rgba(33, 150, 243, 0.5)',
-                            //backgroundColor: [
-                                //'rgba(244, 88, 70, 0.5)',
-                                //'rgba(33, 150, 243, 0.5)',
-                                //'rgba(0, 188, 212, 0.5)',
-                                //'rgba(42, 185, 127, 0.5)',
-                                //'rgba(156, 39, 176, 0.5)',
-                                //'rgba(253, 178, 68, 0.5)'
-                            //],
-                            borderColor: '#2196F3',
-                            //borderColor: [
-                                //'#F45846',
-                                //'#2196F3',
-                                //'#00BCD4',
-                                //'#2ab97f',
-                                //'#9C27B0',
-                                //'#fdb244'
-                            //],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        legend: {
-                            display: true
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true,
-                                    display: true,
-                                }
-                            }],
-                            xAxes: [{
-                                ticks: {
-                                    autoSkip: false, //标签太多自动跳过1个，此参数参考chart.js源码6925行修改，默认true
-                                }
-                            }]
-                        },
-                        //tooltips: {
-                        //    intersect: false,
-                        //    mode: 'index',
-                        //},
-                        hover: {
-                            animationDuration: 0  // 防止鼠标移上去，数字闪烁
-                        },
-                        animation: {           // 这部分是数值显示的功能实现
-                              onComplete: function () {
-                                    var chartInstance = this.chart,
-                                    barChart = chartInstance.ctx;
-                                    //console.log(chartInstance);
-                                    //console.log(barChart);
-                                    // 以下属于canvas的属性（font、fillStyle、textAlign...）
-                                    barChart.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
-                                    barChart.fillStyle = "black";
-                                    barChart.textAlign = 'center';
-                                    barChart.textBaseline = 'bottom';
-                                    this.data.datasets.forEach(function (dataset, i) {
-                                        var meta = chartInstance.controller.getDatasetMeta(i);
-                                        meta.data.forEach(function (bar, index) {
-                                            var data = dataset.data[index];
-                                            barChart.fillText(data, bar._model.x, bar._model.y-5);
-                                        });
-                                    });
-                              }
+                labels: labels,
+                datasets: [{
+                    label: '发布数量',
+                    //data: [120, 190, 30, 50, 20, 3],
+                    data: data,
+                    backgroundColor: 'rgba(33, 150, 243, 0.5)',
+                    //backgroundColor: [
+                        //'rgba(244, 88, 70, 0.5)',
+                        //'rgba(33, 150, 243, 0.5)',
+                        //'rgba(0, 188, 212, 0.5)',
+                        //'rgba(42, 185, 127, 0.5)',
+                        //'rgba(156, 39, 176, 0.5)',
+                        //'rgba(253, 178, 68, 0.5)'
+                    //],
+                    borderColor: '#2196F3',
+                    //borderColor: [
+                        //'#F45846',
+                        //'#2196F3',
+                        //'#00BCD4',
+                        //'#2ab97f',
+                        //'#9C27B0',
+                        //'#fdb244'
+                    //],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                legend: {
+                    display: true
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            display: true,
                         }
-
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            autoSkip: false, //标签太多自动跳过1个，此参数参考chart.js源码6925行修改，默认true
+                        }
+                    }]
+                },
+                plugins: {
+                    datalabels: {
+                        enabled: true, // 启用 datalabels 插件
+                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        align: 'center', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
                     }
-                });
+                },
+                //tooltips: {
+                //    intersect: false,
+                //    mode: 'index',
+                //},
+                /*  通过插件chartjs-plugin-datalabels@0.7.0实现
+                hover: {
+                    animationDuration: 0  // 防止鼠标移上去，数字闪烁
+                },
+                animation: {           // 这部分是数值显示的功能实现
+                      onComplete: function () {
+                            var chartInstance = this.chart,
+                            barChart = chartInstance.ctx;
+                            //console.log(chartInstance);
+                            //console.log(barChart);
+                            // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                            barChart.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                            barChart.fillStyle = "black";
+                            barChart.textAlign = 'center';
+                            barChart.textBaseline = 'bottom';
+                            this.data.datasets.forEach(function (dataset, i) {
+                                var meta = chartInstance.controller.getDatasetMeta(i);
+                                meta.data.forEach(function (bar, index) {
+                                    var data = dataset.data[index];
+                                    barChart.fillText(data, bar._model.x, bar._model.y-5);
+                                });
+                            });
+                      }
+                }
+                */
+
             }
+        });
+    }
 
-
-        },
-        error:function () {
-            alert('服务器异常');
-        }
+    },
+    error:function () {
+        alert('服务器异常');
+    }
     });
 
 
@@ -367,35 +481,100 @@ $(document).ready(function () {
      */
     var pieChart = $('#pie-chart');
 
+    //var ctx = $('#pie-chart').getContext('2d'); //不生效
+    var ctx = document.getElementById("pie-chart").getContext('2d');
+
+    $.ajax({
+        type: 'POST',
+        url:'/cmdb/index/deploy/sum/yearly/',
+        dateType:'json',
+        success:function (msg) {
+            //window.parent.location.reload();
+            //$(body).html(msg);
+            //alert('删除成功');
+            msg = JSON.parse(msg);
+            //console.log(msg);
+            //labels_get = msg.labels;
+            //console.log(labels_get);
+            //console.log(typeof(labels_get));
+            data_get_success = msg.data_yearly_success;
+            data_get_fail = msg.data_yearly_fail;
+            data_get_withdraw = msg.data_yearly_withdraw;
+            console.log(data_get_success,data_get_fail,data_get_withdraw);
+            //console.log(data_get);
+            //console.log(typeof(data_get));
+            //alert(msg);
+            //for(i=0;i<labels_get.length;i++){
+            //    labels.push(labels_get[i]);
+            //};
+            //for(var i in data_get){
+            //    data_monthly.push(data_get[i]);
+            //};
+            //console.log(labels);
+            //console.log(typeof(labels));
+            //console.log(data);
+            //console.log(typeof(data));
+
+
     if (pieChart.length > 0) {
         new Chart(pieChart, {
             type: 'pie',
             data: {
-                labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
+                //labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
+                labels: ["失败", "成功", "取消"],
                 datasets: [{
-                    label: 'Users',
-                    data: [100, 45, 87, 50, 77, 20],
+                    label: '发布状态',
+                    data: [data_get_fail, data_get_success, data_get_withdraw],
                     backgroundColor: [
                         'rgba(244, 88, 70, 0.5)',
-                        'rgba(33, 150, 243, 0.5)',
-                        'rgba(0, 188, 212, 0.5)',
+                        /*'rgba(33, 150, 243, 0.5)',
+                        'rgba(0, 188, 212, 0.5)',*/
                         'rgba(42, 185, 127, 0.5)',
-                        'rgba(156, 39, 176, 0.5)',
+                        /*'rgba(156, 39, 176, 0.5)',*/
                         'rgba(253, 178, 68, 0.5)'
                     ],
                     borderColor: [
                         'rgba(244, 88, 70, 0.5)',
-                        'rgba(33, 150, 243, 0.5)',
-                        'rgba(0, 188, 212, 0.5)',
+                        /*'rgba(33, 150, 243, 0.5)',
+                        'rgba(0, 188, 212, 0.5)',*/
                         'rgba(42, 185, 127, 0.5)',
-                        'rgba(156, 39, 176, 0.5)',
+                        /*'rgba(156, 39, 176, 0.5)',*/
                         'rgba(253, 178, 68, 0.5)'
                     ],
                     borderWidth: 1
                 }]
+            },
+            options: {
+                tooltips: {
+                    //enabled: false,
+                    enabled: true   //鼠标放上显示具体数量
+                },
+                plugins: {
+                    datalabels: {
+                        enabled: true, // 启用 datalabels 插件
+                        formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => {
+                                sum += data;
+                            });
+                            let percentage = (value*100 / sum).toFixed(2)+"%";
+                            return percentage;
+                        },
+                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        //align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
+                    }
+                }
             }
+
         });
     }
+
+    },
+    error:function () {
+        alert('服务器异常');
+    }
+    });
 
     /**
      * Widget Line Chart

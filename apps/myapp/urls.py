@@ -127,6 +127,7 @@ urlpatterns = [
     # task-deploy-------------------------------------------------------------------------------------------------------
 
     path('index/deploy/sum/', deploy.deploy_sum, ),
+    path('index/deploy/sum/yearly/', deploy.deploy_sum_yearly, ),
     path('index/deploy/scripttype/list/', deploy.deploy_script_type, ),
     path('index/deploy/scripttype/form_add/', deploy.deploy_script_type_form_add, ),
     url(r'^index/deploy/scripttype/form_update/id=(?P<id>\d*)', deploy.deploy_script_type_form_update, ),
