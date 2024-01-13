@@ -277,14 +277,39 @@ $(document).ready(function () {
                 plugins: {
                     datalabels: {
                         enabled: true, // 启用 datalabels 插件
-                        //color: '#fff',   //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        formatter: (value, ctx) => {
+                            /* 值为0 不显示百分比*/
+                            if (value > 0){
+                                let sum = 0;
+                                let dataArr = ctx.chart.data.datasets[0].data;
+                                //console.log(dataArr,typeof dataArr);
+                                //console.log(value,typeof value);
+                                //console.log(dataArr.length);
+                                /*
+                                dataArr = dataArr.filter(function(item){
+                                    return item !== 0
+                                });
+                                */
+                                //console.log(dataArr);
+                                dataArr.map(data => {
+                                    sum += data;
+                                });
+
+                                let percentage = (value*100 / sum).toFixed(2)+"%";
+                                return percentage;
+                                }
+                            else{
+                                return "";
+                                }
+                        },
+                        color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
                         align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
                     }
                 },
-                /*  通过插件chartjs-plugin-datalabels@0.7.0实现
+                ///*  通过插件chartjs-plugin-datalabels@0.7.0实现
                 hover: {
-                            animationDuration: 0  // 防止鼠标移上去，数字闪烁
-                        },
+                    animationDuration: 0  // 防止鼠标移上去，数字闪烁
+                },
                 animation: {           // 这部分是数值显示的功能实现
                       onComplete: function () {
                             var chartInstance = this.chart,
@@ -292,7 +317,11 @@ $(document).ready(function () {
                             //console.log(chartInstance);
                             //console.log(barChart);
                             // 以下属于canvas的属性（font、fillStyle、textAlign...）
-                            barChart.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                            barChart.font = Chart.helpers.fontString(
+                                Chart.defaults.global.defaultFontSize,
+                                Chart.defaults.global.defaultFontStyle,
+                                Chart.defaults.global.defaultFontFamily
+                            );
                             barChart.fillStyle = "black";
                             barChart.textAlign = 'center';
                             barChart.textBaseline = 'bottom';
@@ -300,13 +329,20 @@ $(document).ready(function () {
                                 var meta = chartInstance.controller.getDatasetMeta(i);
                                 meta.data.forEach(function (bar, index) {
                                     var data = dataset.data[index];
-                                    barChart.fillText(data, bar._model.x, bar._model.y-5);
+                                    //console.log(data);
+                                    /* 值为0 不显示数值*/
+                                    if (data > 0){
+                                        barChart.fillText(data, bar._model.x, bar._model.y-5);
+                                    }
+                                    else{
+                                        barChart.fillText("", bar._model.x, bar._model.y-5);
+                                    };
+
                                 });
                             });
                       }
                 }
-                */
-
+                //*/
             }
         })
     }
@@ -404,15 +440,40 @@ $(document).ready(function () {
                 plugins: {
                     datalabels: {
                         enabled: true, // 启用 datalabels 插件
-                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
-                        align: 'center', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
+                        formatter: (value, ctx) => {
+                            /* 值为0 不显示百分比*/
+                            if (value > 0){
+                                let sum = 0;
+                                let dataArr = ctx.chart.data.datasets[0].data;
+                                //console.log(dataArr,typeof dataArr);
+                                //console.log(value,typeof value);
+                                //console.log(dataArr.length);
+                                /*
+                                dataArr = dataArr.filter(function(item){
+                                    return item !== 0
+                                });
+                                */
+                                //console.log(dataArr);
+                                dataArr.map(data => {
+                                    sum += data;
+                                });
+
+                                let percentage = (value*100 / sum).toFixed(2)+"%";
+                                return percentage;
+                                }
+                            else{
+                                return "";
+                                }
+                        },
+                        color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        //align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
                     }
                 },
                 //tooltips: {
                 //    intersect: false,
                 //    mode: 'index',
                 //},
-                /*  通过插件chartjs-plugin-datalabels@0.7.0实现
+                ///*  通过插件chartjs-plugin-datalabels@0.7.0实现
                 hover: {
                     animationDuration: 0  // 防止鼠标移上去，数字闪烁
                 },
@@ -423,7 +484,11 @@ $(document).ready(function () {
                             //console.log(chartInstance);
                             //console.log(barChart);
                             // 以下属于canvas的属性（font、fillStyle、textAlign...）
-                            barChart.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                            barChart.font = Chart.helpers.fontString(
+                                Chart.defaults.global.defaultFontSize,
+                                Chart.defaults.global.defaultFontStyle,
+                                Chart.defaults.global.defaultFontFamily
+                            );
                             barChart.fillStyle = "black";
                             barChart.textAlign = 'center';
                             barChart.textBaseline = 'bottom';
@@ -431,12 +496,20 @@ $(document).ready(function () {
                                 var meta = chartInstance.controller.getDatasetMeta(i);
                                 meta.data.forEach(function (bar, index) {
                                     var data = dataset.data[index];
-                                    barChart.fillText(data, bar._model.x, bar._model.y-5);
+                                    //console.log(data);
+                                    /* 值为0 不显示数值*/
+                                    if (data > 0){
+                                        barChart.fillText(data, bar._model.x, bar._model.y-5);
+                                    }
+                                    else{
+                                        barChart.fillText("", bar._model.x, bar._model.y-5);
+                                    };
+
                                 });
                             });
                       }
                 }
-                */
+                //*/
 
             }
         });
@@ -553,15 +626,31 @@ $(document).ready(function () {
                     datalabels: {
                         enabled: true, // 启用 datalabels 插件
                         formatter: (value, ctx) => {
-                            let sum = 0;
-                            let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.map(data => {
-                                sum += data;
-                            });
-                            let percentage = (value*100 / sum).toFixed(2)+"%";
-                            return percentage;
+                            /* 值为0 不显示百分比*/
+                            if (value > 0){
+                                let sum = 0;
+                                let dataArr = ctx.chart.data.datasets[0].data;
+                                //console.log(dataArr,typeof dataArr);
+                                //console.log(value,typeof value);
+                                //console.log(dataArr.length);
+                                /*
+                                dataArr = dataArr.filter(function(item){
+                                    return item !== 0
+                                });
+                                */
+                                //console.log(dataArr);
+                                dataArr.map(data => {
+                                    sum += data;
+                                });
+
+                                let percentage = (value*100 / sum).toFixed(2)+"%";
+                                return percentage;
+                                }
+                            else{
+                                return "";
+                                }
                         },
-                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
                         //align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
                     }
                 }
