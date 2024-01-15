@@ -246,7 +246,8 @@ $(document).ready(function () {
 
     if (lineChart.length > 0) {
         new Chart(lineChart, {
-            type: 'line',
+            //type: 'line',
+            type: 'bar',
             data: {
                 labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                 datasets: [{
@@ -264,14 +265,37 @@ $(document).ready(function () {
                     //display: false
                     display: true
                 },
+                tooltips: {
+                    /*
+                    displayMode: 'label',
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+                        var label = data.labels[tooltipItem.index];
+                        var keep_len = 5;
+                        if (label.length > keep_len) {
+                          label = label.substring(0, keep_len) + '...';
+                        }
+                        return label;
+                      }
+                    }
+                    */
+                    //mode: 'index',
+                    //displayMode: 'data',
+                    /* 'label'：tooltip 只显示标签文本。
+                        'dataset'：tooltip 显示与数据集相关的信息，如数据集名称、数据点值等。
+                        'data'：tooltip 显示与数据点相关的信息，如数据点的值、标签等。
+                        'x-axis'：tooltip 显示与 x 轴相关的信息，如 x 轴标签、值等。
+                        'y-axis'：tooltip 显示与 y 轴相关的信息，如 y 轴标签、值等。
+                    */
+                    intersect: false, // 确保 tooltip 始终可见，而不管鼠标是否在数据点上
+                },
                 scales: {
                     yAxes: [{
                         ticks: {
                             beginAtZero: true,
                             //display: false,
-                            display: true
-
-                        }
+                            display: true,
+                        },
                     }]
                 },
                 plugins: {
@@ -302,8 +326,11 @@ $(document).ready(function () {
                                 return "";
                                 }
                         },
-                        color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
-                        align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
+                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        //align: 'bottom', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
+                        //offset: {
+                        //  y: 10, // 设置 y 轴的偏移量，将数据标签向上移动
+                        //}
                     }
                 },
                 ///*  通过插件chartjs-plugin-datalabels@0.7.0实现
@@ -377,9 +404,20 @@ $(document).ready(function () {
             //console.log(data_get);
             //console.log(typeof(data_get));
             //alert(msg);
+            //labels_fmt = [];
+            //keep_len = 5;
             for(i=0;i<labels_get.length;i++){
-                labels.push(labels_get[i]);
-            };
+            /*
+                //检查标签长度，如果超过一定长度则截断并添加省略号
+                  if (labels_get[i].length > keep_len) {
+                    labels_fmt[i] = labels_get[i].substring(0, keep_len) + '...';
+                  } else {
+                    labels_fmt[i] =  labels_get[i]; // 返回原始标签文本
+                  }
+                  labels.push(labels_fmt[i]);
+            */
+                  labels.push(labels_get[i]);
+                };
             for(var i in data_get){
                 data.push(data_get[i]);
             };
@@ -393,7 +431,6 @@ $(document).ready(function () {
             type: 'bar',
             data: {
                 //labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
-
                 labels: labels,
                 datasets: [{
                     label: '发布数量',
@@ -424,6 +461,34 @@ $(document).ready(function () {
                 legend: {
                     display: true
                 },
+                tooltips: {
+                    /*
+                    displayMode: 'label',
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+                        var label = data.labels[tooltipItem.index];
+                        var keep_len = 5;
+                        if (label.length > keep_len) {
+                          label = label.substring(0, keep_len) + '...';
+                        }
+                        return label;
+                      }
+                    }
+                    */
+                    mode: 'index',
+                    //displayMode: 'data',
+                    intersect: false, // 确保 tooltip 始终可见，而不管鼠标是否在数据点上
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                          var value = data.labels[tooltipItem.index];
+                          if (value.length > tooltipItem.width) {
+                            value = value.substring(0, tooltipItem.width) + '...'; // 截断超出部分的文本
+                          }
+                          //console.log(tooltipItem);
+                          return value; // 返回完整的标签文本（或截断后的文本）
+                        }
+                    }
+                },
                 scales: {
                     yAxes: [{
                         ticks: {
@@ -434,7 +499,18 @@ $(document).ready(function () {
                     xAxes: [{
                         ticks: {
                             autoSkip: false, //标签太多自动跳过1个，此参数参考chart.js源码6925行修改，默认true
-                        }
+                            maxRotation: 0, //刻度标签的最大旋转角度为50度,此参数参考chart.js源码6925行
+                            callback: function(value, index, values) {
+                                // 定义截取字符串长度
+                                var keep_len = 5;
+                                // 检查标签长度，如果超过一定长度则截断并添加省略号
+                                if (value.length > keep_len) {
+                                  return value.substring(0, keep_len) + '...'; // 截断标签并添加省略号
+                                } else {
+                                  return value; // 返回原始标签文本
+                                }
+                              }
+                        },
                     }]
                 },
                 plugins: {
@@ -465,7 +541,8 @@ $(document).ready(function () {
                                 return "";
                                 }
                         },
-                        color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        //color: '#2ab97f' //绿色
                         //align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
                     }
                 },
@@ -573,7 +650,7 @@ $(document).ready(function () {
             data_get_success = msg.data_yearly_success;
             data_get_fail = msg.data_yearly_fail;
             data_get_withdraw = msg.data_yearly_withdraw;
-            console.log(data_get_success,data_get_fail,data_get_withdraw);
+            //console.log(data_get_success,data_get_fail,data_get_withdraw);
             //console.log(data_get);
             //console.log(typeof(data_get));
             //alert(msg);
@@ -596,7 +673,7 @@ $(document).ready(function () {
                 //labels: ["Red", "Blue", "Cyan", "Green", "Purple", "Orange"],
                 labels: ["失败", "成功", "取消"],
                 datasets: [{
-                    label: '发布状态',
+                    label: ["失败", "成功", "取消"],
                     data: [data_get_fail, data_get_success, data_get_withdraw],
                     backgroundColor: [
                         'rgba(244, 88, 70, 0.5)',
@@ -614,13 +691,13 @@ $(document).ready(function () {
                         /*'rgba(156, 39, 176, 0.5)',*/
                         'rgba(253, 178, 68, 0.5)'
                     ],
-                    borderWidth: 1
+                    borderWidth: 1,
                 }]
             },
             options: {
                 tooltips: {
                     //enabled: false,
-                    enabled: true   //鼠标放上显示具体数量
+                    enabled: true,   //鼠标放上显示具体数量
                 },
                 plugins: {
                     datalabels: {
@@ -650,10 +727,49 @@ $(document).ready(function () {
                                 return "";
                                 }
                         },
-                        color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
+                        //color: '#fff',  //默认字体颜色黑色，白色背景设置为白色看不到字体
                         //align: 'top', // 设置为 'top' 以将数据标签放置在图形的顶部 （来自百度文心一言）
                     }
+                },
+                ///*  通过插件chartjs-plugin-datalabels@0.7.0实现
+                hover: {
+                    animationDuration: 0  // 防止鼠标移上去，数字闪烁
+                },
+                animation: {           // 这部分是数值显示的功能实现
+                      onComplete: function () {
+                            var chartInstance = this.chart,
+                            barChart = chartInstance.ctx;
+                            //console.log(chartInstance);
+                            //console.log(barChart);
+                            // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                            barChart.font = Chart.helpers.fontString(
+                                Chart.defaults.global.defaultFontSize,
+                                Chart.defaults.global.defaultFontStyle,
+                                Chart.defaults.global.defaultFontFamily
+                            );
+                            barChart.fillStyle = "black";
+                            barChart.textAlign = 'center';
+                            barChart.textBaseline = 'bottom';
+                            this.data.datasets.forEach(function (dataset, i) {
+                                var meta = chartInstance.controller.getDatasetMeta(i);
+                                meta.data.forEach(function (bar, index) {
+                                    var data = dataset.data[index];
+                                    var label = dataset.label[index]; // 获取数据集的标签
+                                    //console.log(data, label); // 打印数据和标签
+                                    /* 值为0 不显示数值*/
+                                    if (data > 0){
+                                        barChart.fillText(label + "：" + data, bar._model.x+100, bar._model.y+20*index);
+                                    }
+                                    else{
+                                        barChart.fillText("", bar._model.x, bar._model.y-5);
+                                    };
+
+                                });
+                            });
+                      }
                 }
+                //*/
+
             }
 
         });
