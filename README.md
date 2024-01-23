@@ -11,6 +11,8 @@
 ![image](pictures/应用列表.jpg)
 ![image](pictures/发布列表.jpg)
 ![image](pictures/发布日志.jpg)
+![image](pictures/skywalking.jpg)
+![image](pictures/prometheus.jpg)
 
 ### 安装方式及步骤：
    
