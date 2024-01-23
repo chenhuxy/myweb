@@ -76,7 +76,8 @@ urlpatterns = [
     # monitor-----------------------------------------------------------------------------------------------------------
 
     path('index/monitor/zabbix/alert/list/', zabbix.zabbix_trigger, ),
-    path('index/monitor/skywalking/alert/send/', skywalking.send_mail, ),
+    path('index/monitor/skywalking/alert/send/', skywalking.send_alert, ),
+    path('index/monitor/prometheus/alert/send/', prometheus.send_alert, ),
     path('index/monitor/gitlab/', gitlab_helper.git_project, ),
     url(r'^index/monitor/prometheus/alert/list/(?P<page>\d*)', prometheus.prometheus_alert,
         ),
