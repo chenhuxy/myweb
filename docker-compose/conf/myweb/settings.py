@@ -395,10 +395,10 @@ SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗�
 SKYWALKING_DINGTALK_WEBHOOK_URL = 'https://oapi.dingtalk.com/robot/send?access_token=xxx'
 # 测试
 # SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-# "SKYWALKING_WELINK_UUID": "181778b68d784679ac3d71d5a09fec86"
+# SKYWALKING_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
 # 生产
 SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-SKYWALKING_WELINK_UUID: "ab1c18520f2b4728bee5943b2a3e9046"
+SKYWALKING_WELINK_UUID = "ab1c18520f2b4728bee5943b2a3e9046"
 
 # secret
 API_SECRET = 'yYEtEMvGMVmCaxpOWIjOWjtvTk'
