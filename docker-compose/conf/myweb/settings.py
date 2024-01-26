@@ -342,6 +342,13 @@ ZABBIX_PASSWORD = 'xxx'
 PROM_URL = 'http://xxx'
 PROM_USER = 'xxx'
 PROM_PASSWROD = 'xxx'
+PROM_DINGTALK_WEBHOOK_URL = 'https://oapi.dingtalk.com/robot/send?access_token=xxx'
+# 测试
+# PROM_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
+# PROM_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
+# 生产
+PROM_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
+PROM_WELINK_UUID = "efe21978936a4122bdb2b8fa73b3bc88"
 
 # gitlab配置
 GITLAB_URL = 'http://xxx'
@@ -383,8 +390,15 @@ ACTIVE_EMAIL_SUBJECT = '【运维发布系统账号激活邮件】'
 VERIFY_CODE_EMAIL_SUBJECT = '【运维发布系统找回密码邮件】'
 
 # SKYWALKING_EMAIL 配置
-SKYWALKING_EMAIL_SUBJECT = 'Skywalking链路监控告警'
+SKYWALKING_EMAIL_SUBJECT = '【Skywalking链路监控告警】'
 SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗号分割
+SKYWALKING_DINGTALK_WEBHOOK_URL = 'https://oapi.dingtalk.com/robot/send?access_token=xxx'
+# 测试
+# SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
+# SKYWALKING_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
+# 生产
+SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
+SKYWALKING_WELINK_UUID = "ab1c18520f2b4728bee5943b2a3e9046"
 
 # secret
 API_SECRET = 'yYEtEMvGMVmCaxpOWIjOWjtvTk'
