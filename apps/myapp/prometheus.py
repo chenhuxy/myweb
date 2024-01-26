@@ -104,7 +104,7 @@ def send_alert(request, *args, **kwargs):
         print("=" * 60)
 
         # 生成格式化内容
-        formatted_content = f"告警状态： {alert_status}\n\n"
+        formatted_content = f"告警状态： {alert_status.upper()}\n\n"
         formatted_content += f"告警名称： {alert_labels['alertname']}\n\n"
         formatted_content += f"告警级别： {alert_labels['severity']}\n\n"
         formatted_content += f"实例地址： {alert_labels['instance']}\n\n"
@@ -151,17 +151,20 @@ def send_alert(request, *args, **kwargs):
         }
 
         try:
+            ret_dict = {}
             '''
             # 钉钉
-            r = requests.post(PROM_DINGTALK_WEBHOOK_URL, json=data, headers=headers)
+            ret_dingtalk = requests.post(PROM_DINGTALK_WEBHOOK_URL, json=data, headers=headers)
+            # print(ret_dingtalk.text)
             '''
             # weLink
-            r = requests.post(PROM_WELINK_WEBHOOK_URL, json=data, headers=headers)
+            ret_welink = requests.post(PROM_WELINK_WEBHOOK_URL, json=data, headers=headers)
+            # print(ret_welink.text)
 
-            # print(r.text)
-            status_webhook = r.text
+            # ret_dict["ret_dingtalk"] = ret_dingtalk.text
+            ret_dict["ret_welink"] = ret_welink.text
+
+            return HttpResponse(json.dumps(ret_dict))
         except Exception as e:
-            status_webhook = e
-        # print(status_webhook)
-
-    return HttpResponse("webhook：" + status_webhook)
+            # print(e)
+            return HttpResponse(e)

@@ -390,7 +390,7 @@ ACTIVE_EMAIL_SUBJECT = '【运维发布系统账号激活邮件】'
 VERIFY_CODE_EMAIL_SUBJECT = '【运维发布系统找回密码邮件】'
 
 # SKYWALKING_EMAIL 配置
-SKYWALKING_EMAIL_SUBJECT = 'Skywalking链路监控告警'
+SKYWALKING_EMAIL_SUBJECT = '【Skywalking链路监控告警】'
 SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗号分割
 SKYWALKING_DINGTALK_WEBHOOK_URL = 'https://oapi.dingtalk.com/robot/send?access_token=xxx'
 # 测试

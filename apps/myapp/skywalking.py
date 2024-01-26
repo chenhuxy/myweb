@@ -14,18 +14,19 @@ import time
 # 2024/1/17 增加webhook告警
 def send_alert(request, *args, **kwargs):
     # 将 JSON 数据解析为 Python 字典
-    info = json.loads(request.body.decode())
+    data_dict = json.loads(request.body.decode())
     # 打印原始信息
     print("=" * 60)
-    print("info：", info, type(info))
+    print("data_dict：", data_dict, type(data_dict))
 
-    for i in info:
-        alter_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(i["startTime"]) / 1000))
-        content = """警告时间：%s \n\n警告类型：%s \n\n服务名称：%s \n\n规则名称：%s \n\n详细内容：%s""" % (
-            alter_time, i["scope"], i["name"], i["ruleName"], i["alarmMessage"])
-        print(content)
-        # 发送邮件
-        msg = MIMEText(content, "plain", 'utf-8')
+    for alert in data_dict:
+        alter_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(alert["startTime"]) / 1000))
+        formatted_content = """警告时间：%s \n\n警告类型：%s \n\n服务名称：%s \n\n规则名称：%s \n\n详细内容：%s""" % (
+            alter_time, alert["scope"], alert["name"], alert["ruleName"], alert["alarmMessage"])
+        print("formatted_content：", formatted_content)
+
+        # 发送邮件配置
+        msg = MIMEText(formatted_content, "plain", 'utf-8')
         msg['Subject'] = SKYWALKING_EMAIL_SUBJECT
         msg['From'] = EMAIL_SEND_FROM
         msg['To'] = SKYWALKING_EMAIL_RECEIVER
@@ -33,20 +34,14 @@ def send_alert(request, *args, **kwargs):
         smtp.connect(EMAIL_HOST)
         smtp.login(user=EMAIL_HOST_USER, password=EMAIL_HOST_PASSWORD)
 
-        try:
-            status_email = smtp.sendmail(EMAIL_SEND_FROM, SKYWALKING_EMAIL_RECEIVER.split(','), msg.as_string())
-        except Exception as e:
-            status_email = e
-        # print(status_email)
-
-        # webhook告警
+        # webhook告警配置
         '''
         # 钉钉
         data = {
             "msgtype": "markdown",
             "markdown": {
-                "title": "【Skywalking监控告警】 " + i['name'],
-                "text": content
+                "title": "【Skywalking监控告警】 " + alert['name'],
+                "text": formatted_content
             }
         }
         headers = {"Content-Type": "application/json"}
@@ -56,9 +51,9 @@ def send_alert(request, *args, **kwargs):
         data = {
             "messageType": "text",
             "content": {
-                "text": content,
+                "text": formatted_content,
             },
-            # "timeStamp": i["startTime"],
+            # "timeStamp": alert["startTime"],
             "timeStamp": timestamp,
             # 测试
             # "uuid": SKYWALKING_WELINK_UUID,
@@ -72,18 +67,26 @@ def send_alert(request, *args, **kwargs):
         }
 
         try:
+            ret_dict = {}
+            # Email告警发送
+            # Email
+            ret_email = smtp.sendmail(msg['From'], msg['To'].split(','), msg.as_string())
+            # print(ret_email)
+            # webhook告警发送
             '''
             # 钉钉
-            r = requests.post(SKYWALKING_DINGTALK_WEBHOOK_URL, json=data, headers=headers)
+            ret_dingtalk = requests.post(SKYWALKING_DINGTALK_WEBHOOK_URL, json=data, headers=headers)
+            # print(ret_dingtalk.text)
             '''
             # weLink
-            r = requests.post(SKYWALKING_WELINK_WEBHOOK_URL, json=data, headers=headers)
+            ret_welink = requests.post(SKYWALKING_WELINK_WEBHOOK_URL, json=data, headers=headers)
+            # print(ret_welink.text)
 
-            # print(r.text)
-            status_webhook = r.text
+            # ret_dict["ret_dingtalk"] = ret_dingtalk.text
+            ret_dict["ret_email"] = ret_email
+            ret_dict["ret_welink"] = ret_welink.text
+
+            return HttpResponse(json.dumps(ret_dict))
         except Exception as e:
-            status_webhook = e
-    # print(status_webhook)
-
-    return HttpResponse("webhook：" + status_webhook)
-    # return HttpResponse("邮件：" + status_email, "webhook：" + status_webhook)
+            # print(e)
+            return HttpResponse(e)
