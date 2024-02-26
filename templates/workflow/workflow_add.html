@@ -62,7 +62,7 @@
                                             <label for="single-select2" class="require">发版服务</label>
                                             <select id="single-select2" class="form-control" name="proj_name">
                                                 <option value="0">------------- 请选择 -------------</option>
-                                                {% for item in wf_type %}
+                                                {% for item in WorkflowType %}
                                                 <option value={{item.id}}>{{item.name}}</option>
                                                 {% endfor %}
                                             </select>
@@ -77,7 +77,7 @@
                                             <label for="single-select3" class="require">发版tag</label>
                                             <select id="single-select3" class="form-control" name="tag">
                                                 <option value="0">------------- 请选择 -------------</option>
-                                                {% for item in wf_type %}
+                                                {% for item in WorkflowType %}
                                                 <option value={{item.id}}>{{item.name}}</option>
                                                 {% endfor %}
                                             </select>

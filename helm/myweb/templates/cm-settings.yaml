@@ -244,7 +244,7 @@ data:
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-    STATIC_URL = '/static/'
+    STATIC_URL = '/cmdb/static/'
     '''
     # settings中debug开启时，加载静态文件使用
     STATICFILES_DIRS = [
