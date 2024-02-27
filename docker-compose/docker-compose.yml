@@ -44,13 +44,13 @@ services:
     - "80:80"
     volumes:
     - ./conf/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    - static_vol:/usr/share/nginx/html/static
+    - static_vol:/usr/share/nginx/html/cmdb/static
     depends_on:
       myweb:
         condition: "service_healthy"
 
   myweb:
-    image: chenhuxy/myweb:v2.4.4
+    image: chenhuxy/myweb:v2.5.0
     environment:
       LANG: "en_US.utf8"
       #http_proxy: "http://1.1.1.1:3128"
