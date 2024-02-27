@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "myweb.fullname" . }}
+  labels:
+    {{- include "myweb.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 8001
+      targetPort: uwsgi
+      protocol: TCP
+      name: uwsgi
+    - name: django
+      targetPort: django
+      protocol: TCP
+      port: {{ .Values.service.port }}
+  selector:
+    {{- include "myweb.selectorLabels" . | nindent 4 }}

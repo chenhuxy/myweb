@@ -29,6 +29,6 @@ urlpatterns = [
                   # url(r'^api/',include('apps.app01.urls')),
 
                   # settings中debug关闭时，加载静态文件使用
-                  url(r'^static/(?P<path>.*)', serve, {'document_root': settings.STATIC_ROOT}, name='static'),
+                  url(r'^cmdb/static/(?P<path>.*)', serve, {'document_root': settings.STATIC_ROOT}, name='static'),
 
               ]

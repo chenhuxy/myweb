@@ -1,14 +1,15 @@
 <!doctype html>
 <html lang="en">
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Carbon - Admin Template</title>
-    <link rel="stylesheet" href="/static/dist/vendor/simple-line-icons/css/simple-line-icons.css">
-    <link rel="stylesheet" href="/static/dist/vendor/font-awesome/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="/static/dist/css/styles.css">
-    <link rel="stylesheet" href="/static/dist/css/footer.css">
+    <link rel="stylesheet" href='{% static "myweb/dist/vendor/simple-line-icons/css/simple-line-icons.css" %}'>
+    <link rel="stylesheet" href='{% static "myweb/dist/vendor/font-awesome/css/fontawesome-all.min.css" %}'>
+    <link rel="stylesheet" href='{% static "myweb/dist/css/styles.css" %}'>
+    <link rel="stylesheet" href='{% static "myweb/dist/css/footer.css" %}'>
     <style>
     </style>
 </head>
@@ -21,7 +22,7 @@
             </a>
 
             <a class="navbar-brand" href="#">
-                <img src="/static/dist/imgs/logo.png" alt="logo">
+                <img src='{% static "myweb/dist/imgs/logo.png" %}' alt="logo">
             </a>
 
             <a href="#" class="btn btn-link sidebar-toggle d-md-down-none">
@@ -45,7 +46,7 @@
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <img src="/static/dist/imgs/avatar-1.png" class="avatar avatar-sm" alt="logo">
+                        <img src='{% static "myweb/dist/imgs/avatar-1.png" %}' class="avatar avatar-sm" alt="logo">
                         <span class="small ml-1 d-md-down-none">{{ login_user }}</span>
                     </a>
 
@@ -466,15 +467,15 @@
         </nav>
     </div>
 
-    <script src="/static/dist/vendor/jquery/jquery.min.js"></script>
-    <script src="/static/dist/vendor/popper.js/popper.min.js"></script>
-    <script src="/static/dist/vendor/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/static/dist/vendor/chart.js/chart.min.js"></script>
-    <script src="/static/dist/js/carbon.js"></script>
+    <script src='{% static "myweb/dist/vendor/jquery/jquery.min.js" %}'></script>
+    <script src='{% static "myweb/dist/vendor/popper.js/popper.min.js" %}'></script>
+    <script src='{% static "myweb/dist/vendor/bootstrap/js/bootstrap.min.js" %}'></script>
+    <script src='{% static "myweb/dist/vendor/chart.js/chart.min.js" %}'></script>
+    <script src='{% static "myweb/dist/js/carbon.js" %}'></script>
     <!--<script src="/static/dist/js/demo.js"></script>-->
-    <script src="/static/extra/jquery.cookie.js"></script>
-    <script src="/static/extra/echarts.min.js"></script>
-    <script src="/static/extra/chartjs-plugin-datalabels@0.7.0"></script>
+    <script src='{% static "myweb/extra/jquery.cookie.js" %}'></script>
+    <script src='{% static "myweb/extra/echarts.min.js" %}'></script>
+    <script src='{% static "myweb/extra/chartjs-plugin-datalabels@0.7.0" %}'></script>
     <script>
         $(function(){
         //更新页脚
