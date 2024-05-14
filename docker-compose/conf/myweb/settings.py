@@ -308,7 +308,7 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "redis_cache.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {"max_connections": 10},
-            "PASSWORD": "", },
+            "PASSWORD": "ssR*Yaw{(Pd7", },
     }
 }
 
@@ -329,8 +329,8 @@ CACHES = {
 '''
 
 # celery配置
-CELERY_BROKER_URL = 'redis://redis:6379/2'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/2'
+CELERY_BROKER_URL = 'redis://:ssR*Yaw{(Pd7@redis:6379/2'
+CELERY_RESULT_BACKEND = 'redis://:ssR*Yaw{(Pd7@redis:6379/2'
 CELERY_TASK_SERIALIZER = 'json'
 
 # zabbix配置
@@ -362,7 +362,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('redis', 6379)],
+            "hosts": ['redis://:ssR*Yaw{(Pd7@redis:6379/0'],
         },
     },
 }
