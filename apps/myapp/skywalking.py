@@ -103,7 +103,10 @@ def send_alert(request, *args, **kwargs):
 
 @custom_login_required
 def dashboard(request, *args, **kwargs):
-    return render_to_response('monitor/skywalking_dashboard.html')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'login_user': user_dict['user'], 'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('monitor/skywalking_dashboard.html', msg)
 
 
 @custom_login_required
