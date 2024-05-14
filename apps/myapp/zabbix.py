@@ -102,7 +102,7 @@ def zabbix_trigger(request, *args, **kwargs):
         print(type(msg['result']), len(msg['result']))
         return render_to_response('monitor/zabbix.html', res)
     except:
-        return render_to_response('monitor/500.html')
+        return render_to_response('500.html', res, status=500)
 
 
 def zabbix_alert_count(*args, **kwargs):

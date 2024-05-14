@@ -1,40 +1,53 @@
 {% extends "master/layout.html" %}
 {% block content %}
-
 <div class="content">
     <div class="row">
         <div class="col-md-12">
             <div class="card">
+
                 <div class="card-header bg-light">
                     <div>
                         用户表
-                        <label style="color: red;">
-                            {{ status }}
-                        </label>
+                        <label style="color: red;">{{ status }}</label>
                     </div>
+
+                    <div class="alert alert-dismissible alert-success" style="display:none" id="alert_success">
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" onclick="refresh()">&times;</span>
+                        </button>
+                    </div>
+
+
+                    <div class="alert alert-dismissible alert-danger" style="display:none" id="alert_fail">
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" onclick="refresh()">&times;</span>
+                        </button>
+                    </div>
+
                 </div>
 
 
                 <div class="card-body">
                     <div class="title">
-                        <div class="title-add" style="display:inline-block;">
+                        <div class="title-add">
                             <a href="/cmdb/index/table/user/form_add/">
-                               <!--<button class="btn btn-primary" style="padding:2px;margin-top:-20px;">-->
-                                <button class="btn btn-primary" style="padding:2px;margin-top:-20px;">
-                                   <i class="icon icon-plus"></i>  添加用户
-                                </button>
-
-                               <!-- <button class="btn btn-primary .btn-sm">+ 添加用户</button>-->
+                                <button class="btn btn-primary" style="margin-top:-20px;margin-bottom:4.5px"><i class="icon icon-plus"></i> 添加用户</button>
                             </a>
                         </div>
-                        <div class="title-search" style="display:inline-block;float:right;">
-                        <form action="/cmdb/index/table/user/search/" method="post"  style="margin-top:-10px;">
-                            <div style="display:inline-block;">
-                                <i class="fa fa-search" id="i-advanced-search-i" style="position:relative;left:25px"></i>
-                                <input type="search" name="keyword" onfocus="clearContent(this)" onblur="fillContent(this)" placeholder="用户名或邮箱" style="text-indent:30px;">
-                                <input type="submit" value="搜索">
+                        <div class="title-search">
+                            <form action="/cmdb/index/table/user/search/" method="post"  style="margin-top:-60px;">
+                            <div class="col-md-4" style="display:inline-block;float:right;margin-right:-15px">
+                                <label for="search"></label>
+                                <div class="input-group">
+                                    <input type="search" id="search" name="keyword" class="form-control" placeholder="用户名或邮箱" onfocus="clearContent(this)" onblur="fillContent(this)">
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> 搜索</button>
+                                    </span>
+                                </div>
                             </div>
-                        </form>
+                            </form>
                         </div>
                     </div>
 
@@ -95,11 +108,12 @@
                                         <i class="fa fa-pencil-alt"></i> 更新
                                     </button>
 
-                                    <button class="btn btn-primary" data-toggle="modal" onclick="resetPwd(this)">
+                                    <button class="btn btn-primary" data-toggle="modal" data-target="#modal-resetPwd" onclick="setItemIdToReset(this)">
                                         <i class="fa fa-redo"></i> 重置密码
                                     </button>
 
-                                    <button class="btn btn-danger" data-toggle="modal" onclick="del(this)">
+                                    <!--<button class="btn btn-danger" data-toggle="modal" onclick="del(this)">-->
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#modal-del" onclick="setItemIdToDelete(this)">
                                         <i class="fa fa-trash"></i> 删除
                                     </button>
                                 </td>
@@ -109,9 +123,7 @@
                         </table>
                         <span>
                             <input type="checkbox" onclick="checkAll_1()" name="checkall"/>
-                            <button class="btn btn-secondary" data-toggle="modal" id="delAll" onclick="delAll()" style="padding:2px;margin-top:-10px;" disabled>
-                                <i class="fa fa-trash"></i> 全部删除
-                            </button>
+                            <button class="btn btn-secondary" style="margin-top:-10px;" data-toggle="modal" id="delAll" disabled data-target="#modal-delAll"><i class="fa fa-trash"></i> 全部删除</button>
                         </span>
                         <span style="float: right;">
                             共有{{count}}条，
@@ -134,97 +146,87 @@
 
 
 
-<div class="modal fade" id="modal-1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary border-0">
-                <h5 class="modal-title text-white">添加用户</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body p-5">
-                <div class="form-group">
-                    <div class="input-group mb-3">
-                        <label for="username" class="require"></label>
-                        用户名:<input id="username" type="text" class="form-control require" placeholder="Username">
-                    </div>
-                    <div class="input-group mb-3">
-                        <label for="password" class="require"></label>
-                        密 码:<input id="password" type="text" class="form-control require" placeholder="Password">
-                    </div>
-                    <div class="input-group mb-3">
-                        <label for="email" class="require"></label>
-                        邮 箱:<input id="email" type="text" class="form-control require" placeholder="Email">
-                    </div>
-                    <div class="input-group mb-3">
-                        <label for="single-select">用户类型:</label>
-                        <select id="single-select" class="form-control">
-                            {% for item in usertype %}
-                            <option value={{item.id}}>{{item.role}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary">提交</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<div class="modal fade" id="modal-2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary border-0">
-                <h5 class="modal-title text-white">提示</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body p-5">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Pellentesque lacinia non massa a euismod.
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Continue</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-{% for item in userinfo %}
-<div class="modal fade" id="modal-3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-del" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-danger border-0">
-                <h5 class="modal-title text-white">提示</h5>
+                <h5 class="modal-title text-white">删除确认</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body p-5">
-                确定删除？
+                确定删除这条记录?
             </div>
+
             <div class="modal-footer border-0">
-
                 <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-danger">确定</button>
-
+                <button type="button" class="btn btn-danger" onclick="del()">确定</button>
             </div>
         </div>
     </div>
 </div>
-{% endfor %}
+
+
+<div class="modal fade" id="modal-resetPwd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger border-0">
+                <h5 class="modal-title text-white">重置密码确认</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-5">
+                确定重置密码?
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="resetPwd()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal-delAll" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger border-0">
+                <h5 class="modal-title text-white">删除确认</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-5">
+                确定删除所选记录?
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="delAll()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 {% endblock %}
 {% block javascript %}
 <script>
+
+
+//  /* 全局变量 */
+// 定义alert div HTML
+var div_alert_html = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true" onclick="refresh()">&times;</span></button>';
+var itemIdToReset; // 用于存储要重置密码的项目的ID
+var itemIdToDelete; // 用于存储要删除的项目的ID
+var trToDelete; // 删除的行
 
 
 $(function () {
@@ -253,11 +255,26 @@ function fillContent(arg) {
 }
 
 
-function resetPwd(obj) {
-    var tr = obj.parentNode.parentNode;
-    var tbody = tr.parentNode;
+
+function setItemIdToReset(obj) {
+    //var tr = obj.parentNode.parentNode;
+    trToReset = obj.parentNode.parentNode;
+    // 设置要删除的项目的ID
+    itemIdToReset = trToReset.cells[1].innerHTML; // 这里替换为你实际的项目ID
+}
+
+//function resetPwd(obj) {
+function resetPwd() {
+    //var tr = obj.parentNode.parentNode;
+    //var tbody = tr.parentNode;
     //var id = tr.firstElementChild.innerHTML;
-    var id = tr.cells[1].innerHTML;
+    //var id = tr.cells[1].innerHTML;
+    var id = itemIdToReset;
+    //alert(id);
+    console.log("Reset item with ID " + id);
+
+
+    /*
     if (confirm("确定重置密码？")){
         window.event.returnValue = true;
     }else {
@@ -265,58 +282,154 @@ function resetPwd(obj) {
     }
 
     if (window.event.returnValue == true){
+    */
         $.ajax({
             url:'/cmdb/index/table/user/resetPwd/',
             data:{userid:id},
             type:'POST',
+            //async: false, // 设置为 false 表示关闭异步请求
             success:function (data) {
                 //window.parent.location.reload();
                 //$(body).html(data);
-                msg = JSON.parse(data);
+                //msg = JSON.parse(data);
+                //console.log(data);
+                //console.log(xhr.status);
                 //alert(msg);
-                alert('密码重置成功！')
+                //alert('密码重置成功！');
+                // 清除 itemIdToDelete，以防止意外删除其他项目
+                itemIdToReset = null;
+                // 关闭模态框
+                $('#modal-resetPwd').modal('hide');
+                //alert('密码重置成功！');
+                // alert 弹框提示
+                document.getElementById('alert_success').removeAttribute('style','display');
+                document.getElementById('alert_success').innerHTML = '密码重置成功！' + div_alert_html;
             },
-            error:function () {
-                alert('服务器异常');
+            error:function (xhr) {
+                if (xhr.status == 403) {
+                    // 执行权限不足的逻辑
+                    console.log('Forbidden:', xhr.responseText);
+                    // 清除 itemIdToDelete，以防止意外删除其他项目
+                    itemIdToReset = null;
+                    // 关闭模态框
+                    $('#modal-resetPwd').modal('hide');
+                    //alert('服务器异常');
+                    // alert 弹框提示
+                    document.getElementById('alert_fail').removeAttribute('style','display');
+                    document.getElementById('alert_fail').innerHTML = '没有权限操作！' + div_alert_html;
+                } else {
+                    // 清除 itemIdToDelete，以防止意外删除其他项目
+                    itemIdToReset = null;
+                    // 关闭模态框
+                    $('#modal-resetPwd').modal('hide');
+                    //alert('服务器异常');
+                    // alert 弹框提示
+                    document.getElementById('alert_fail').removeAttribute('style','display');
+                    document.getElementById('alert_fail').innerHTML = '服务器异常！' + div_alert_html;
+                }
+            },
+            /*
+             complete: function(xhr, textStatus) {
+                // 在 complete 回调函数中访问 xhr.status
+                console.log('Complete. Status:', xhr.status);
             }
+            */
         });
+    /*
     }
     else{
 
     };
+    */
 }
 
-function del(obj) {
-    var tr = obj.parentNode.parentNode;
-    var tbody = tr.parentNode;
+
+function refresh(){
+    location.reload();
+}
+
+
+
+function setItemIdToDelete(obj) {
+    //var tr = obj.parentNode.parentNode;
+    trToDelete = obj.parentNode.parentNode;
+    // 设置要删除的项目的ID
+    itemIdToDelete = trToDelete.cells[1].innerHTML; // 这里替换为你实际的项目ID
+}
+
+//function del(obj) {
+function del() {
+    //var tr = obj.parentNode.parentNode;
+    //var tbody = tr.parentNode;
     //var id = tr.firstElementChild.innerHTML;
-    var id = tr.cells[1].innerHTML;
-    //alert(id)
+    //var id = tr.cells[1].innerHTML;
+    var id = itemIdToDelete;
+    var tr = trToDelete;
+    var tbody = trToDelete.parentNode;
+    //alert(id);
+    console.log("Delete item with ID " + id);
+    console.log(tr,tbody);
+    /*
     if (confirm("确定删除？")){
         window.event.returnValue = true;
     }else {
         window.event.returnValue = false;
     }
     if (window.event.returnValue == true){
-        tbody.removeChild(tr);
+    */
+
         $.ajax({
             url:'/cmdb/index/table/user/del/',
             data:{userid:id},
             type:'POST',
             success:function (data) {
                 //$('body').html(data);//引号必须加上
-                window.parent.location.reload();
+                // 清除 itemIdToDelete，以防止意外删除其他项目
+                itemIdToDelete = null;
+                // 清除 tr
+                trToDelete = null;
+                // 关闭模态框
+                $('#modal-del').modal('hide');
+                //window.parent.location.reload();
                 //alert('删除成功');
                 //alert(data);
                 //console.log(data);
+                // 清除前端数据
+                tbody.removeChild(tr);
             },
-            error:function () {
-                alert('服务器异常');
+            error:function (xhr) {
+                if (xhr.status == 403) {
+                    // 执行权限不足的逻辑
+                    console.log('Forbidden:', xhr.responseText);
+                    // 清除 itemIdToDelete，以防止意外删除其他项目
+                    itemIdToDelete = null;
+                    // 清除 tr
+                    trToDelete = null;
+                    // 关闭模态框
+                    $('#modal-del').modal('hide');
+                    //alert('服务器异常');
+                    // alert 弹框提示
+                    document.getElementById('alert_fail').removeAttribute('style','display');
+                    document.getElementById('alert_fail').innerHTML = '没有权限操作！' + div_alert_html;
+                } else {
+                    // 清除 itemIdToDelete，以防止意外删除其他项目
+                    itemIdToDelete = null;
+                    // 清除 tr
+                    trToDelete = null;
+                    // 关闭模态框
+                    $('#modal-del').modal('hide');
+                    //alert('服务器异常');
+                    // alert 弹框提示
+                    document.getElementById('alert_fail').removeAttribute('style','display');
+                    document.getElementById('alert_fail').innerHTML = '服务器异常！' + div_alert_html;
+                }
             }
         });
+    /*
     }else{
 
     }
+    */
 }
 
 
@@ -445,42 +558,72 @@ function checkAll_0() {
  }
 
 
+
+
+
 function delAll() {
     var checks = document.getElementsByName("checkone");
-    if (confirm("确定删除？")){
-        window.event.returnValue = true;
-    }else {
-        window.event.returnValue = false;
-    }
+    var array_id = [];
+    var array_tr = [];
+    var array_tbody = [];
+
     for (var i = 0; i < checks.length; i++) {
         if (checks[i].checked){
             var tr = checks[i].parentNode.parentNode;
             var tbody = tr.parentNode;
             var id = tr.cells[1].innerHTML;
+            array_id.push(id);
+            array_tr.push(tr);
+            array_tbody.push(tbody);
 
-
-            if (window.event.returnValue == true){
-                tbody.removeChild(tr);
-                $.ajax({
-                    url:'/cmdb/index/table/user/del/',
-                    data:{userid:id},
-                    type:'POST',
-                    success:function (data) {
-                        window.parent.location.reload();
-                        //$(body).html(data);
-                        //alert('删除成功')
-                    },
-                    error:function () {
-                        alert('服务器异常');
-                    }
-                });
-               i--;
-            }else{
-
-            };
-        };
+            console.log("Delete item with ID " + id);
+        }
     };
+    console.log(array_id);
+    console.log(JSON.stringify(array_id));
+    console.log(array_tr);
+    console.log(array_tbody);
+
+    $.ajax({
+        url:'/cmdb/index/table/user/del-all/',
+        data:{userid:JSON.stringify(array_id)},
+        type:'POST',
+        success:function (data) {
+
+            // 关闭模态框
+            $('#modal-delAll').modal('hide');
+            // 移除全选高亮
+            document.getElementById("delAll").setAttribute("class","btn btn-secondary");
+            //window.parent.location.reload();
+            //$(body).html(data);
+            //alert('删除成功');
+            // 清除前端数据
+            for (var i = 0; i < array_tr.length; i++) {
+                array_tbody[i].removeChild(array_tr[i]);
+            };
+        },
+        error:function (xhr) {
+            if (xhr.status == 403) {
+                //alert('服务器异常');
+                // 关闭模态框
+                $('#modal-delAll').modal('hide');
+                // alert 弹框提示
+                document.getElementById('alert_fail').removeAttribute('style','display');
+                document.getElementById('alert_fail').innerHTML = '没有权限操作！' + div_alert_html;
+            } else {
+                //alert('服务器异常');
+                // 关闭模态框
+                $('#modal-delAll').modal('hide');
+                // alert 弹框提示
+                document.getElementById('alert_fail').removeAttribute('style','display');
+                document.getElementById('alert_fail').innerHTML = '服务器异常！' + div_alert_html;
+            }
+        }
+    });
+
 }
+
+
 
 
 function myTrim(x) {

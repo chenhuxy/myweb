@@ -1,0 +1,35 @@
+{% extends "master/layout.html" %}
+{% block formTitle %}
+{% endblock %}
+{% block content %}
+{% load tz %}
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <!--<div class="container-fluid">-->
+
+            <div class="card">
+                <!--<div class="card-header bg-light">
+                    skywalking报警
+                    <label style="color: red;">
+                        {{ status }}
+                    </label>
+                </div>-->
+                <div class="card-body">
+                    <iframe src="https://xxx.com/grafana/d/aka/be9e3f56-70f9-509c-9efd-be6e2c0b5292?orgId=1&auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZDR05qWnN0dW9RWndDWFlnQ2pTd0NzSHBvMWhzOVRUZkVTb09mWllVLU0ifQ.eyJzdWIiOiJoeS1kZXYtdXNlciIsIm5hbWUiOiJoeS1kZXYtdXNlciIsImlhdCI6MTcxMzQxODQxMywiZXhwIjo0ODY5MDkyMDEzLCJpc3MiOiJodHRwczovL215LXRva2VuLWlzc3VlciIsIm9yZyI6Imh5Iiwicm9sZSI6IlZpZXdlciJ9.8NL2dpKjpUp_MzLzyit-388mCMAo0SzCHLLcFJZ1nrY" width="100%" scrolling="No" height="730px" frameborder="0">
+
+                    </iframe>
+                </div>
+            </div>
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block formFooter %}
+{% endblock %}
+{% block javascript %}
+
+{% endblock %}

@@ -1,48 +1,28 @@
 #!/usr/bin/env python
 # _*_ coding:utf-8 _*_
-from django.contrib.auth import authenticate
-from django.shortcuts import render_to_response
-from django.shortcuts import render
-from django.shortcuts import HttpResponse
-from django.shortcuts import redirect
+
+import os
+import webbrowser
+from datetime import datetime
+
+from django.http import JsonResponse
+
+from myweb.settings import *
+
+import requests
+from django.db.models import Q
+
+from django.shortcuts import redirect, get_object_or_404
 import time
 import json
 from django.utils.safestring import mark_safe
-from apps.myapp import models
-from apps.myapp import common
-from apps.myapp import page_helper
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.csrf import csrf_protect
-from django.template import context
-from apps.myapp import encrypt_helper
-from django.core.mail import send_mail
-from django.utils.safestring import mark_safe
-# from myapp import ansible_api
-from django.template import loader, RequestContext
-from apps.myapp import token_helper
-from apps.myapp import tasks
-from django.core.cache import cache
+from apps.myapp import models, common, page_helper, excel_helper
+
 from django.utils import timezone
-from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.decorators.clickjacking import xframe_options_deny
-from django.views.decorators.clickjacking import xframe_options_sameorigin
-# from apps.myapp import workflow,wf
-from SpiffWorkflow.specs import WorkflowSpec
-from SpiffWorkflow.serializer.prettyxml import XmlSerializer
-from SpiffWorkflow import Workflow
-#  form upload
-import os
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.conf import settings
+
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
 
-#####################################################################################################################################
 from django.shortcuts import render, render_to_response, HttpResponse
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-import urllib
-import urllib.parse
 
 
 # Create your views here.
@@ -51,1154 +31,1127 @@ import urllib.parse
 
 
 @custom_login_required
-@custom_permission_required('myapp.view_devicetype')
-def devicetype(request, *args, **kwargs):
-    devicetype = models.DeviceType.objects.all()
-    count = devicetype.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'devicetype': devicetype, 'login_user': userDict['user'], 'count': count, }
-    return render_to_response('assets/devicetype.html', msg)
+@custom_permission_required('myapp.view_assetenvtype')
+def env_type(request, *args, **kwargs):
+    qs = models.AssetEnvType.objects.all()
+    count = qs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'env_type': qs, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/env_type.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_devicetype')
-def devicetypeForm_add(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    devicetype = models.DeviceType.objects.all()
-    # usergroup = models.userGroup.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'devicetype': devicetype, 'login_user': userDict['user'], 'status': '', }
-    return render_to_response('assets/devicetype_add.html', msg)
+@custom_permission_required('myapp.add_assetenvtype')
+def env_type_form_add(request, *args, **kwargs):
+    qs = models.AssetEnvType.objects.all()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'env_type': qs, 'login_user': user_dict['user'], 'status': '',
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/env_type_add.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_devicetype')
-def devicetypeAdd(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    # usertype = models.userType.objects.all()
-    userDict = request.session.get('is_login', None)
-    # usergroup = models.userGroup.objects.all()
-    # result = {'status': '','usertype':None}
+@custom_permission_required('myapp.add_assetenvtype')
+def env_type_add(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     if request.method == 'POST':
-        devicetype = request.POST.get('devicetype', None)
+        env_type_name = request.POST.get('env_type', None)
         memo = request.POST.get('memo', None)
-        is_exist = models.DeviceType.objects.filter(name=devicetype)
+        is_exist = models.AssetEnvType.objects.filter(name=env_type_name)
         print(is_exist)
-        if not (is_exist):
-            is_empty = all([devicetype, ])
+        if not is_exist:
+            is_empty = all([env_type_name, ])
             if is_empty:
-                models.DeviceType.objects.create(name=devicetype, memo=memo, )
-                msg = {'userinfo': userinfo, 'devicetype': devicetype,
-                       'login_user': userDict['user'], 'status': '添加设备类型成功', }
-                return redirect('/cmdb/index/assets/devicetype/')
+                models.AssetEnvType.objects.create(name=env_type_name, memo=memo, )
+                msg = {'env_type_name': env_type_name,
+                       'login_user': user_dict['user'], 'status': '添加环境类型成功', }
+                return redirect('/cmdb/index/assets/env-type/list/')
             else:
-                msg = {'userinfo': userinfo, 'devicetype': devicetype,
-                       'login_user': userDict['user'], 'status': 'xx不能为空', }
+                msg = {'env_type_name': env_type_name,
+                       'login_user': user_dict['user'], 'status': '名称不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
         else:
-            # msg = {'userinfo': userinfo, 'devicetype': devicetype, 'usergroup':usergroup,
-            msg = {'userinfo': userinfo, 'devicetype': devicetype,
-                   'login_user': userDict['user'], 'status': '该设备类型已存在！', }
-    return render_to_response('assets/devicetype_add.html', msg)
+            msg = {'env_type_name': env_type_name,
+                   'login_user': user_dict['user'], 'status': '该环境类型已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/env_type_add.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_devicetype')
-def devicetypeForm_update(request, *args, **kwargs):
+@custom_permission_required('myapp.change_assetenvtype')
+def env_type_form_update(request, *args, **kwargs):
     # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    devicetype = models.DeviceType.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'devicetype': devicetype, }
+    form_id = kwargs['id']
+    qs = models.AssetEnvType.objects.filter(id=form_id)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': form_id, 'login_user': user_dict['user'], 'status': '操作成功', 'env_type': qs,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     print(msg)
-    return render_to_response('assets/devicetype_update.html', msg)
+    return render_to_response('assets/env_type_update.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_devicetype')
-def devicetypeUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    devicetype = request.POST.get('devicetype')
+@custom_permission_required('myapp.change_assetenvtype')
+def env_type_update(request, *args, **kwargs):
+    form_id = kwargs['id']
+    env_type_name = request.POST.get('env_type')
     memo = request.POST.get('memo')
-    # update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    models.DeviceType.objects.filter(id=id).update(name=devicetype, memo=memo, )
-    return redirect('/cmdb/index/assets/devicetype/')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    models.AssetEnvType.objects.filter(id=form_id).update(name=env_type_name, memo=memo, )
+    return redirect('/cmdb/index/assets/env-type/list/')
 
 
 @custom_login_required
-@custom_permission_required('myapp.delete_devicetype')
-def devicetypeDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.DeviceType.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除设备类型id:' + id, }
-    return render_to_response('assets/devicetype.html', msg)
+@custom_permission_required('myapp.delete_assetenvtype')
+def env_type_del(request, *args, **kwargs):
+    form_id = request.POST.get('id')
+    models.AssetEnvType.objects.filter(id=form_id).delete()
+    print('delete', form_id)
+    msg = {'code': 1, 'result': '删除环境类型id:' + form_id, }
+    return render_to_response('assets/env_type.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.view_devicestatus')
-def devicestatus(request, *args, **kwargs):
-    devicestatus = models.DeviceStatus.objects.all()
-    count = devicestatus.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'devicestatus': devicestatus, 'login_user': userDict['user'], 'count': count}
-    return render_to_response('assets/devicestatus.html', msg)
+@custom_permission_required('myapp.delete_assetenvtype')
+def env_type_del_all(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.AssetEnvType.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除环境类型成功,id列表：' + json.dumps(array_id)}
+    print(msg)
+    return render_to_response('assets/env_type.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_devicestatus')
-def devicestatusForm_add(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    devicestatus = models.DeviceStatus.objects.all()
-    # usergroup = models.userGroup.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'devicestatus': devicestatus, 'login_user': userDict['user'], 'status': '', }
-    return render_to_response('assets/devicestatus_add.html', msg)
+@custom_permission_required('myapp.view_assetostype')
+def os_type(request, *args, **kwargs):
+    qs = models.AssetOsType.objects.all()
+    count = qs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'os_type': qs, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/os_type.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_devicestatus')
-def devicestatusAdd(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    userDict = request.session.get('is_login', None)
-    # usergroup = models.userGroup.objects.all()
-    # result = {'status': '','devicestatus':None}
+@custom_permission_required('myapp.add_assetostype')
+def os_type_form_add(request, *args, **kwargs):
+    qs = models.AssetOsType.objects.all()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'os_type': qs, 'login_user': user_dict['user'], 'status': '',
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/os_type_add.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_assetostype')
+def os_type_add(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     if request.method == 'POST':
-        devicestatus = request.POST.get('devicestatus', None)
+        os_type_name = request.POST.get('os_type', None)
         memo = request.POST.get('memo', None)
-        is_exist = models.DeviceStatus.objects.filter(name=devicestatus)
+        is_exist = models.AssetOsType.objects.filter(name=os_type_name)
         print(is_exist)
-        if not (is_exist):
-            is_empty = all([devicestatus, ])
+        if not is_exist:
+            is_empty = all([os_type_name, ])
             if is_empty:
-                models.DeviceStatus.objects.create(name=devicestatus, memo=memo, )
-                msg = {'userinfo': userinfo, 'devicestatus': devicestatus,
-                       'login_user': userDict['user'], 'status': '添加设备状态成功', }
-                return redirect('/cmdb/index/assets/devicestatus/')
+                models.AssetOsType.objects.create(name=os_type_name, memo=memo, )
+                msg = {'os_type_name': os_type_name,
+                       'login_user': user_dict['user'], 'status': '添加操作系统类型成功',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
+                return redirect('/cmdb/index/assets/os-type/list/')
             else:
-                msg = {'userinfo': userinfo, 'devicestatus': devicestatus,
-                       'login_user': userDict['user'], 'status': 'xx不能为空', }
+                msg = {'os_type_name': os_type_name,
+                       'login_user': user_dict['user'], 'status': '名称不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
         else:
-            # msg = {'userinfo': userinfo, 'devicestatus': devicestatus, 'usergroup': usergroup,
-            msg = {'userinfo': userinfo, 'devicestatus': devicestatus,
-                   'login_user': userDict['user'], 'status': '该设备状态已存在！', }
-    return render_to_response('assets/devicestatus_add.html', msg)
+            msg = {'os_type_name': os_type_name,
+                   'login_user': user_dict['user'], 'status': '该操作系统类型已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/os_type_add.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_devicestatus')
-def devicestatusForm_update(request, *args, **kwargs):
+@custom_permission_required('myapp.change_assetostype')
+def os_type_form_update(request, *args, **kwargs):
     # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    devicestatus = models.DeviceStatus.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'devicestatus': devicestatus, }
+    form_id = kwargs['id']
+    qs = models.AssetOsType.objects.filter(id=form_id)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': form_id, 'login_user': user_dict['user'], 'status': '操作成功', 'os_type': qs,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     print(msg)
-    return render_to_response('assets/devicestatus_update.html', msg)
+    return render_to_response('assets/os_type_update.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_devicestatus')
-def devicestatusUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    devicestatus = request.POST.get('devicestatus')
+@custom_permission_required('myapp.change_assetostype')
+def os_type_update(request, *args, **kwargs):
+    form_id = kwargs['id']
+    os_type_name = request.POST.get('os_type')
     memo = request.POST.get('memo')
-    # update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    models.DeviceStatus.objects.filter(id=id).update(name=devicestatus, memo=memo, )
-    return redirect('/cmdb/index/assets/devicestatus/')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    models.AssetOsType.objects.filter(id=form_id).update(name=os_type_name, memo=memo, )
+    return redirect('/cmdb/index/assets/os-type/list/')
 
 
 @custom_login_required
-@custom_permission_required('myapp.delete_devicestatus')
-def devicestatusDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.DeviceStatus.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除设备状态id:' + id, }
-    return render_to_response('assets/devicestatus.html', msg)
+@custom_permission_required('myapp.delete_assetostype')
+def os_type_del(request, *args, **kwargs):
+    form_id = request.POST.get('id')
+    models.AssetOsType.objects.filter(id=form_id).delete()
+    print('delete', form_id)
+    msg = {'code': 1, 'result': '删除操作系统类型id:' + form_id, }
+    return render_to_response('assets/os_type.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.view_idc')
+@custom_permission_required('myapp.delete_assetostype')
+def os_type_del_all(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.AssetOsType.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除操作系统类型成功,id列表：' + json.dumps(array_id)}
+    print(msg)
+    return render_to_response('assets/os_type.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_assetdevicetype')
+def device_type(request, *args, **kwargs):
+    qs = models.AssetDeviceType.objects.all()
+    count = qs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'device_type': qs, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/device_type.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_assetdevicetype')
+def device_type_form_add(request, *args, **kwargs):
+    qs = models.AssetDeviceType.objects.all()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'device_type': qs, 'login_user': user_dict['user'], 'status': '',
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/device_type_add.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_assetdevicetype')
+def device_type_add(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    if request.method == 'POST':
+        device_type_name = request.POST.get('device_type', None)
+        memo = request.POST.get('memo', None)
+        is_exist = models.AssetDeviceType.objects.filter(name=device_type_name)
+        print(is_exist)
+        if not is_exist:
+            is_empty = all([device_type_name, ])
+            if is_empty:
+                models.AssetDeviceType.objects.create(name=device_type_name, memo=memo, )
+                msg = {'device_type_name': device_type_name,
+                       'login_user': user_dict['user'], 'status': '添加设备类型成功',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
+                return redirect('/cmdb/index/assets/device-type/list/')
+            else:
+                msg = {'device_type_name': device_type_name,
+                       'login_user': user_dict['user'], 'status': '名称不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
+        else:
+            msg = {'device_type_name': device_type_name,
+                   'login_user': user_dict['user'], 'status': '该设备类型已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/device_type_add.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_assetdevicetype')
+def device_type_form_update(request, *args, **kwargs):
+    # userid = request.GET.get('userid',None)
+    form_id = kwargs['id']
+    qs = models.AssetDeviceType.objects.filter(id=form_id)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': form_id, 'login_user': user_dict['user'], 'status': '操作成功', 'device_type': qs,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    print(msg)
+    return render_to_response('assets/device_type_update.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_assetdevicetype')
+def device_type_update(request, *args, **kwargs):
+    form_id = kwargs['id']
+    device_type_name = request.POST.get('device_type')
+    memo = request.POST.get('memo')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    models.AssetDeviceType.objects.filter(id=form_id).update(name=device_type_name, memo=memo, )
+    return redirect('/cmdb/index/assets/device-type/list/')
+
+
+@custom_login_required
+@custom_permission_required('myapp.delete_assetdevicetype')
+def device_type_del(request, *args, **kwargs):
+    form_id = request.POST.get('id')
+    models.AssetDeviceType.objects.filter(id=form_id).delete()
+    print('delete', form_id)
+    msg = {'code': 1, 'result': '删除设备类型id:' + form_id, }
+    return render_to_response('assets/device_type.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.delete_assetdevicetype')
+def device_type_del_all(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.AssetDeviceType.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除设备类型成功,id列表：' + json.dumps(array_id)}
+    print(msg)
+    return render_to_response('assets/device_type.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_assetdevicestatus')
+def device_status(request, *args, **kwargs):
+    qs = models.AssetDeviceStatus.objects.all()
+    count = qs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'device_status': qs, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/device_status.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_assetdevicestatus')
+def device_status_form_add(request, *args, **kwargs):
+    qs = models.AssetDeviceStatus.objects.all()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'device_status': qs, 'login_user': user_dict['user'], 'status': '',
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/device_status_add.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_assetdevicestatus')
+def device_status_add(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    if request.method == 'POST':
+        device_status_name = request.POST.get('device_status', None)
+        memo = request.POST.get('memo', None)
+        is_exist = models.AssetDeviceStatus.objects.filter(name=device_status_name)
+        print(is_exist)
+        if not is_exist:
+            is_empty = all([device_status_name, ])
+            if is_empty:
+                models.AssetDeviceStatus.objects.create(name=device_status_name, memo=memo, )
+                msg = {'device_status': device_status_name,
+                       'login_user': user_dict['user'], 'status': '添加设备状态成功',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
+                return redirect('/cmdb/index/assets/device-status/list/')
+            else:
+                msg = {'device_status': device_status_name,
+                       'login_user': user_dict['user'], 'status': '名称不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
+        else:
+            msg = {'device_status': device_status_name,
+                   'login_user': user_dict['user'], 'status': '该设备状态已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/device_status_add.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_assetdevicestatus')
+def device_status_form_update(request, *args, **kwargs):
+    # userid = request.GET.get('userid',None)
+    form_id = kwargs['id']
+    qs = models.AssetDeviceStatus.objects.filter(id=form_id)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': form_id, 'login_user': user_dict['user'], 'status': '操作成功', 'device_status': qs,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    print(msg)
+    return render_to_response('assets/device_status_update.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_assetdevicestatus')
+def device_status_update(request, *args, **kwargs):
+    form_id = kwargs['id']
+    device_status_name = request.POST.get('device_status')
+    memo = request.POST.get('memo')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    models.AssetDeviceStatus.objects.filter(id=form_id).update(name=device_status_name, memo=memo, )
+    return redirect('/cmdb/index/assets/device-status/list/')
+
+
+@custom_login_required
+@custom_permission_required('myapp.delete_assetdevicestatus')
+def device_status_del(request, *args, **kwargs):
+    form_id = request.POST.get('id')
+    models.AssetDeviceStatus.objects.filter(id=form_id).delete()
+    print('delete', form_id)
+    msg = {'code': 1, 'result': '删除设备状态id:' + form_id, }
+    return render_to_response('assets/device_status.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.delete_assetdevicestatus')
+def device_status_del_all(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.AssetDeviceStatus.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除设备状态成功,id列表：' + json.dumps(array_id)}
+    print(msg)
+    return render_to_response('assets/device_type.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_assetidc')
 def idc(request, *args, **kwargs):
-    idc = models.IDC.objects.all()
-    count = idc.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'idc': idc, 'login_user': userDict['user'], 'count': count}
+    qs = models.AssetIDC.objects.all()
+    count = qs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'idc': qs, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('assets/idc.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_idc')
-def idcForm_add(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    idc = models.IDC.objects.all()
-    # usergroup = models.userGroup.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'idc': idc, 'login_user': userDict['user'], 'status': '', }
+@custom_permission_required('myapp.add_assetidc')
+def idc_form_add(request, *args, **kwargs):
+    qs = models.AssetIDC.objects.all()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'idc': qs, 'login_user': user_dict['user'], 'status': '',
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('assets/idc_add.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_idc')
-def idcAdd(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    userDict = request.session.get('is_login', None)
-    # usergroup = models.userGroup.objects.all()
-    # result = {'status': '','idc':None}
+@custom_permission_required('myapp.add_assetidc')
+def idc_add(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     if request.method == 'POST':
-        idc = request.POST.get('idc', None)
+        idc_name = request.POST.get('idc', None)
         floor = request.POST.get('floor', None)
         region = request.POST.get('region', None)
         memo = request.POST.get('memo', None)
-        is_exist = models.IDC.objects.filter(display_name=idc)
+        is_exist = models.AssetIDC.objects.filter(display_name=idc_name)
         print(is_exist)
-        if not (is_exist):
-            is_empty = all([idc, ])
+        if not is_exist:
+            is_empty = all([idc_name, ])
             if is_empty:
-                models.IDC.objects.create(display_name=idc, region_display_name=region, floor=floor, memo=memo, )
-                msg = {'userinfo': userinfo, 'idc': idc,
-                       'login_user': userDict['user'], 'status': '添加idc成功', }
-                return redirect('/cmdb/index/assets/idc/')
+                models.AssetIDC.objects.create(display_name=idc_name, region_display_name=region, floor=floor,
+                                               memo=memo, )
+                msg = {'idc': idc_name,
+                       'login_user': user_dict['user'], 'status': '添加idc成功',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
+                return redirect('/cmdb/index/assets/idc/list/')
             else:
-                msg = {'userinfo': userinfo, 'idc': idc,
-                       'login_user': userDict['user'], 'status': 'xx不能为空', }
+                msg = {'idc': idc_name,
+                       'login_user': user_dict['user'], 'status': '名称不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
         else:
-            # msg = {'userinfo': userinfo, 'idc': idc, 'usergroup': usergroup,
-            msg = {'userinfo': userinfo, 'idc': idc,
-                   'login_user': userDict['user'], 'status': '该idc已存在！', }
+            msg = {'idc': idc_name,
+                   'login_user': user_dict['user'], 'status': '该idc已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('assets/idc_add.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_idc')
-def idcForm_update(request, *args, **kwargs):
+@custom_permission_required('myapp.change_assetidc')
+def idc_form_update(request, *args, **kwargs):
     # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    idc = models.IDC.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'idc': idc, }
+    form_id = kwargs['id']
+    qs = models.AssetIDC.objects.filter(id=form_id)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': form_id, 'login_user': user_dict['user'], 'status': '操作成功', 'idc': qs,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     print(msg)
     return render_to_response('assets/idc_update.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_idc')
-def idcUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    idc = request.POST.get('idc')
+@custom_permission_required('myapp.change_assetidc')
+def idc_update(request, *args, **kwargs):
+    form_id = kwargs['id']
+    idc_name = request.POST.get('idc')
     region = request.POST.get('region', None)
     floor = request.POST.get('floor', None)
     memo = request.POST.get('memo')
-    # update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    models.IDC.objects.filter(id=id).update(display_name=idc, region_display_name=region, floor=floor, memo=memo, )
-    return redirect('/cmdb/index/assets/idc/')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    models.AssetIDC.objects.filter(id=form_id).update(display_name=idc_name, region_display_name=region,
+                                                      floor=floor, memo=memo, )
+    return redirect('/cmdb/index/assets/idc/list/')
 
 
 @custom_login_required
-@custom_permission_required('myapp.delete_idc')
-def idcDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.IDC.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除设备状态id:' + id, }
+@custom_permission_required('myapp.delete_assetidc')
+def idc_del(request, *args, **kwargs):
+    form_id = request.POST.get('id')
+    models.AssetIDC.objects.filter(id=form_id).delete()
+    print('delete', form_id)
+    msg = {'code': 1, 'result': '删除idc id:' + form_id, }
     return render_to_response('assets/idc.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.view_contract')
-def contract(request, *args, **kwargs):
-    contract = models.Contract.objects.all()
-    count = contract.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'contract': contract, 'login_user': userDict['user'], 'count': count}
-    return render_to_response('assets/contract.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_contract')
-def contractForm_add(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    contract = models.Contract.objects.all()
-    # usergroup = models.userGroup.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'contract': contract, 'login_user': userDict['user'], 'status': '', }
-    return render_to_response('assets/contract_add.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_contract')
-def contractAdd(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    userDict = request.session.get('is_login', None)
-    # usergroup = models.userGroup.objects.all()
-    if request.method == 'POST':
-        sn = request.POST.get('sn', None)
-        name = request.POST.get('name', None)
-        cost = request.POST.get('cost', None)
-        start_date = request.POST.get('start_date', None)
-        end_date = request.POST.get('end_date', None)
-        license_num = request.POST.get('license_num', None)
-        memo = request.POST.get('memo', None)
-        is_exist = models.Contract.objects.filter(sn=sn)
-        print(is_exist)
-        if not (is_exist):
-            is_empty = all([sn, ])
-            if is_empty:
-                models.Contract.objects.create(sn=sn, name=name, cost=cost, start_date=start_date, end_date=end_date,
-                                               license_num=license_num, memo=memo, )
-                msg = {'userinfo': userinfo, 'contract': contract,
-                       'login_user': userDict['user'], 'status': '添加合同成功', }
-                return redirect('/cmdb/index/assets/contract/')
-            else:
-                msg = {'userinfo': userinfo, 'contract': contract,
-                       'login_user': userDict['user'], 'status': 'xx不能为空', }
-        else:
-            # msg = {'userinfo': userinfo, 'contract': contract, 'usergroup': usergroup,
-            msg = {'userinfo': userinfo, 'contract': contract,
-                   'login_user': userDict['user'], 'status': '该合同已存在！', }
-    return render_to_response('assets/contract_add.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_contract')
-def contractForm_update(request, *args, **kwargs):
-    # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    contract = models.Contract.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'contract': contract, }
+@custom_permission_required('myapp.delete_assetidc')
+def idc_del_all(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.AssetIDC.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除idc成功,id列表：' + json.dumps(array_id)}
     print(msg)
-    return render_to_response('assets/contract_update.html', msg)
+    return render_to_response('assets/idc.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_contract')
-def contractUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    sn = request.POST.get('sn', None)
-    name = request.POST.get('name', None)
-    cost = request.POST.get('cost', None)
-    start_date = request.POST.get('start_date', None)
-    end_date = request.POST.get('end_date', None)
-    license_num = request.POST.get('license_num', None)
-    memo = request.POST.get('memo', None)
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    models.Contract.objects.filter(id=id).update(sn=sn, name=name, cost=cost, start_date=start_date, end_date=end_date,
-                                                 license_num=license_num, memo=memo, update_time=update_time, )
-    return redirect('/cmdb/index/assets/contract/')
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_contract')
-def contractDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.Contract.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除设备状态id:' + id, }
-    return render_to_response('assets/contract.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.view_tag')
+@custom_permission_required('myapp.view_assettag')
 def tag(request, *args, **kwargs):
-    tag = models.Tag.objects.all()
-    count = tag.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'tag': tag, 'login_user': userDict['user'], 'count': count}
+    qs = models.AssetTag.objects.all()
+    count = qs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'tag': qs, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('assets/tag.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_tag')
-def tagForm_add(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    tag = models.Tag.objects.all()
-    # usergroup = models.userGroup.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'tag': tag, 'login_user': userDict['user'], 'status': '', }
+@custom_permission_required('myapp.add_assettag')
+def tag_form_add(request, *args, **kwargs):
+    qs = models.AssetTag.objects.all()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'tag': qs, 'login_user': user_dict['user'], 'status': '',
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('assets/tag_add.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_tag')
-def tagAdd(request, *args, **kwargs):
-    userinfo = models.userInfo.objects.all()
-    userDict = request.session.get('is_login', None)
-    # usergroup = models.userGroup.objects.all()
-    # result = {'status': '','tag':None}
+@custom_permission_required('myapp.add_assettag')
+def tag_add(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     if request.method == 'POST':
-        tag = request.POST.get('tag', None)
+        tag_name = request.POST.get('tag', None)
         memo = request.POST.get('memo', None)
-        is_exist = models.Tag.objects.filter(name=tag)
+        is_exist = models.AssetTag.objects.filter(name=tag_name)
         print(is_exist)
-        if not (is_exist):
-            is_empty = all([tag, ])
+        if not is_exist:
+            is_empty = all([tag_name, ])
             if is_empty:
-                models.Tag.objects.create(name=tag, memo=memo, )
-                msg = {'userinfo': userinfo, 'tag': tag,
-                       'login_user': userDict['user'], 'status': '添加tag成功', }
-                return redirect('/cmdb/index/assets/tag/')
+                models.AssetTag.objects.create(name=tag_name, memo=memo, )
+                msg = {'tag': tag_name,
+                       'login_user': user_dict['user'], 'status': '添加tag成功',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
+                return redirect('/cmdb/index/assets/tag/list/')
             else:
-                msg = {'userinfo': userinfo, 'tag': tag,
-                       'login_user': userDict['user'], 'status': 'xx不能为空', }
+                msg = {'tag': tag_name,
+                       'login_user': user_dict['user'], 'status': '名称不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
         else:
-            # msg = {'userinfo': userinfo, 'tag': tag, 'usergroup': usergroup,
-            msg = {'userinfo': userinfo, 'tag': tag,
-                   'login_user': userDict['user'], 'status': '该tag已存在！', }
+            msg = {'tag': tag_name,
+                   'login_user': user_dict['user'], 'status': '该tag已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('assets/tag_add.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_tag')
-def tagForm_update(request, *args, **kwargs):
+@custom_permission_required('myapp.change_assettag')
+def tag_form_update(request, *args, **kwargs):
     # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    tag = models.Tag.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'tag': tag, }
+    form_id = kwargs['id']
+    qs = models.AssetTag.objects.filter(id=form_id)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': form_id, 'login_user': user_dict['user'], 'status': '操作成功', 'tag': qs,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     print(msg)
     return render_to_response('assets/tag_update.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_tag')
-def tagUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    tag = request.POST.get('tag')
+@custom_permission_required('myapp.change_assettag')
+def tag_update(request, *args, **kwargs):
+    form_id = kwargs['id']
+    tag_name = request.POST.get('tag')
     memo = request.POST.get('memo')
-    # update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    models.Tag.objects.filter(id=id).update(name=tag, memo=memo, )
-    return redirect('/cmdb/index/assets/tag/')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    models.AssetTag.objects.filter(id=form_id).update(name=tag_name, memo=memo, )
+    return redirect('/cmdb/index/assets/tag/list/')
 
 
 @custom_login_required
-@custom_permission_required('myapp.delete_tag')
-def tagDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.Tag.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除设备状态id:' + id, }
+@custom_permission_required('myapp.delete_assettag')
+def tag_del(request, *args, **kwargs):
+    form_id = request.POST.get('id')
+    models.AssetTag.objects.filter(id=form_id).delete()
+    print('delete', form_id)
+    msg = {'code': 1, 'result': '删除tag id:' + form_id, }
+    return render_to_response('assets/tag.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.delete_assettag')
+def tag_del_all(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.AssetTag.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除tag成功,id列表：' + json.dumps(array_id)}
+    print(msg)
     return render_to_response('assets/tag.html', msg)
 
 
 @custom_login_required
 @custom_permission_required('myapp.view_asset')
 def asset(request, *args, **kwargs):
-    asset = models.Asset.objects.all()
-    count = asset.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'asset': asset, 'login_user': userDict['user'], 'count': count}
+    qs = models.Asset.objects.all()
+    count = qs.count()
+    page = common.try_int(kwargs['page'], 1)
+    per_item = common.try_int(request.COOKIES.get('page_num', 10), 10)
+    pageinfo = page_helper.pageinfo(page, count, per_item)
+    qs_paged = qs[pageinfo.start:pageinfo.end]
+    page_string = page_helper.pager_assets_asset_list(request, page, pageinfo.pageCount)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'asset': qs_paged, 'login_user': user_dict['user'], 'count': count, 'pageCount': pageinfo.pageCount,
+           'page': page_string, 'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('assets/asset.html', msg)
 
 
 @custom_login_required
+@custom_permission_required('myapp.view_asset')
+def asset_detail(request, *args, **kwargs):
+    form_id = kwargs['id']
+    qs = models.Asset.objects.filter(id=form_id)
+    asset_obj = get_object_or_404(models.Asset, pk=form_id)
+    tag_list = models.AssetTag.objects.filter(asset=asset_obj)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'login_user': user_dict['user'], 'status': '操作成功', 'assets': qs, 'tag': tag_list,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    # print(msg)
+    return render_to_response('assets/asset_detail.html', msg)
+
+
+@custom_login_required
 @custom_permission_required('myapp.add_asset')
-def assetForm_add(request, *args, **kwargs):
-    asset = models.Asset.objects.all()
+def asset_form_add(request, *args, **kwargs):
+    qs = models.Asset.objects.all()
     business_unit = models.wf_business.objects.all()
-    userDict = request.session.get('is_login', None)
-    device_type = models.DeviceType.objects.all()
-    device_status = models.DeviceStatus.objects.all()
-    contract = models.Contract.objects.all()
-    tag = models.Tag.objects.all()
-    idc = models.IDC.objects.all()
-    admin = models.userInfo.objects.all()
-    msg = {'asset': asset, 'login_user': userDict['user'], 'status': '',
-           'device_type': device_type, 'device_status': device_status,
-           'contract': contract, 'tag': tag, 'business_unit': business_unit, 'idc': idc, 'admin': admin, }
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    qs_device_type = models.AssetDeviceType.objects.all()
+    qs_device_status = models.AssetDeviceStatus.objects.all()
+    qs_tag = models.AssetTag.objects.all()
+    qs_idc = models.AssetIDC.objects.all()
+    qs_admin = models.userInfo.objects.all()
+    qs_env = models.AssetEnvType.objects.all()
+    qs_os = models.AssetOsType.objects.all()
+    msg = {'asset': qs, 'login_user': user_dict['user'], 'status': '',
+           'device_type': qs_device_type, 'device_status': qs_device_status,
+           'tag': qs_tag, 'business_unit': business_unit, 'idc': qs_idc,
+           'admin': qs_admin, 'env_type': qs_env, 'os_type': qs_os,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('assets/asset_add.html', msg)
 
 
 @custom_login_required
 @custom_permission_required('myapp.add_asset')
-def assetAdd(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
+def asset_add(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     if request.method == 'POST':
-        device_type = request.POST.get('device_type', None)
-        device_status = request.POST.get('device_status', None)
-        contract = request.POST.get('contract', None)
-        tag = request.POST.getlist('tag', None)
+        ip = request.POST.get('ip', None)
+        device_type_id = request.POST.get('device_type', None)
+        device_status_id = request.POST.get('device_status', None)
+        env_type_id = request.POST.get('env_type', None)
+        os_type_id = request.POST.get('os_type', None)
         business_unit_id = request.POST.get('business_unit', None)
+        tag_list = request.POST.getlist('tag', None)
         cabinet_num = request.POST.get('cabinet_num', None)
         cabinet_order = request.POST.get('cabinet_order', None)
-        idc = request.POST.get('idc', None)
-        admin = request.POST.get('admin', None)
+        idc_id = request.POST.get('idc', None)
+        admin_id = request.POST.get('admin', None)
+        hostname = request.POST.get('hostname', None)
+        sn = request.POST.get('sn', None)
+        resource_size = request.POST.get('resource_size', None)
+        disk_size = request.POST.get('disk_size', None)
+        manufactory = request.POST.get('manufactory', None)
+        model = request.POST.get('model', None)
+        bios = request.POST.get('bios', None)
+        is_docker = request.POST.get('is_docker', None)
         memo = request.POST.get('memo', None)
-        print(tag, )
-        is_empty = all([device_type, device_status, ])
+        username = request.POST.get('username', None)
+        password = request.POST.get('password', None)
+        external_ip = request.POST.get('external_ip', None)
+        print(tag_list, )
+        # required_filed = [ip, device_type_id, device_status_id, env_type_id, os_type_id, business_unit_id]
+        required_filed = [ip, ]
+        is_empty = all(required_filed)
         if is_empty:
-            queryset = models.Asset.objects.create(device_type_id=device_type, device_status_id=device_status,
-                                                   contract_id=contract,
-                                                   business_unit_id=business_unit_id, idc_id=idc,
-                                                   cabinet_num=cabinet_num,
-                                                   cabinet_order=cabinet_order, admin_id=admin, memo=memo, )
-            queryset.tag.set(tag)
-            msg = {
-                'login_user': userDict['user'], 'status': '添加asset成功', }
-            return redirect('/cmdb/index/assets/asset/')
+            is_exist = models.Asset.objects.filter(ip=ip)
+            print(is_exist)
+            if not is_exist:
+                queryset = models.Asset.objects.create(ip=ip, device_type_id=device_type_id,
+                                                       device_status_id=device_status_id, env_type_id=env_type_id,
+                                                       os_type_id=os_type_id, business_unit_id=business_unit_id,
+                                                       cabinet_num=cabinet_num, cabinet_order=cabinet_order,
+                                                       idc_id=idc_id, admin_id=admin_id, hostname=hostname,
+                                                       sn=sn, manufactory=manufactory, model=model, bios=bios,
+                                                       is_docker=is_docker, memo=memo, resource_size=resource_size,
+                                                       disk_size=disk_size, username=username, password=password,
+                                                       external_ip=external_ip)
+                # 判断提交的标签是否包含空标签：当不含空标签，
+                if '' not in tag_list:
+                    # 设置标签
+                    queryset.tag.set(tag_list)
+                    print('1')
+                # 判断提交的标签是否包含空标签：当含有空标签，
+                else:
+                    # 清除空元素，设置标签
+                    tag_list.remove('')
+                    queryset.tag.set(tag_list)
+                    print('2')
+                msg = {
+                    'login_user': user_dict['user'], 'status': '添加asset成功',
+                    'wf_count_pending': wf_dict['wf_count_pending'], }
+                return redirect('/cmdb/index/assets/asset/list/')
+            else:
+                msg = {
+                    'login_user': user_dict['user'], 'status': 'ip地址已存在',
+                    'wf_count_pending': wf_dict['wf_count_pending'], }
+                return render_to_response('500.html', msg, status=500)
         else:
             msg = {
-                'login_user': userDict['user'], 'status': 'xx不能为空', }
-            return render_to_response('assets/500.html', msg)
+                'login_user': user_dict['user'], 'status': '[ip,]不能为空',
+                'wf_count_pending': wf_dict['wf_count_pending'], }
+            return render_to_response('500.html', msg, status=500)
+
+    else:
+        msg = {
+            'login_user': user_dict['user'], 'status': '使用POST方法',
+            'wf_count_pending': wf_dict['wf_count_pending'], }
+        return render_to_response('500.html', msg, status=500)
+
+
+@custom_login_required
+# @custom_permission_required('myapp.add_asset')
+def asset_upload(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    # 2024/5/7 增加是否具有权限的判断
+    login_user_obj = get_object_or_404(models.userInfo, username=user_dict['user'])
+    if login_user_obj.has_perm('myapp.add_asset'):
+        if request.method == 'POST':
+
+            files = request.FILES.get('mf', None)
+            # save_files = os.path.join("F:\\upload", files.name)
+            save_files = os.path.join("static/import", files.name)
+            print(files, type(files))
+            with open(save_files, 'wb+') as f:
+                for line in files:
+                    f.write(line)
+            data = excel_helper.read_excel(save_files, 'asset')
+            count = 0
+            count_success = 0
+            count_fail = 0
+            # print(data, type(data))
+            result = []
+            for item in data:
+                print(item, type(item))
+                is_blank = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+                            '', '', '', '']
+                is_title = ['实例数据', '', '', '', '', '', '', '', '', '', '', '', '', '',
+                            '', '', '', '', '', '', '', '', '']
+                # print(is_blank, type(is_blank), is_title, type(is_title))
+                # print(item != is_blank, item != is_title)
+                if item != is_blank and item != is_title:
+                    count = count + 1
+                    # required_filed = [ip, device_type_id, device_status_id, env_type_id, os_type_id, business_unit_id]
+                    required_filed = [item[5], ]
+                    is_empty = all(required_filed)
+                    if is_empty:
+                        is_exist = models.Asset.objects.filter(ip=item[5])
+                        # print(is_exist)
+                        if not is_exist:
+                            queryset = models.Asset.objects.create(ip=item[5], device_type_id=item[19],
+                                                                   device_status_id=item[18], env_type_id=item[20],
+                                                                   os_type_id=item[22], business_unit_id=item[17],
+                                                                   cabinet_num=item[1], cabinet_order=item[2],
+                                                                   idc_id=item[21], admin_id=item[16], hostname=item[4],
+                                                                   sn=item[6], manufactory=item[7], model=item[8],
+                                                                   bios=item[9], is_docker=item[12], memo=item[3],
+                                                                   resource_size=item[13], disk_size=item[14],
+                                                                   username=item[10], password=item[11],
+                                                                   external_ip=item[15])
+                            # queryset.tag.set(item[22])
+
+                            count_success = count_success + 1
+                            status = '添加asset成功：' + item[5]
+                            result.append(status)
+                            # return redirect('/cmdb/index/assets/asset/list/')
+                        else:
+                            count_fail = count_fail + 1
+                            status = 'ip地址已存在：' + item[5]
+                            result.append(status)
+                            # return render_to_response('500.html', msg)
+                    else:
+                        count_fail = count_fail + 1
+                        status = '第' + str(data.index(item)) + '行：[ip,]不能为空'
+                        result.append(status)
+            msg = {'login_user': user_dict['user'], 'result': result, 'count': count, 'count_success': count_success,
+                   'count_fail': count_fail, 'wf_count_pending': wf_dict['wf_count_pending'], }
+            print(msg)
+            return HttpResponse(json.dumps(msg))
+
+        else:
+            msg = {
+                'login_user': user_dict['user'], 'status': '使用POST方法',
+                'wf_count_pending': wf_dict['wf_count_pending'], }
+            return render_to_response('500.html', msg, status=405)
+    else:
+        msg = {'login_user': user_dict['user'],
+               'wf_count_pending': wf_dict['wf_count_pending'], }
+        return JsonResponse(msg, status=403)
 
 
 @custom_login_required
 @custom_permission_required('myapp.change_asset')
-def assetForm_update(request, *args, **kwargs):
+def asset_form_update(request, *args, **kwargs):
     # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    asset = models.Asset.objects.filter(id=id)
-    print(asset.values_list('tag', flat=True), asset.values_list('tag', flat=True)[0], )
-    userDict = request.session.get('is_login', None)
-    device_type = models.DeviceType.objects.all().exclude(id=asset.values('device_type')[0]['device_type'])
-    device_status = models.DeviceStatus.objects.all().exclude(id=asset.values('device_status')[0]['device_status'])
-    contract = models.Contract.objects.all().exclude(id=asset.values('contract')[0]['contract'])
-    if (asset.values_list('tag', flat=True)[0] == None):
-        tag = models.Tag.objects.all()
+    form_id = kwargs['id']
+    qs = models.Asset.objects.filter(id=form_id)
+    # print(qs.values_list('tag', flat=True), qs.values_list('tag', flat=True)[0], )
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    qs_device_type = models.AssetDeviceType.objects.all().exclude(id=qs.values('device_type')[0]['device_type'])
+    qs_device_status = models.AssetDeviceStatus.objects.all().exclude(id=qs.values('device_status')[0]['device_status'])
+    qs_env_type = models.AssetEnvType.objects.all().exclude(id=qs.values('env_type')[0]['env_type'])
+    qs_os_type = models.AssetOsType.objects.all().exclude(id=qs.values('os_type')[0]['os_type'])
+    if qs.values_list('tag', flat=True)[0] is None:
+        tag_list = models.AssetTag.objects.all()
     else:
-        tag = models.Tag.objects.all().exclude(pk__in=asset.values_list('tag', flat=True))
-    print(tag, tag.exists(), )
-    business_unit = models.wf_business.objects.all().exclude(id=asset.values('business_unit')[0]['business_unit'])
-    idc = models.IDC.objects.all().exclude(id=asset.values('idc')[0]['idc'])
-    admin = models.userInfo.objects.all().exclude(id=asset.values('admin')[0]['admin'])
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'asset': asset,
-           'device_type': device_type, 'device_status': device_status,
-           'contract': contract, 'tag': tag, 'business_unit': business_unit, 'idc': idc, 'admin': admin, }
-    print(msg)
+        tag_list = models.AssetTag.objects.all().exclude(pk__in=qs.values_list('tag', flat=True))
+    # print(tag_list, tag_list.exists(), )
+    business_unit = models.wf_business.objects.all().exclude(id=qs.values('business_unit')[0]['business_unit'])
+    qs_idc = models.AssetIDC.objects.all().exclude(id=qs.values('idc')[0]['idc'])
+    admin = models.userInfo.objects.all().exclude(id=qs.values('admin')[0]['admin'])
+    msg = {'id': form_id, 'login_user': user_dict['user'], 'status': '操作成功', 'asset': qs,
+           'device_type': qs_device_type, 'device_status': qs_device_status, 'env_type': qs_env_type,
+           'os_type': qs_os_type,
+           'tag': tag_list, 'business_unit': business_unit, 'idc': qs_idc, 'admin': admin,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    # print(msg)
     return render_to_response('assets/asset_update.html', msg)
 
 
 @custom_login_required
 @custom_permission_required('myapp.change_asset')
-def assetUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    device_type = request.POST.get('device_type', None)
-    device_status = request.POST.get('device_status', None)
-    contract = request.POST.get('contract', None)
-    tag = request.POST.getlist('tag', None)
-    business_unit = request.POST.get('business_unit', None)
-    cabinet_num = request.POST.get('cabinet_num', None)
-    cabinet_order = request.POST.get('cabinet_order', None)
-    idc = request.POST.get('idc', None)
-    admin = request.POST.get('admin', None)
-    memo = request.POST.get('memo', None)
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    ##update return value is type int
-    models.Asset.objects.filter(id=id).update(device_type_id=device_type, device_status_id=device_status,
-                                              contract_id=contract,
-                                              business_unit_id=business_unit, idc_id=idc, cabinet_num=cabinet_num,
-                                              cabinet_order=cabinet_order, admin_id=admin, memo=memo,
-                                              update_time=update_time, )
-    queryset = models.Asset.objects.get(id=id)
-    queryset.tag.set(tag)
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'asset': asset,
-           'device_type': device_type, 'device_status': device_status,
-           'contract': contract, 'tag': tag, 'business_unit': business_unit, 'idc': idc, 'admin': admin, }
-    print(msg)
-    return redirect('/cmdb/index/assets/asset/')
+def asset_update(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    if request.method == 'POST':
+        form_id = kwargs['id']
+        qs = models.Asset.objects.filter(id=form_id)
+        queryset = models.Asset.objects.get(id=form_id)
+        print(qs.values_list('tag', flat=True), qs.values_list('tag', flat=True)[0], )
+        ip = request.POST.get('ip', None)
+        device_type_id = request.POST.get('device_type', None)
+        device_status_id = request.POST.get('device_status', None)
+        env_type_id = request.POST.get('env_type', None)
+        os_type_id = request.POST.get('os_type', None)
+        business_unit_id = request.POST.get('business_unit', None)
+        tag_list = request.POST.getlist('tag', None)
+        cabinet_num = request.POST.get('cabinet_num', None)
+        cabinet_order = request.POST.get('cabinet_order', None)
+        idc_id = request.POST.get('idc', None)
+        admin_id = request.POST.get('admin', None)
+        hostname = request.POST.get('hostname', None)
+        sn = request.POST.get('sn', None)
+        resource_size = request.POST.get('resource_size', None)
+        disk_size = request.POST.get('disk_size', None)
+        manufactory = request.POST.get('manufactory', None)
+        model = request.POST.get('model', None)
+        bios = request.POST.get('bios', None)
+        is_docker = request.POST.get('is_docker', None)
+        memo = request.POST.get('memo', None)
+        username = request.POST.get('username', None)
+        password = request.POST.get('password', None)
+        external_ip = request.POST.get('external_ip', None)
+        update_time = timezone.now()
+        print(tag_list, )
+        # required_filed = [ip, device_type_id, device_status_id, env_type_id, os_type_id, business_unit_id]
+        required_filed = [ip, ]
+        is_empty = all(required_filed)
+        if is_empty:
+            # update return value is type int
+            qs.update(ip=ip, device_type_id=device_type_id, device_status_id=device_status_id, env_type_id=env_type_id,
+                      os_type_id=os_type_id, business_unit_id=business_unit_id, cabinet_num=cabinet_num,
+                      cabinet_order=cabinet_order, idc_id=idc_id, admin_id=admin_id, hostname=hostname,
+                      sn=sn, manufactory=manufactory, model=model, bios=bios, is_docker=is_docker, memo=memo,
+                      resource_size=resource_size, disk_size=disk_size, username=username, password=password,
+                      external_ip=external_ip, update_time=update_time)
+            # 判断提交的标签是否包含空标签：当不含空标签，
+            if '' not in tag_list:
+                # 设置标签
+                queryset.tag.set(tag_list)
+                print('1')
+            # 判断提交的标签是否包含空标签：当含有空标签，
+            else:
+                # 清除空元素，设置标签
+                tag_list.remove('')
+                queryset.tag.set(tag_list)
+                print('2')
+            msg = {
+                'login_user': user_dict['user'], 'status': '更新asset成功',
+                'wf_count_pending': wf_dict['wf_count_pending'], }
+            # print(msg)
+            return redirect('/cmdb/index/assets/asset/list/')
+        else:
+            msg = {
+                'login_user': user_dict['user'], 'status': '[ip, device_type_id, device_status_id, env_type_id, '
+                                                           'os_type_id, business_unit_id]不能为空',
+                'wf_count_pending': wf_dict['wf_count_pending'], }
+            return render_to_response('500.html', msg, status=500)
+
+    else:
+        msg = {
+            'login_user': user_dict['user'], 'status': '使用POST方法',
+            'wf_count_pending': wf_dict['wf_count_pending'], }
+        return render_to_response('500.html', msg, status=405)
 
 
 @custom_login_required
 @custom_permission_required('myapp.delete_asset')
-def assetDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.Asset.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除asset id:' + id, }
+def asset_del(request, *args, **kwargs):
+    form_id = request.POST.get('id')
+    models.Asset.objects.filter(id=form_id).delete()
+    print('delete', form_id)
+    msg = {'code': 1, 'result': '删除asset id:' + form_id, }
     return render_to_response('assets/asset.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.view_host')
-def host(request, *args, **kwargs):
-    host = models.Server.objects.all()
-    count = host.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'host': host, 'login_user': userDict['user'], 'count': count}
-    return render_to_response('assets/host.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_host')
-def hostForm_add(request, *args, **kwargs):
-    asset = models.Asset.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'asset': asset, 'login_user': userDict['user'], 'status': '', }
-    print(msg, )
-    return render_to_response('assets/host_add.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_host')
-def hostAdd(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
-    if request.method == 'POST':
-        asset = request.POST.get('asset', None)
-        hostname = request.POST.get('hostname', None)
-        ip = request.POST.get('ip', None)
-        sn = request.POST.get('sn', None)
-        manufactory = request.POST.get('manufactory', None)
-        model = request.POST.get('model', None)
-        bios = request.POST.get('bios', None)
-        type = request.POST.get('type', None)
-        memo = request.POST.get('memo', None)
-        print(type, )
-        is_exist = models.Server.objects.filter(hostname=hostname, )
-        print(is_exist)
-        if not (is_exist):
-            is_empty = all([asset, hostname, ip, ])
-            if is_empty:
-                queryset = models.Server.objects.create(asset_id=asset, hostname=hostname, ip=ip, sn=sn,
-                                                        manufactory=manufactory,
-                                                        model=model, bios=bios, type=type, memo=memo, )
-                msg = {
-                    'login_user': userDict['user'], 'status': '添加host成功', }
-                return redirect('/cmdb/index/assets/host/')
-            else:
-                msg = {
-                    'login_user': userDict['user'], 'status': 'xx不能为空', }
-                return render_to_response('assets/500.html', msg)
-        else:
-            msg = {
-                'login_user': userDict['user'], 'status': 'hostname或ip地址已存在', }
-            return render_to_response('assets/500.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_host')
-def hostForm_update(request, *args, **kwargs):
-    # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    host = models.Server.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    asset = models.Asset.objects.all().exclude(id=host.values('asset')[0]['asset'])
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'host': host, 'asset': asset, }
-    print(msg, )
-    return render_to_response('assets/host_update.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_host')
-def hostUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    asset = request.POST.get('asset', None)
-    hostname = request.POST.get('hostname', None)
-    ip = request.POST.get('ip', None)
-    sn = request.POST.get('sn', None)
-    manufactory = request.POST.get('manufactory', None)
-    model = request.POST.get('model', None)
-    bios = request.POST.get('bios', None)
-    type = request.POST.get('type', None)
-    memo = request.POST.get('memo', None)
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    ##update return value is type int
-    models.Server.objects.filter(id=id).update(asset_id=asset, hostname=hostname, ip=ip, sn=sn, manufactory=manufactory,
-                                               model=model, bios=bios, type=type, memo=memo, update_time=update_time, )
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'asset': asset, 'hostname': hostname,
-           'sn': sn,
-           'manufactory': manufactory, 'model': model, 'bios': bios, 'type': type, 'memo': memo, }
+@custom_permission_required('myapp.delete_asset')
+def asset_del_all(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.Asset.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除asset成功,id列表：' + json.dumps(array_id)}
     print(msg)
-    return redirect('/cmdb/index/assets/host/')
+    return render_to_response('assets/asset.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.delete_host')
-def hostDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.Server.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除host id:' + id, }
-    return render_to_response('assets/host.html', msg)
+@custom_permission_required('myapp.view_asset')
+def asset_export(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    current_time = datetime.now()
+    formatted_time = current_time.strftime('%Y%m%d%H%M%S')
+    # export_dir = "D:\\BaiduNetdiskWorkspace\myweb-master\static\export"
+    export_dir = "static/export"
+    file_name = "export_asset_" + formatted_time + ".xls"
+    export_files = os.path.join(export_dir, file_name)
+    # 数据写入excel
+    data_list = []
+    # 插入表头
+    data_title = ['机柜号', '机架号', '备注', '主机名', 'ip地址 *', 'SN号', '厂商', '型号', 'BIOS', '用户名', '密码',
+                  'docker环境', '资源配置', '磁盘配置', '外网ip地址', '设备管理员', '所属业务线',
+                  '设备状态', '设备类型', '业务环境类型', 'idc机房', '系统类型', '创建时间', '修改时间',
+                  ]
+    data_field = ['cabinet_num', 'cabinet_order', 'memo', 'hostname', 'ip', 'sn', 'manufactory', 'model', 'bios',
+                  'username', 'password', 'is_docker', 'resource_size', 'disk_size', 'external_ip', 'admin_id',
+                  'business_unit_id',
+                  'device_status_id', 'device_type_id', 'env_type_id', 'idc_id', 'os_type_id', 'create_time',
+                  'update_time',
+                  ]
+    data_list.append(data_title)
+    # 插入数据
+    for row_num in range(1, len(array_id) + 1):
+        qs_asset_obj = models.Asset.objects.filter(id=array_id[row_num - 1])
+        data_row = []
 
-
-@custom_login_required
-@custom_permission_required('myapp.view_cpu')
-def cpu(request, *args, **kwargs):
-    cpu = models.CPU.objects.all()
-    count = cpu.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'cpu': cpu, 'login_user': userDict['user'], 'count': count}
-    return render_to_response('assets/cpu.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_cpu')
-def cpuForm_add(request, *args, **kwargs):
-    host = models.Server.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'host': host, 'login_user': userDict['user'], 'status': '', }
-    print(msg, )
-    return render_to_response('assets/cpu_add.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_cpu')
-def cpuAdd(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
-    if request.method == 'POST':
-        server_info = request.POST.get('server_info', None)
-        name = request.POST.get('name', None)
-        model = request.POST.get('model', None)
-        core_num = request.POST.get('core_num', None)
-        memo = request.POST.get('memo', None)
-        is_exist = models.CPU.objects.filter(name=name, server_info=server_info, )
-        print(is_exist)
-        if not (is_exist):
-            is_empty = all([name, core_num, model, server_info, ])
-            if is_empty:
-                queryset = models.CPU.objects.create(server_info_id=server_info, name=name,
-                                                     model=model, core_num=core_num, memo=memo, )
-                msg = {
-                    'login_user': userDict['user'], 'status': '添加cpu成功', }
-                return redirect('/cmdb/index/assets/cpu/')
-            else:
-                msg = {
-                    'login_user': userDict['user'], 'status': 'xx不能为空', }
-                return render_to_response('assets/500.html', msg)
+        for col_num in range(len(data_field) - 9):
+            data_row.append(qs_asset_obj.values(data_field[col_num])[0][data_field[col_num]])
+        '''
+        for col_num in range(len(data_field) - 9, len(data_field) - 2):
+            print(qs_asset_obj.values(data_field[col_num])[0][data_field[col_num]])
+            print(models.userInfo.objects.filter(
+                    id=qs_asset_obj.values(data_field[col_num])[0][data_field[col_num]]
+                ))
+        '''
+        if qs_asset_obj.values('admin_id')[0]['admin_id'] is not None:
+            data_row.append(
+                models.userInfo.objects.filter(
+                    id=qs_asset_obj.values('admin_id')[0]['admin_id']
+                ).values('username')[0]['username']
+            )
         else:
-            msg = {
-                'login_user': userDict['user'], 'status': '该CPU name已存在', }
-            return render_to_response('assets/500.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_cpu')
-def cpuForm_update(request, *args, **kwargs):
-    # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    cpu = models.CPU.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    host = models.Server.objects.all().exclude(id=cpu.values('server_info')[0]['server_info'])
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'cpu': cpu, 'host': host, }
-    print(msg, )
-    return render_to_response('assets/cpu_update.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_cpu')
-def cpuUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    server_info = request.POST.get('server_info', None)
-    name = request.POST.get('name', None)
-    model = request.POST.get('model', None)
-    core_num = request.POST.get('core_num', None)
-    memo = request.POST.get('memo', None)
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    ##update return value is type int
-    models.CPU.objects.filter(id=id).update(server_info_id=server_info, name=name,
-                                            core_num=core_num, model=model, memo=memo, update_time=update_time, )
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'server_info': server_info,
-           'name': name, 'core_num': core_num, 'model': model, 'memo': memo, }
-    print(msg)
-    return redirect('/cmdb/index/assets/cpu/')
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_cpu')
-def cpuDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.CPU.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除cpu id:' + id, }
-    return render_to_response('assets/cpu.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.view_memory')
-def memory(request, *args, **kwargs):
-    memory = models.Memory.objects.all()
-    count = memory.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'memory': memory, 'login_user': userDict['user'], 'count': count}
-    return render_to_response('assets/memory.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_memory')
-def memoryForm_add(request, *args, **kwargs):
-    host = models.Server.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'host': host, 'login_user': userDict['user'], 'status': '', }
-    print(msg, )
-    return render_to_response('assets/memory_add.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_memory')
-def memoryAdd(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
-    if request.method == 'POST':
-        server_info = request.POST.get('server_info', None)
-        slot = request.POST.get('slot', None)
-        model = request.POST.get('model', None)
-        capacity = request.POST.get('capacity', None)
-        ifac_type = request.POST.get('ifac_type', None)
-        memo = request.POST.get('memo', None)
-        is_exist = models.Memory.objects.filter(slot=slot, server_info=server_info, )
-        print(is_exist)
-        if not (is_exist):
-            is_empty = all([slot, capacity, ifac_type, model, server_info, ])
-            if is_empty:
-                queryset = models.Memory.objects.create(server_info_id=server_info, slot=slot,
-                                                        ifac_type=ifac_type, model=model, capacity=capacity,
-                                                        memo=memo, )
-                msg = {
-                    'login_user': userDict['user'], 'status': '添加memory成功', }
-                return redirect('/cmdb/index/assets/memory/')
-            else:
-                msg = {
-                    'login_user': userDict['user'], 'status': 'xx不能为空', }
-                return render_to_response('assets/500.html', msg)
+            data_row.append('')
+        if qs_asset_obj.values('business_unit_id')[0]['business_unit_id'] is not None:
+            data_row.append(
+                models.wf_business.objects.filter(
+                    id=qs_asset_obj.values('business_unit_id')[0]['business_unit_id']
+                ).values('name')[0]['name'])
         else:
-            msg = {
-                'login_user': userDict['user'], 'status': '该memory slot已存在', }
-            return render_to_response('assets/500.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_memory')
-def memoryForm_update(request, *args, **kwargs):
-    # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    memory = models.Memory.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    host = models.Server.objects.all().exclude(id=memory.values('server_info')[0]['server_info'])
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'memory': memory, 'host': host, }
-    print(msg, )
-    return render_to_response('assets/memory_update.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_memory')
-def memoryUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    server_info = request.POST.get('server_info', None)
-    slot = request.POST.get('slot', None)
-    model = request.POST.get('model', None)
-    capacity = request.POST.get('capacity', None)
-    ifac_type = request.POST.get('ifac_type', None)
-    memo = request.POST.get('memo', None)
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    ##update return value is type int
-    models.Memory.objects.filter(id=id).update(server_info_id=server_info, slot=slot,
-                                               ifac_type=ifac_type, capacity=capacity,
-                                               model=model, memo=memo, update_time=update_time, )
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'server_info': server_info,
-           'slot': slot, 'capacity': capacity, 'ifac_type': ifac_type, 'model': model, 'memo': memo, }
-    print(msg)
-    return redirect('/cmdb/index/assets/memory/')
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_memory')
-def memoryDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.Memory.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除memory id:' + id, }
-    return render_to_response('assets/memory.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.view_nic')
-def nic(request, *args, **kwargs):
-    nic = models.NIC.objects.all()
-    count = nic.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'nic': nic, 'login_user': userDict['user'], 'count': count}
-    return render_to_response('assets/nic.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_nic')
-def nicForm_add(request, *args, **kwargs):
-    host = models.Server.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'host': host, 'login_user': userDict['user'], 'status': '', }
-    print(msg, )
-    return render_to_response('assets/nic_add.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_nic')
-def nicAdd(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
-    if request.method == 'POST':
-        server_info = request.POST.get('server_info', None)
-        name = request.POST.get('name', None)
-        model = request.POST.get('model', None)
-        ipaddr = request.POST.get('ipaddr', None)
-        mac = request.POST.get('mac', None)
-        netmask = request.POST.get('netmask', None)
-        memo = request.POST.get('memo', None)
-        is_exist = models.NIC.objects.filter(server_info=server_info, name=name, )
-        print(is_exist)
-        if not (is_exist):
-            is_empty = all([name, ipaddr, mac, netmask, model, server_info, ])
-            if is_empty:
-                queryset = models.NIC.objects.create(server_info_id=server_info, name=name,
-                                                     model=model, ipaddr=ipaddr, mac=mac, netmask=netmask, memo=memo, )
-                msg = {
-                    'login_user': userDict['user'], 'status': '添加nic成功', }
-                return redirect('/cmdb/index/assets/nic/')
-            else:
-                msg = {
-                    'login_user': userDict['user'], 'status': 'xx不能为空', }
-                return render_to_response('assets/500.html', msg)
+            data_row.append('')
+        if qs_asset_obj.values('device_status_id')[0]['device_status_id'] is not None:
+            data_row.append(
+                models.AssetDeviceStatus.objects.filter(
+                    id=qs_asset_obj.values('device_status_id')[0]['device_status_id']
+                ).values('name')[0]['name'])
         else:
-            msg = {
-                'login_user': userDict['user'], 'status': '该nic已存在', }
-            return render_to_response('assets/500.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_nic')
-def nicForm_update(request, *args, **kwargs):
-    # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    nic = models.NIC.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    host = models.Server.objects.all().exclude(id=nic.values('server_info')[0]['server_info'])
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'nic': nic, 'host': host, }
-    print(msg, )
-    return render_to_response('assets/nic_update.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_nic')
-def nicUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    server_info = request.POST.get('server_info', None)
-    name = request.POST.get('name', None)
-    model = request.POST.get('model', None)
-    ipaddr = request.POST.get('ipaddr', None)
-    mac = request.POST.get('mac', None)
-    netmask = request.POST.get('netmask', None)
-    memo = request.POST.get('memo', None)
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    ##update return value is type int
-    models.NIC.objects.filter(id=id).update(server_info_id=server_info, name=name,
-                                            ipaddr=ipaddr, mac=mac, netmask=netmask,
-                                            model=model, memo=memo, update_time=update_time, )
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'server_info': server_info,
-           'name': name, 'ipaddr': ipaddr, 'mac': mac, 'netmask': netmask, 'model': model, 'memo': memo, }
-    print(msg)
-    return redirect('/cmdb/index/assets/nic/')
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_nic')
-def nicDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.NIC.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除nic id:' + id, }
-    return render_to_response('assets/nic.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.view_disk')
-def disk(request, *args, **kwargs):
-    disk = models.Disk.objects.all()
-    count = disk.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'disk': disk, 'login_user': userDict['user'], 'count': count}
-    return render_to_response('assets/disk.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_disk')
-def diskForm_add(request, *args, **kwargs):
-    host = models.Server.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'host': host, 'login_user': userDict['user'], 'status': '', }
-    print(msg, )
-    return render_to_response('assets/disk_add.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_disk')
-def diskAdd(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
-    if request.method == 'POST':
-        server_info = request.POST.get('server_info', None)
-        slot = request.POST.get('slot', None)
-        model = request.POST.get('model', None)
-        capacity = request.POST.get('capacity', None)
-        ifac_type = request.POST.get('ifac_type', None)
-        memo = request.POST.get('memo', None)
-        is_exist = models.Disk.objects.filter(slot=slot, server_info=server_info, )
-        print(is_exist)
-        if not (is_exist):
-            is_empty = all([slot, model, capacity, ifac_type, server_info, ])
-            if is_empty:
-                queryset = models.Disk.objects.create(server_info_id=server_info, slot=slot,
-                                                      model=model, capacity=capacity, ifac_type=ifac_type, memo=memo, )
-                msg = {
-                    'login_user': userDict['user'], 'status': '添加disk成功', }
-                return redirect('/cmdb/index/assets/disk/')
-            else:
-                msg = {
-                    'login_user': userDict['user'], 'status': 'xx不能为空', }
-                return render_to_response('assets/500.html', msg)
+            data_row.append('')
+        if qs_asset_obj.values('device_type_id')[0]['device_type_id'] is not None:
+            data_row.append(
+                models.AssetDeviceType.objects.filter(
+                    id=qs_asset_obj.values('device_type_id')[0]['device_type_id']
+                ).values('name')[0]['name'])
         else:
-            msg = {
-                'login_user': userDict['user'], 'status': '该disk已存在', }
-            return render_to_response('assets/500.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_disk')
-def diskForm_update(request, *args, **kwargs):
-    # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    disk = models.Disk.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    host = models.Server.objects.all().exclude(id=disk.values('server_info')[0]['server_info'])
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'disk': disk, 'host': host, }
-    print(msg, )
-    return render_to_response('assets/disk_update.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.change_disk')
-def diskUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    server_info = request.POST.get('server_info', None)
-    slot = request.POST.get('slot', None)
-    model = request.POST.get('model', None)
-    capacity = request.POST.get('capacity', None)
-    ifac_type = request.POST.get('ifac_type', None)
-    memo = request.POST.get('memo', None)
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    ##update return value is type int
-    models.Disk.objects.filter(id=id).update(server_info_id=server_info, slot=slot,
-                                             capacity=capacity, ifac_type=ifac_type,
-                                             model=model, memo=memo, update_time=update_time, )
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'server_info': server_info,
-           'slot': slot, 'capacity': capacity, 'ifac_type': ifac_type, 'model': model, 'memo': memo, }
-    print(msg)
-    return redirect('/cmdb/index/assets/disk/')
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_disk')
-def diskDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.Disk.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除disk id:' + id, }
-    return render_to_response('assets/disk.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.view_networkdevice')
-def network(request, *args, **kwargs):
-    network = models.NetworkDevice.objects.all()
-    count = network.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'network': network, 'login_user': userDict['user'], 'count': count}
-    return render_to_response('assets/network.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_networkdevice')
-def networkForm_add(request, *args, **kwargs):
-    asset = models.Asset.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'asset': asset, 'login_user': userDict['user'], 'status': '', }
-    print(msg, )
-    return render_to_response('assets/network_add.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.add_networkdevice')
-def networkAdd(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
-    if request.method == 'POST':
-        asset = request.POST.get('asset', None)
-        name = request.POST.get('name', None)
-        sn = request.POST.get('sn', None)
-        manufactory = request.POST.get('manufactory', None)
-        model = request.POST.get('model', None)
-        memo = request.POST.get('memo', None)
-        print(type, )
-        is_exist = models.NetworkDevice.objects.filter(sn=sn, )
-        print(is_exist)
-        if not (is_exist):
-            is_empty = all([asset, name, sn, manufactory, model, ])
-            if is_empty:
-                queryset = models.NetworkDevice.objects.create(asset_id=asset, name=name, sn=sn,
-                                                               manufactory=manufactory,
-                                                               model=model, memo=memo, )
-                msg = {
-                    'login_user': userDict['user'], 'status': '添加network成功', }
-                return redirect('/cmdb/index/assets/network/')
-            else:
-                msg = {
-                    'login_user': userDict['user'], 'status': 'xx不能为空', }
-                return render_to_response('assets/500.html', msg)
+            data_row.append('')
+        if qs_asset_obj.values('env_type_id')[0]['env_type_id'] is not None:
+            data_row.append(
+                models.AssetEnvType.objects.filter(
+                    id=qs_asset_obj.values('env_type_id')[0]['env_type_id']
+                ).values('name')[0]['name'])
         else:
-            msg = {
-                'login_user': userDict['user'], 'status': '该网络设备已存在', }
-            return render_to_response('assets/500.html', msg)
+            data_row.append('')
+        if qs_asset_obj.values('idc_id')[0]['idc_id'] is not None:
+            data_row.append(
+                models.AssetIDC.objects.filter(
+                    id=qs_asset_obj.values('idc_id')[0]['idc_id']
+                ).values('display_name')[0]['display_name'])
+        else:
+            data_row.append('')
+        if qs_asset_obj.values('os_type_id')[0]['os_type_id'] is not None:
+            data_row.append(
+                models.AssetOsType.objects.filter(
+                    id=qs_asset_obj.values('os_type_id')[0]['os_type_id']
+                ).values('name')[0]['name'])
+        else:
+            data_row.append('')
+
+        for col_num in range(len(data_field) - 2, len(data_field)):
+            data_row.append(qs_asset_obj.values(data_field[col_num])[0][data_field[col_num]])
+        data_list.append(data_row)
+        # print(data_list)
+        # print(row_num)
+    for row_num in range(len(data_list)):
+        excel_helper.write_excel(export_files, 'asset', row_num, data_list[row_num])
+    # 下载导出的excel
+    url = EXTERNAL_URL + '/cmdb/static/export/' + file_name
+
+    try:
+        webbrowser.open(url, new=0)
+    except webbrowser.Error:
+        webbrowser.open(url, new=2)
+    """
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            with open(file_name, 'wb') as f:
+                f.write(response.content)
+            print("文件下载成功！")
+        else:
+            print("下载失败，状态码：", response.status_code)
+    except Exception as e:
+        print("下载失败：", e)
+    """
+    msg = {'code': '0', 'status': '写入数据成功,id列表：' + json.dumps(array_id)}
+    # print(msg)
+
+    return render_to_response('assets/asset.html', msg)
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_networkdevice')
-def networkForm_update(request, *args, **kwargs):
-    # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    network = models.NetworkDevice.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    asset = models.Asset.objects.all().exclude(id=network.values('asset')[0]['asset'])
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'network': network, 'asset': asset, }
-    print(msg, )
-    return render_to_response('assets/network_update.html', msg)
+@custom_permission_required('myapp.view_asset')
+def asset_search(request, *args, **kwargs):
+    keyword = request.POST.get('keyword').strip()
+    page = '1'
+    # print(keyword, page)
+    if keyword:
+        return redirect('/cmdb/index/assets/asset/search_result/keyword=' + keyword + '&page=' + page)
+        # return redirect(reverse("account.search_result", kwargs={"keyword": keyword, "page": page}))
+    else:
+        return redirect('/cmdb/index/assets/asset/list/')
+        # return redirect(reverse("account.user", kwargs={"page": page}))
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_networkdevice')
-def networkUpdate(request, *args, **kwargs):
-    id = kwargs['id']
-    asset = request.POST.get('asset', None)
-    name = request.POST.get('name', None)
-    sn = request.POST.get('sn', None)
-    manufactory = request.POST.get('manufactory', None)
-    model = request.POST.get('model', None)
-    memo = request.POST.get('memo', None)
-    update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
-    ##update return value is type int
-    models.NetworkDevice.objects.filter(id=id).update(asset_id=asset, name=name, sn=sn, manufactory=manufactory,
-                                                      model=model, memo=memo, update_time=update_time, )
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'asset': asset, 'name': name, 'sn': sn,
-           'manufactory': manufactory, 'model': model, 'memo': memo, }
-    print(msg)
-    return redirect('/cmdb/index/assets/network/')
+@custom_permission_required('myapp.view_asset')
+def asset_search_result(request, *args, **kwargs):
+    keyword = kwargs['keyword']
+    qs = models.Asset.objects.filter(ip__icontains=keyword) | models.Asset.objects.filter(
+        hostname__icontains=keyword) | models.Asset.objects.filter(
+        sn__icontains=keyword) | models.Asset.objects.filter(memo__icontains=keyword)
+    count = qs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    page = common.try_int(kwargs['page'], 1)
+    # print(keyword, page)
+    per_item = common.try_int(request.COOKIES.get('page_num', 10), 10)
+    pageinfo = page_helper.pageinfo_search(page, count, per_item, keyword)
+    qs_paged = qs[pageinfo.start:pageinfo.end]
+    page_string = page_helper.pager_user_list_search(request, page, pageinfo.pageCount, keyword)
+    msg = {'asset': qs_paged, 'login_user': user_dict['user'], 'status': '操作成功',
+           'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('assets/asset.html', msg)
 
 
-@custom_login_required
-@custom_permission_required('myapp.delete_networkdevice')
-def networkDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.NetworkDevice.objects.filter(id=id).delete()
-    print('delete', id)
-    msg = {'code': 1, 'result': '删除network id:' + id, }
-    return render_to_response('assets/network.html', msg)
-
-
+"""
 @custom_login_required
 @custom_permission_required('myapp.view_wf_business')
 def business(request, *args, **kwargs):
@@ -1307,3 +1260,4 @@ def businessDel(request, *args, **kwargs):
     print('delete', id)
     msg = {'code': 1, 'result': '删除工单类型id:' + id, }
     return render_to_response('assets/business.html', msg)
+"""

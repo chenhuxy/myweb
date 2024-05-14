@@ -4,76 +4,87 @@
 {% block content %}
 {% load tz %}
 
-        <div class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                prometheus报警
-                                <label style="color: red;">
-                                    {{ status }}
-                                </label>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                        <table class="table table-hover table-bordered">
-                            <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>labels</th>
-                                <th>annotations</th>
-                                <th>state</th>
-                                <th>activeAt</th>
-                                <th>value</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in alerts %}
-                            <tr>
-                                <td>{{forloop.counter}}</td>
-
-                                <td>
-                                    {{ item.labels }}
-                                </td>
-
-                                <td>{{item.annotations}}</td>
-                                <td>{{item.state}}</td>
-{% timezone "Asia/Shanghai" %}
-                                <td>{{item.activeAt}}</td>
-{% endtimezone %}
-
-                                <td>{{item.value}}</td>
-                            </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-
-                        <span style="float: right;">
-                            共有{{count}}条，
-                            每页显示：
-                            <select id="pageSelect" onchange="pageChange(this)">
-                                <option value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="30">30</option>
-                                <option value="50">50</option>
-                            </select>
-                            条&nbsp;&emsp;
-                            {{page}}
-                        </span>
-
-
+<div class="content">
+    <!--<div class="container-fluid">-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        prometheus告警历史
+                        <label style="color: red;">
+                            {{ status }}
+                        </label>
                     </div>
-                </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>告警状态</th>
+                        <th>告警名称</th>
+                        <th>告警级别</th>
+                        <th>实例地址</th>
+                        <th>告警摘要</th>
+                        <th>告警详情</th>
+                        <th>触发时间</th>
+                        <th>结束时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+<!--
+                    {% for item in alerts %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{ item.labels }}</td>
+                        <td>{{item.annotations}}</td>
+                        <td>{{item.state}}</td>
+                        {% timezone "Asia/Shanghai" %}
+                        <td>{{item.activeAt}}</td>
+                        {% endtimezone %}
+                        <td>{{item.value}}</td>
+                    </tr>
+                    {% endfor %}
+-->
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.status }}</td>
+                        <td>{{ item.alertname }}</td>
+                        <td>{{ item.severity }}</td>
+                        <td>{{ item.instance }}</td>
+                        <td>{{ item.summary }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>{{ item.starts_at }}</td>
+                        <td>{{ item.ends_at }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <span style="float: right;">
+                    共有{{count}}条，
+                    每页显示：
+                    <select id="pageSelect" onchange="pageChange(this)">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                    </select>
+                    条&nbsp;&emsp;
+                    {{page}}
+                </span>
+
 
             </div>
         </div>
+
+    <!--</div>-->
+</div>
 
 {% endblock %}
 {% block formFooter %}
 {% endblock %}
 {% block javascript %}
-    <script>
+<script>
  $(function () {
         var perItem = $.cookie('page_num');
         if (perItem){
@@ -83,11 +94,11 @@
     })
 
 
-    function pageChange(arg) {
-        var value=$(arg).val();
-        $.cookie('page_num',value,{path:'/'});
-        window.parent.location.reload();
-    }
+function pageChange(arg) {
+    var value=$(arg).val();
+    $.cookie('page_num',value,{path:'/'});
+    window.parent.location.reload();
+}
 
-    </script>
+</script>
 {% endblock %}

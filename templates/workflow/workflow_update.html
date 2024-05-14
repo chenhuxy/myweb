@@ -146,48 +146,48 @@
         </div>
 {% endblock %}
 {% block javascript %}
-    <script>
-        $(function () {
+<script>
+$(function () {
 
-                var type = $('#type').val();
-                //alert(type);
-                //console.log(type);
-                if(type!='生产发布'){
-                    document.getElementById('proj_name').setAttribute("style","display:none");
-                    document.getElementById('proj_tag').setAttribute("style","display:none");
-                }
+        var type = $('#type').val();
+        //alert(type);
+        //console.log(type);
+        if(type!='生产发布'){
+            document.getElementById('proj_name').setAttribute("style","display:none");
+            document.getElementById('proj_tag').setAttribute("style","display:none");
+        }
 
-        })
+})
 
-        function projnameChange(arg){
-        var proj_name=$(arg).val();
-        console.log(proj_name);
+function projnameChange(arg){
+var proj_name=$(arg).val();
+console.log(proj_name);
 
-        $.ajax({
-                url:'/cmdb/index/wf/wftype/change2/',
-                data:{proj_name:proj_name},
-                type:'POST',
-                success:function (data) {
-                    var data = JSON.parse(data);
-                    var tags_name = data.tags_name;
-                    console.log(data);
-                    console.log(tags_name);
-                    target = document.getElementById('single-select3');
-                    console.log(target,typeof target);
-                    console.log(tags_name.length);
-                    var htmls = '<option value="0">------------- 请选择 -------------</option>'
-                    for(i=0;i<tags_name.length;i++){
+$.ajax({
+        url:'/cmdb/index/wf/wftype/change2/',
+        data:{proj_name:proj_name},
+        type:'POST',
+        success:function (data) {
+            var data = JSON.parse(data);
+            var tags_name = data.tags_name;
+            console.log(data);
+            console.log(tags_name);
+            target = document.getElementById('single-select3');
+            console.log(target,typeof target);
+            console.log(tags_name.length);
+            var htmls = '<option value="0">------------- 请选择 -------------</option>'
+            for(i=0;i<tags_name.length;i++){
 
-                        var htmls = htmls + '<option value=' + tags_name[i] + '>' + tags_name[i] + '</option>';
-                    };
-                    target.innerHTML = htmls;
-                },
-                error:function () {
-                    alert('服务器异常');
-                }
-            });
+                var htmls = htmls + '<option value=' + tags_name[i] + '>' + tags_name[i] + '</option>';
+            };
+            target.innerHTML = htmls;
+        },
+        error:function () {
+            alert('服务器异常');
+        }
+    });
 
-    }
+}
 
-    </script>
+</script>
 {% endblock %}

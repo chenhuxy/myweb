@@ -31,16 +31,20 @@
 
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item d-md-down-none">
-                    <a href="#">
+                    <a href="/cmdb/index/wf/tasks/list/">
                         <i class="fa fa-bell"></i>
-                        <span class="badge badge-pill badge-danger">5</span>
+                        {% if wf_count_pending > 0 %}
+                        <span class="badge badge-pill badge-danger">{{ wf_count_pending }}</span>
+                        {% else %}
+                        <span class="badge badge-pill badge-danger"></span>
+                        {% endif %}
                     </a>
                 </li>
 
                 <li class="nav-item d-md-down-none">
-                    <a href="#">
+                    <a href="/cmdb/index/monitor/skywalking/alert/list/">
                         <i class="fa fa-envelope-open"></i>
-                        <span class="badge badge-pill badge-danger">5</span>
+                        <span class="badge badge-pill badge-danger"></span>
                     </a>
                 </li>
 
@@ -57,7 +61,7 @@
                             <i class="fa fa-user"></i> 个人信息
                         </a>
 
-                        <a href="#" class="dropdown-item">
+                        <a href="/cmdb/index/monitor/skywalking/alert/list/" class="dropdown-item">
                             <i class="fa fa-envelope"></i> Messages
                         </a>
 
@@ -122,10 +126,24 @@
                             </a>
                             <ul class="nav-dropdown-items">
                                 <li class="nav-item">
-                                    <a href="/cmdb/index/assets/asset/" class="nav-link">
-                                        <i class="icon icon-graph"></i> 资产列表
+                                    <a href="/cmdb/index/assets/asset/list/" class="nav-link">
+                                        <i class="icon icon-organization"></i> 资产列表
                                     </a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/env-type/list/" class="nav-link">
+                                        <i class="icon icon-frame"></i> 环境列表
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/assets/os-type/list/" class="nav-link">
+                                        <i class="icon icon-loop"></i> 操作系统列表
+                                    </a>
+                                </li>
+
+                                <!--
                                 <li class="nav-item">
                                     <a href="/cmdb/index/assets/host/" class="nav-link">
                                         <i class="icon icon-graph"></i> 服务器列表
@@ -156,36 +174,42 @@
                                         <i class="icon icon-graph"></i> 网络设备列表
                                     </a>
                                 </li>
+                                -->
+
                                 <li class="nav-item">
-                                    <a href="/cmdb/index/assets/devicetype/" class="nav-link">
-                                        <i class="icon icon-graph"></i> 设备类型
+                                    <a href="/cmdb/index/assets/device-type/list/" class="nav-link">
+                                        <i class="icon icon-wrench"></i> 设备类型
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="/cmdb/index/assets/devicestatus/" class="nav-link">
-                                        <i class="icon icon-graph"></i> 设备状态
+                                    <a href="/cmdb/index/assets/device-status/list/" class="nav-link">
+                                        <i class="icon icon-bubble"></i> 设备状态
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="/cmdb/index/assets/idc/" class="nav-link">
-                                        <i class="icon icon-graph"></i> IDC机房
+                                    <a href="/cmdb/index/assets/idc/list/" class="nav-link">
+                                        <i class="icon icon-home"></i> IDC机房
                                     </a>
                                 </li>
+                                <!--
                                 <li class="nav-item">
                                     <a href="/cmdb/index/assets/contract/" class="nav-link">
                                         <i class="icon icon-graph"></i> 合同
                                     </a>
                                 </li>
+                                -->
                                 <li class="nav-item">
-                                    <a href="/cmdb/index/assets/tag/" class="nav-link">
-                                        <i class="icon icon-graph"></i> 标签
+                                    <a href="/cmdb/index/assets/tag/list/" class="nav-link">
+                                        <i class="icon icon-tag"></i> 标签
                                     </a>
                                 </li>
+                                <!--
                                 <li class="nav-item">
                                     <a href="/cmdb/index/table/usertype/" class="nav-link">
                                         <i class="icon icon-graph"></i> 操作日志
                                     </a>
                                 </li>
+                                -->
                                 </ul>
                         </li>
 
@@ -195,14 +219,34 @@
                             </a>
                             <ul class="nav-dropdown-items">
 
-                                <li class="nav-item">
+                                <!--<li class="nav-item">
                                     <a href="/cmdb/index/monitor/zabbix/" class="nav-link">
                                         <i class="icon icon-energy"></i> zabbix监控
+                                    </a>
+                                </li>-->
+                                <!--<li class="nav-item">
+                                    <a href="/cmdb/index/monitor/prometheus/alert/list/" class="nav-link">
+                                        <i class="icon icon-fire"></i> prometheus监控
+                                    </a>
+                                </li>-->
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/monitor/prometheus/dashboard/" class="nav-link">
+                                        <i class="icon icon-fire"></i> prometheus监控
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="/cmdb/index/monitor/prometheus/alert/list/" class="nav-link">
-                                        <i class="icon icon-fire"></i> prometheus监控
+                                        <i class="icon icon-list"></i> prometheus告警
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/monitor/skywalking/dashboard/" class="nav-link">
+                                        <i class="icon icon-graph"></i> skywalking监控
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/monitor/skywalking/alert/list/" class="nav-link">
+                                        <i class="icon icon-list"></i> skywalking告警
                                     </a>
                                 </li>
                                 </ul>
@@ -214,19 +258,20 @@
                             </a>
                             <ul class="nav-dropdown-items">
                                 <li class="nav-item">
-                                    <a href="/cmdb/index/deploy/scripttype/list/" class="nav-link">
-                                        <i class="icon icon-puzzle"></i> 脚本类型
+                                    <a href="/cmdb/index/deploy/task/list/" class="nav-link">
+                                        <i class="icon icon-list"></i> 发布列表
                                     </a>
                                 </li>
 
+
                                 <li class="nav-item">
                                     <a href="/cmdb/index/deploy/app/list/" class="nav-link">
-                                        <i class="icon icon-puzzle"></i> 应用列表
+                                        <i class="icon icon-equalizer"></i> 应用列表
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="/cmdb/index/deploy/task/list/" class="nav-link">
-                                        <i class="icon icon-puzzle"></i> 发布列表
+                                    <a href="/cmdb/index/deploy/scripttype/list/" class="nav-link">
+                                        <i class="icon icon-puzzle"></i> 脚本类型
                                     </a>
                                 </li>
                             </ul>
@@ -238,6 +283,17 @@
                             </a>
                             <ul class="nav-dropdown-items">
                                 <li class="nav-item">
+                                    <a href="/cmdb/index/wf/requests/list/" class="nav-link">
+                                        <i class="icon icon-user-following"></i> 我的请求
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/cmdb/index/wf/tasks/list/" class="nav-link">
+                                        <i class="icon icon-user-unfollow"></i> 我的待办
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
                                     <a href="/cmdb/index/wf/list/" class="nav-link">
                                         <i class="icon icon-target"></i> 所有工单
                                     </a>
@@ -245,24 +301,15 @@
 
                                 <li class="nav-item">
                                     <a href="/cmdb/index/wf/wftype/list/" class="nav-link">
-                                        <i class="icon icon-target"></i> 工单类型
+                                        <i class="icon icon-compass"></i> 工单类型
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="/cmdb/index/wf/wfbusiness/list/" class="nav-link">
-                                        <i class="icon icon-puzzle"></i> 业务单元
+                                        <i class="icon icon-map"></i> 业务单元
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/wf/tasks/list/" class="nav-link">
-                                        <i class="icon icon-target"></i> 我的待办
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/cmdb/index/wf/requests/list/" class="nav-link">
-                                        <i class="icon icon-target"></i> 我的请求
-                                    </a>
-                                </li>
+
                             </ul>
                         </li>
 
@@ -280,8 +327,8 @@
                             </ul>
                         </li>
 
-<!--
 
+<!--
                         <li class="nav-title">More</li>
 
                         <li class="nav-item nav-dropdown" id="layout">
@@ -477,37 +524,47 @@
     <script src='{% static "myweb/extra/echarts.min.js" %}'></script>
     <script src='{% static "myweb/extra/chartjs-plugin-datalabels@0.7.0" %}'></script>
     <script>
-        $(function(){
-        //更新页脚
-        date = new Date();
+
+
+    $(function(){
+        // 更新页脚
+        var date = new Date();
         document.getElementById("footer").innerHTML = date.getFullYear();
-        //绑定a链接的点击事件
-        //点击a链接的时候将id写进cookie
+
+        // 刷新页面后清除cookie
+        //console.log(window.performance.navigation.type);
+        if (window.performance.navigation.type == 1) {
+            // 清除cookie
+            $.removeCookie('userCheck', { path: '/' });
+        }
+
+        // 绑定a链接的点击事件
         var arrSubNav = document.getElementsByClassName('nav-item nav-dropdown');
         for (var i = 0; i < arrSubNav.length; i++) {
-            //var arrHref = arrSubNav[i].getElementsByClassName('nav-link');
             var arrUl = arrSubNav[i].getElementsByClassName('nav-dropdown-items');
-            //console.log(arrUl)
-            for(k=0;k<arrUl.length;k++){
+            for (var k = 0; k < arrUl.length; k++) {
                 var arrHref = arrUl[k].getElementsByClassName('nav-link');
-                //console.log(arrHref)
                 for (var j = 0; j < arrHref.length; j++) {
-                    arrHref[j].onclick = function () {
-                    var nodeParent = this.parentNode.parentNode.parentNode; //获取a链接所在的那个div块儿的id,注意,此处用this
-                    console.log(nodeParent)
-                    var idParent = nodeParent.getAttribute('id');
-                    //document.cookie="userCheck="+idParent+";domain=127.0.0.1;path=/"; //用cookie记录下用户当前的选择
-                    $.cookie('userCheck',idParent,{path:'/'});
-                    };
+                    arrHref[j].addEventListener('click', function (event) {
+                        //event.preventDefault(); // Prevent the default behavior of the click event
+                        var nodeParent = this.parentNode.parentNode.parentNode;
+                        var idParent = nodeParent.getAttribute('id');
+                        $.cookie('userCheck', idParent, { path: '/' });
+                        // 如果需要保持下拉菜单的状态，可以添加下面这行代码
+                        $(nodeParent).addClass('open');
+                    });
                 }
-            //console.log(arrUl)
             }
-            menuSelected = $.cookie('userCheck');
-            if(menuSelected){
-                document.getElementById(menuSelected).setAttribute("class","nav-item nav-dropdown open");
-            };
-        };
-        })
+        }
+
+        // 设置已选菜单的样式
+        var menuSelected = $.cookie('userCheck');
+        if(menuSelected){
+            document.getElementById(menuSelected).setAttribute("class","nav-item nav-dropdown open");
+        }
+
+    });
+
     </script>
     {% block javascript %}
     {% endblock %}

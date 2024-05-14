@@ -20,18 +20,18 @@
                 <div class="card p-4">
                     <div class="card-header text-center text-uppercase h4 font-weight-light">
                         欢迎使用运维发布平台
+
                     </div>
 
                     <div class="card-body py-4">
+                        <label style="color:red">{{status}}</label>
                         <!--
                         <div class="form-group">
                             <label class="form-control-label">用户名</label>
                             <label style="color:red";>{{status}}</label>
                             <input type="text" class="form-control" name="user">
                         </div>-->
-                        <label style="color:red";>
-                            {{status}}
-                        </label>
+
 
                         <!--<div class="input-group mb-3">-->
                         <div class="form-group">
@@ -87,7 +87,7 @@
                                         </div>
                             </div>-->
                             <div class="col-md-6">
-                                <a href="/cmdb/login/forget_pass/step/1/" class="btn btn-link">忘记密码？</a>
+                                <a class="btn btn-link" data-toggle="modal" data-target="#modal-password">忘记密码？</a>
                             </div>
                             <div class="col-6">
                                 <a href="/cmdb/register/" class="btn btn-link">没有账号？现在注册一个</a>
@@ -101,11 +101,210 @@
     </div>
 </div>
 </form>
+
+<div class="modal fade" id="modal-password" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <form method="post" action="/cmdb/login/forget_pass/change/">
+            <div class="modal-header bg-primary border-0">
+            <!--<div class="modal-header">-->
+                <h5 class="modal-title text-white">密码找回</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-5">
+                <div class="alert alert-dismissible alert-success" style="display:none;margin-bottom:100px" id="alert_success_modal">
+
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" onclick="refresh()">&times;</span>
+                    </button>
+                </div>
+                <div class="alert alert-dismissible alert-danger" style="display:none" id="alert_fail_modal">
+
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" onclick="refresh()">&times;</span>
+                    </button>
+                </div>
+                <div class="forget-pass">
+                    <!--<div class="col-md-12" style="margin-top:100px">-->
+                    <div class="col-md-12">
+                        <label for="verify_code"></label>
+                        <div class="input-group mb-3">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                            </div>
+                            <input type="email" class="form-control" placeholder="邮箱" aria-describedby="basic-addon2" name="email" id="email">
+                            <span class="input-group-btn">
+                                <!--<button type="submit" class="btn btn-primary"><i class="icon icon-cloud-upload"></i> 上传</button>-->
+                                <input type="button" class="btn btn-primary" id="send" value="发送验证码">
+                            </span>
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="fa fa-key"></i></span>
+                            </div>
+                            <!--<input type="file" id="file" name="file" class="form-control" oninput="UploadFile_temp()" multiple="">-->
+                            <input type="text" id="verify_code" name="verify_code" class="form-control" placeholder="验证码">
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                            </div>
+                            <!--<input type="file" id="file" name="file" class="form-control" oninput="UploadFile_temp()" multiple="">-->
+                            <input type="text" id="pwd" name="pwd" class="form-control" placeholder="输入新密码">
+                        </div>
+                        <div class="input-group mb-3">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="fa fa-lock"></i></span>
+                            </div>
+                            <!--<input type="file" id="file" name="file" class="form-control" oninput="UploadFile_temp()" multiple="">-->
+                            <input type="text" id="pwd_confirm" name="pwd_confirm" class="form-control" placeholder="再次输入密码">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="submit" class="btn btn-primary">提交</button>
+                <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
 <script src='{% static "myweb/dist/vendor/jquery/jquery.min.js" %}'></script>
 <script src='{% static "myweb/dist/vendor/popper.js/popper.min.js" %}'></script>
 <script src='{% static "myweb/dist/vendor/bootstrap/js/bootstrap.min.js" %}'></script>
 <script src='{% static "myweb/dist/vendor/chart.js/chart.min.js" %}'></script>
 <script src='{% static "myweb/dist/js/carbon.js" %}'></script>
 <script src='{% static "myweb/dist/js/demo.js" %}'></script>
+<script>
+//  /* 全局变量 */
+// 定义alert div HTML
+var div_alert_html = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true" onclick="refresh()">&times;</span></button>';
+var countdown;
+
+
+//发送验证码时添加cookie
+function addCookie(name,value,expiresHours){
+    var cookieString=name+"="+escape(value);
+    //判断是否设置过期时间,0代表关闭浏览器时失效
+    if(expiresHours>0){
+        var date=new Date();
+        date.setTime(date.getTime()+expiresHours*1000);
+        cookieString=cookieString+";expires=" + date.toUTCString();
+    }
+        document.cookie=cookieString;
+}
+
+//修改cookie的值
+function editCookie(name,value,expiresHours){
+    var cookieString=name+"="+escape(value);
+    if(expiresHours>0){
+      var date=new Date();
+      date.setTime(date.getTime()+expiresHours*1000); //单位是毫秒
+      cookieString=cookieString+";expires=" + date.toGMTString();
+    }
+      document.cookie=cookieString;
+}
+
+//根据名字获取cookie的值
+function getCookieValue(name){
+      var strCookie=document.cookie;
+      var arrCookie=strCookie.split("; ");
+      for(var i=0;i<arrCookie.length;i++){
+        var arr=arrCookie[i].split("=");
+        if(arr[0]==name){
+          return unescape(arr[1]);
+          break;
+        }else{
+             return "";
+             break;
+         }
+      }
+
+}
+
+function refresh(){
+    location.reload();
+}
+
+$(function() {
+
+    var btn = $("#send");
+    btn.click(send);
+    var v = getCookieValue("secondsremained");
+    if (v > 0) {
+        setTimeTTL(btn);
+    }
+});
+
+
+
+function setTimeTTL(obj) {
+    countdown = getCookieValue("secondsremained");
+    if (countdown <= 0) {
+        obj.removeAttr("disabled");
+        obj.val("发送验证码");
+        return;
+    } else {
+        obj.attr("disabled", true);
+        obj.val("重新发送(" + countdown + ")");
+        countdown--;
+        editCookie("secondsremained", countdown, countdown + 1);
+    }
+    setTimeout(function() {
+        setTimeTTL(obj);
+    }, 1000);
+}
+
+function send() {
+    var self = $(this); // 保存按钮元素的引用
+    var email = $('#email').val();
+    console.log('email:',email);
+    if (email) {
+        $.ajax({
+            async: false,
+            cache: false,
+            type: 'POST',
+            url: '/cmdb/login/forget_pass/send/',
+            data: {
+                'email': email
+            },
+            success: function(data) {
+                // 设置定时器
+                addCookie("secondsremained", 60, 60);
+                setTimeTTL(self); // 使用保存的按钮元素引用
+                console.log(data);
+                var msg = data;
+                console.log(msg);
+                // alert 弹框提示
+                document.getElementById("alert_success_modal").removeAttribute('style','display');
+                document.getElementById("alert_success_modal").innerHTML = msg.result + div_alert_html;
+            },
+            error: function(data) {
+                console.log(data);
+                var msg = data.responseJSON;
+                console.log(msg);
+                // alert 弹框提示
+                document.getElementById("alert_fail_modal").removeAttribute('style','display');
+                document.getElementById("alert_fail_modal").innerHTML = msg.result + div_alert_html;
+            },
+        });
+
+    }
+    else {
+        alert('请先输入邮箱！');
+    }
+}
+
+</script>
 </body>
 </html>

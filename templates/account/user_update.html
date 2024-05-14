@@ -10,27 +10,25 @@
                         <div class="card p-4">
                             <div class="card-header bg-light">
                                 更新用户
-                                <label style="color: red;">
-                                    {{ status }}
-                                </label>
+                                <label style="color: red;">{{ status }}</label>
                             </div>
 
                             <div class="card-body">
 
                                 {% for item in userinfo %}
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="username" class="form-control-label require">用户名</label>
-                                            <input type="text" id="username" class="form-control" placeholder="用户名" name="username" value={{ item.username }}>
-                                        </div>
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="username" class="form-control-label require">用户名</label>
+                                        <input type="text" id="username" class="form-control" placeholder="用户名" name="username" value={{ item.username }}>
                                     </div>
+                                </div>
 
-                                    <!--<div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="password" class="form-control-label require">密码</label>
-                                            <input type="password" id="password" class="form-control" placeholder="密码" name="password" value={{ item.password }}>
-                                        </div>
-                                    </div>-->
+                                <!--<div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="password" class="form-control-label require">密码</label>
+                                        <input type="password" id="password" class="form-control" placeholder="密码" name="password" value={{ item.password }}>
+                                    </div>
+                                </div>-->
 
 
                                 <div class="col-md-7">
@@ -41,117 +39,104 @@
                                     </div>
 
                                 <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label class="form-control-label">名字</label>
-                                            <input type="text" class="form-control" placeholder="名字" name="last_name" value={{ item.last_name }}>
-                                        </div>
+                                    <div class="form-group">
+                                        <label class="form-control-label">名字</label>
+                                        <input type="text" class="form-control" placeholder="名字" name="last_name" value={{ item.last_name }}>
                                     </div>
-
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="email" class="form-control-label require">邮箱</label>
-                                            <input type="email" id="email" class="form-control" placeholder="邮箱" name="email" value={{ item.email }}>
-                                        </div>
-                                    </div>
-<!--
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select-2" class="require">用户类型</label>
-                                            <select id="single-select-2" class="form-control" name="usertype">
-                                                {% for item in usertype_selected %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                                {% for item in usertype %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
--->
-
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select-4" class="">是否激活</label>
-                                            <select id="single-select-4" class="form-control" name="is_active">
-                                                <option value={{item.is_active}}>
-                                                    {% if item.is_active == 1 %}是{% else %}否{% endif %}
-                                                </option>
-                                                <option value=1>是</option>
-                                                <option value=0>否</option>
-                                            </select>
-                                        </div>
-                                    </div>
+                                </div>
 
                                 <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select-5" class="">是否超级管理员</label>
-                                            <select id="single-select-5" class="form-control" name="is_superuser">
-
-                                                <option value={{item.is_superuser}}>
-                                                    {% if item.is_superuser == 1 %}是{% else %}否{% endif %}
-                                                </option>
-
-                                                <option value=1>是</option>
-                                                <option value=0>否</option>
-
-                                            </select>
-                                        </div>
+                                    <div class="form-group">
+                                        <label for="email" class="form-control-label require">邮箱</label>
+                                        <input type="email" id="email" class="form-control" placeholder="邮箱" name="email" value={{ item.email }}>
                                     </div>
+                                </div>
 
                                 <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select-6" class="">是否可以登录管理后台</label>
-                                            <select id="single-select-6" class="form-control" name="is_staff">
+                                    <div class="form-group">
+                                        <label for="single-select-4" class="">是否激活</label>
+                                        <select id="single-select-4" class="form-control" name="is_active">
+                                            <option value={{item.is_active}}>
+                                                {% if item.is_active == 1 %}是{% else %}否{% endif %}
+                                            </option>
+                                            <option value=1>是</option>
+                                            <option value=0>否</option>
+                                        </select>
+                                    </div>
+                                </div>
 
-                                                <option value={{item.is_staff}}>
-                                                    {% if item.is_staff == 1 %}是{% else %}否{% endif %}
-                                                </option>
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="single-select-5" class="">是否超级管理员</label>
+                                        <select id="single-select-5" class="form-control" name="is_superuser">
 
-                                                <option value=1>是</option>
-                                                <option value=0>否</option>
+                                            <option value={{item.is_superuser}}>
+                                                {% if item.is_superuser == 1 %}是{% else %}否{% endif %}
+                                            </option>
 
-                                            </select>
-                                        </div>
+                                            <option value=1>是</option>
+                                            <option value=0>否</option>
+
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="single-select-6" class="">是否可以登录管理后台</label>
+                                        <select id="single-select-6" class="form-control" name="is_staff">
+
+                                            <option value={{item.is_staff}}>
+                                                {% if item.is_staff == 1 %}是{% else %}否{% endif %}
+                                            </option>
+
+                                            <option value=1>是</option>
+                                            <option value=0>否</option>
+
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="workflow_order" class="form-control-label require">工作流编号</label>
+                                        <input type=number id="workflow_order" class="form-control" placeholder="工作流编号" name="workflow_order" value={{ item.workflow_order }}>
+                                        <small class="form-text">默认没有审批权限，值为0，作为审批人员，需要数字大于0且由小到大审批.</small>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="multi-select">组/角色</label>
+                                        <select id="multi-select" class="form-control" name="group" multiple="">
+                                            <option value="">None</option>
+                                            {% for item in item.groups.all %}
+                                            <option value={{item.id}} selected>{{item.name}}</option>
+                                            {% endfor %}
+                                            {% for item in group %}
+                                            <option value={{item.id}}>{{item.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="multi-select-2" class="require">权限</label>
+                                        <select id="multi-select-2" class="form-control" name="perm" multiple="" style="height: 500px;">
+                                            <option value="">None</option>
+                                            {% for item in perm_selected %}
+                                            <option value={{item.id}} selected>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
+                                            {% endfor %}
+                                            {% for item in perm %}
+                                            <option value={{item.id}}>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="workflow_order" class="form-control-label require">工作流编号</label>
-                                            <input type=number id="workflow_order" class="form-control" placeholder="工作流编号" name="workflow_order" value={{ item.workflow_order }}>
-                                            <small class="form-text">默认没有审批权限，值为0，作为审批人员，需要数字大于0且由小到大审批.</small>
-                                        </div>
-                                    </div>
-
-
-
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="multi-select">组/角色</label>
-                                            <select id="multi-select" class="form-control" name="group" multiple="">
-                                                {% for item in item.groups.all %}
-                                                <option value={{item.id}} selected>{{item.name}}</option>
-                                                {% endfor %}
-                                                {% for item in group %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="multi-select-2" class="require">权限</label>
-                                            <select id="multi-select-2" class="form-control" name="perm" multiple="">
-                                                {% for item in perm_selected %}
-                                                <option value={{item.id}} selected>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
-                                                {% endfor %}
-                                                {% for item in perm %}
-                                                <option value={{item.id}}>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-
-                                    </div>
+                                </div>
 
                                     <!--
                                     <div class="col-md-7">
@@ -167,13 +152,13 @@
                                         </div>
                                     </div>-->
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="textarea">备注</label>
-                                            <textarea id="textarea" class="form-control" rows="6" name="memo">{{item.memo}}</textarea>
-                                        </div>
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="textarea">备注</label>
+                                        <textarea id="textarea" class="form-control" rows="6" name="memo">{{item.memo}}</textarea>
                                     </div>
-                                 {% endfor %}
+                                </div>
+                                {% endfor %}
                             </div>
 
                             <div class="card-footer p-4">

@@ -125,19 +125,40 @@ class Admininfo(models.Model):
         return self.username
 '''
 
-'''
+
 # monitor---------------------------------------------------------------------------------------------------------------
 
-class monitor(models.Model):
-    name = models.CharField('名称', max_length=256)
+class MonitorPrometheus(models.Model):
+    status = models.CharField('告警状态', max_length=256)
+    alertname = models.CharField('告警名称', max_length=256)
+    severity = models.CharField('告警级别', max_length=256)
+    instance = models.CharField('实例地址', max_length=256)
+    summary = models.CharField('告警摘要', max_length=256, blank=True, null=True)
+    description = models.TextField('告警详情', blank=True, null=True)
+    starts_at = models.DateTimeField('触发时间')
+    ends_at = models.DateTimeField('结束时间')
 
     class Meta:
-        verbose_name = '监控权限'
+        verbose_name = 'Prometheus告警'
+        verbose_name_plural = verbose_name
+
+    def __unicode__(self):
+        return self.alertname
+
+
+class MonitorSkywalking(models.Model):
+    scope = models.CharField('告警类型', max_length=256)
+    name = models.CharField('服务名称', max_length=256)
+    ruleName = models.CharField('规则名称', max_length=256)
+    alarmMessage = models.TextField('详细内容', blank=True, null=True)
+    startTime = models.DateTimeField('触发时间')
+
+    class Meta:
+        verbose_name = 'Skywalking告警'
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
         return self.name
-'''
 
 
 # task-deploy-----------------------------------------------------------------------------------------------------------
@@ -146,7 +167,7 @@ class deploy_script_type(models.Model):
     name = models.CharField('脚本类型', max_length=200, default='shell', )
 
     class Meta:
-        verbose_name = '脚本类型'
+        verbose_name = '发布脚本类型'
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
@@ -161,7 +182,7 @@ class deploy_app(models.Model):
     action = models.CharField('动作', max_length=128)
 
     class Meta:
-        verbose_name = '应用列表'
+        verbose_name = '发布应用列表'
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
@@ -324,45 +345,115 @@ class Admininfo(models.Model):
 '''
 
 
-class DeviceStatus(models.Model):
+class AssetDeviceStatus(models.Model):
     name = models.CharField('名字', max_length=256, default='未上线')
     memo = models.TextField('备注', blank=True, null=True)
 
     class Meta:
-        verbose_name = '设备状态'
+        verbose_name = '资产设备状态'
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
         return self.name
 
 
-class DeviceType(models.Model):
+class AssetDeviceType(models.Model):
     name = models.CharField('名称', max_length=256)
     memo = models.TextField('备注', blank=True, null=True)
 
     class Meta:
-        verbose_name = '设备类型'
+        verbose_name = '资产设备类型'
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
         return self.name
 
 
+class AssetEnvType(models.Model):
+    name = models.CharField('环境', max_length=256)
+    memo = models.TextField('备注', blank=True, null=True)
+
+    class Meta:
+        verbose_name = '资产应用环境'
+        verbose_name_plural = verbose_name
+
+    def __unicode__(self):
+        return self.name
+
+
+class AssetOsType(models.Model):
+    name = models.CharField('操作系统', max_length=256)
+    memo = models.TextField('备注', blank=True, null=True)
+
+    class Meta:
+        verbose_name = '资产操作系统'
+        verbose_name_plural = verbose_name
+
+    def __unicode__(self):
+        return self.name
+
+
+class AssetTag(models.Model):
+    name = models.CharField('标签名', max_length=256)
+    memo = models.TextField('备注', blank=True)
+
+    class Meta:
+        verbose_name = '资产标签'
+        verbose_name_plural = verbose_name
+
+    def __unicode__(self):
+        return self.name
+
+
+class AssetIDC(models.Model):
+    region_display_name = models.CharField('区域名称', max_length=256, default=None)
+    display_name = models.CharField('机房名称', max_length=256, default=None)
+    floor = models.IntegerField('楼层', default=1)
+    memo = models.TextField('备注', blank=True)
+
+    class Meta:
+        verbose_name = '资产所在机房'
+        verbose_name_plural = verbose_name
+
+    def __unicode__(self):
+        return 'region:%s idc:%s floor:%s' % (self.region_display_name, self.display_name, self.floor)
+
+
 class Asset(models.Model):
-    device_type = models.ForeignKey(DeviceType, on_delete=models.CASCADE)
-    device_status = models.ForeignKey(DeviceStatus, on_delete=models.CASCADE)
+    device_type = models.ForeignKey('AssetDeviceType', verbose_name='设备类型', blank=True, null=True,
+                                    on_delete=models.CASCADE)
+    device_status = models.ForeignKey('AssetDeviceStatus', verbose_name='设备状态', blank=True, null=True,
+                                      on_delete=models.CASCADE)
+    env_type = models.ForeignKey('AssetEnvType', verbose_name='业务环境类型', blank=True, null=True,
+                                 on_delete=models.CASCADE)
+    idc = models.ForeignKey('AssetIDC', verbose_name='idc机房', blank=True, null=True,
+                            on_delete=models.CASCADE)
     cabinet_num = models.CharField('机柜号', max_length=256, blank=True, null=True)
     cabinet_order = models.CharField('机架号', max_length=256, blank=True, null=True)
-    create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True, null=True)
-    update_time = models.DateTimeField('更新时间', auto_now=True, blank=True, null=True)
-    idc = models.ForeignKey('IDC', verbose_name='idc机房', blank=True, null=True, on_delete=models.CASCADE)
     business_unit = models.ForeignKey('wf_business', verbose_name='所属业务线', blank=True, null=True,
                                       on_delete=models.CASCADE, related_name='business_unit', )
     admin = models.ForeignKey('userInfo', verbose_name='设备管理员', blank=True, null=True, related_name='+',
                               on_delete=models.CASCADE)
-    contract = models.ForeignKey('Contract', verbose_name='合同', blank=True, null=True, on_delete=models.CASCADE)
-    tag = models.ManyToManyField('Tag', verbose_name='标签', blank=True)
+    # contract = models.ForeignKey('Contract', verbose_name='合同', blank=True, null=True, on_delete=models.CASCADE)
+    tag = models.ManyToManyField('AssetTag', verbose_name='标签', blank=True)
+    # null has no effect on ManyToManyField.
     memo = models.TextField('备注', blank=True, null=True)
+    os_type = models.ForeignKey('AssetOsType', verbose_name='系统类型', blank=True, null=True,
+                                on_delete=models.CASCADE)
+    hostname = models.CharField('主机名', max_length=128, blank=True, null=True)
+    ip = models.GenericIPAddressField('ip地址', unique=True, )
+    sn = models.CharField('SN号', max_length=256, blank=True, null=True)
+    manufactory = models.CharField('厂商', max_length=256, blank=True, null=True)
+    model = models.CharField('型号', max_length=256, blank=True, null=True)
+    bios = models.CharField('BIOS', max_length=256, blank=True, null=True)
+    username = models.CharField('用户名', max_length=256, blank=True, null=True)
+    password = models.CharField('密码', max_length=256, blank=True, null=True)
+    is_docker = models.BooleanField('docker环境', default=False, blank=True, null=True)
+    resource_size = models.CharField('资源配置', max_length=256, blank=True, null=True)
+    disk_size = models.CharField('磁盘配置', max_length=256, blank=True, null=True)
+    external_ip = models.GenericIPAddressField('外网ip地址', blank=True, null=True)
+    create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True, null=True)
+    update_time = models.DateTimeField('更新时间', auto_now=True, blank=True, null=True)
 
     class Meta:
         verbose_name = '资产总表'
@@ -372,6 +463,7 @@ class Asset(models.Model):
         return 'type:%s %s:%s' % (self.device_type, self.cabinet_num, self.cabinet_order)
 
 
+'''
 class Server(models.Model):
     asset = models.OneToOneField(Asset, on_delete=models.CASCADE)
     hostname = models.CharField('主机名', max_length=128, blank=True, unique=True)
@@ -412,13 +504,14 @@ class NetworkDevice(models.Model):
         return '%s:%s' % (self.name, self.sn)
 
 
+
 class CPU(models.Model):
     name = models.CharField('CPU名称', max_length=256, blank=True)
     model = models.CharField('CPU型号', max_length=256, blank=True)
     core_num = models.IntegerField('CPU核数', blank=True, default=1)
     create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True)
     update_time = models.DateTimeField('更新时间', auto_now=True, blank=True)
-    server_info = models.ForeignKey(Server, on_delete=models.CASCADE)
+    # server_info = models.ForeignKey(Server, on_delete=models.CASCADE)
     memo = models.TextField('备注', blank=True, null=True)
 
     class Meta:
@@ -436,7 +529,7 @@ class Memory(models.Model):
     ifac_type = models.CharField('接口类型', max_length=256, blank=True)
     create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True)
     update_time = models.DateTimeField('更新时间', auto_now=True, blank=True)
-    server_info = models.ForeignKey(Server, on_delete=models.CASCADE)
+    # server_info = models.ForeignKey(Server, on_delete=models.CASCADE)
     memo = models.TextField('备注', blank=True, null=True)
 
     class Meta:
@@ -454,7 +547,7 @@ class Disk(models.Model):
     ifac_type = models.CharField('接口类型', max_length=256, blank=True)
     create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True)
     update_time = models.DateTimeField('更新时间', auto_now=True, blank=True)
-    server_info = models.ForeignKey(Server, on_delete=models.CASCADE)
+    # server_info = models.ForeignKey(Server, on_delete=models.CASCADE)
     memo = models.TextField('备注', blank=True, null=True)
 
     class Meta:
@@ -473,7 +566,7 @@ class NIC(models.Model):
     netmask = models.CharField('子网掩码', max_length=256, blank=True)
     create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True)
     update_time = models.DateTimeField('更新时间', auto_now=True, blank=True)
-    server_info = models.ForeignKey(Server, on_delete=models.CASCADE)
+    # server_info = models.ForeignKey(Server, on_delete=models.CASCADE)
     memo = models.TextField('备注', blank=True, null=True)
 
     class Meta:
@@ -501,7 +594,7 @@ class Contract(models.Model):
 
     def __unicode__(self):
         return self.name
-
+'''
 
 '''
 class BusinessUnit(models.Model):
@@ -515,33 +608,7 @@ class BusinessUnit(models.Model):
         return self.name
 '''
 
-
-class Tag(models.Model):
-    name = models.CharField('标签名', max_length=256)
-    memo = models.TextField('备注', blank=True)
-
-    class Meta:
-        verbose_name = '标签'
-        verbose_name_plural = verbose_name
-
-    def __unicode__(self):
-        return self.name
-
-
-class IDC(models.Model):
-    region_display_name = models.CharField('区域名称', max_length=256, default=None)
-    display_name = models.CharField('机房名称', max_length=256, default=None)
-    floor = models.IntegerField('楼层', default=1)
-    memo = models.TextField('备注', blank=True)
-
-    class Meta:
-        verbose_name = '机房'
-        verbose_name_plural = verbose_name
-
-    def __unicode__(self):
-        return 'region:%s idc:%s floor:%s' % (self.region_display_name, self.display_name, self.floor)
-
-
+'''
 class HandleLog(models.Model):
     handle_type = models.CharField('操作类型', max_length=256)
     summary = models.CharField(max_length=256)
@@ -556,3 +623,4 @@ class HandleLog(models.Model):
 
     def __unicode__(self):
         return self.handle_type
+'''

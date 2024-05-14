@@ -7,28 +7,31 @@
             <div class="card">
                 <div class="card-header bg-light">
                     <div>业务单元</div>
+
+                    <div class="alert alert-dismissible alert-success" style="display:none" id="alert_success">
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" onclick="refresh()">&times;</span>
+                        </button>
+                    </div>
+
+
+                    <div class="alert alert-dismissible alert-danger" style="display:none" id="alert_fail">
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" onclick="refresh()">&times;</span>
+                        </button>
+                    </div>
                 </div>
 
 
                 <div class="card-body">
                     <div class="title">
-                        <div class="title-add" style="display:inline-block;">
+                        <div class="title-add">
                             <a href="/cmdb/index/wf/wfbusiness/form_add/">
-                               <button class="btn btn-primary" style="padding:2px;margin-top:-20px;">
-                                   <i class="icon icon-plus"></i>  添加业务单元
-                               </button>
-                               <!-- <button class="btn btn-primary .btn-sm">+ 添加用户</button>-->
+                               <button class="btn btn-primary" style="margin-top:-20px;margin-bottom:4.5px"><i class="icon icon-plus"></i> 添加业务单元</button>
                             </a>
                         </div>
-                        <!--<div class="title-search" style="display:inline-block;float:right;">
-                            <form action="/cmdb/index/table/user/search/" method="post"  style="margin-top:-10px;">
-                            <div style="display:inline-block;">
-                                <i class="fa fa-search" id="i-advanced-search-i" style="position:relative;left:25px"></i>
-                                <input type="search" name="keyword" onfocus="clearContent(this)" onblur="fillContent(this)" placeholder="请输入用户名或邮箱搜索" style="text-indent:30px;">
-                                <input type="submit" value="搜索">
-                            </div>
-                            </form>
-                        </div>-->
                     </div>
 
                     <div class="table-responsive">
@@ -66,7 +69,7 @@
                                     <button class="btn btn-primary" data-toggle="modal" onclick="update(this)">
                                         <i class="fa fa-pencil-alt"></i> 更新
                                     </button>
-                                    <button class="btn btn-danger" data-toggle="modal" onclick="del(this)">
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#modal-del" onclick="setItemIdToDelete(this)">
                                         <i class="fa fa-trash"></i> 删除
                                     </button>
                                     <!--
@@ -81,9 +84,7 @@
                         </table>
                         <span>
                             <input type="checkbox" onclick="checkAll_1()" name="checkall"/>
-                            <button class="btn btn-secondary" data-toggle="modal" id="delAll" onclick="delAll()" style="padding:2px;margin-top:-10px;" disabled>
-                                <i class="fa fa-trash"></i> 全部删除
-                            </button>
+                            <button class="btn btn-secondary" data-toggle="modal" id="delAll" data-target="#modal-delAll" style="margin-top:-10px;" disabled><i class="fa fa-trash"></i> 全部删除</button>
                         </span>
                         <span style="float: right;">
                             共有{{count}}条，
@@ -105,361 +106,410 @@
 </div>
 
 
-
-<div class="modal fade" id="modal-1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary border-0">
-                <h5 class="modal-title text-white">添加用户</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body p-5">
-                <div class="form-group">
-                    <div class="input-group mb-3">
-                        <label for="username" class="require"></label>
-                        用户名:<input id="username" type="text" class="form-control require" placeholder="Username">
-                    </div>
-                    <div class="input-group mb-3">
-                        <label for="password" class="require"></label>
-                        密 码:<input id="password" type="text" class="form-control require" placeholder="Password">
-                    </div>
-                    <div class="input-group mb-3">
-                        <label for="email" class="require"></label>
-                        邮 箱:<input id="email" type="text" class="form-control require" placeholder="Email">
-                    </div>
-                    <div class="input-group mb-3">
-                        <label for="single-select">用户类型:</label>
-                        <select id="single-select" class="form-control">
-                            {% for item in usertype %}
-                            <option value={{item.id}}>{{item.role}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary">提交</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<div class="modal fade" id="modal-2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary border-0">
-                <h5 class="modal-title text-white">提示</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body p-5">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Pellentesque lacinia non massa a euismod.
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Continue</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-{% for item in userinfo %}
-<div class="modal fade" id="modal-3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-del" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header bg-danger border-0">
-                <h5 class="modal-title text-white">提示</h5>
+                <h5 class="modal-title text-white">删除确认</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body p-5">
-                确定删除？
+                确定删除这条记录?
             </div>
+
             <div class="modal-footer border-0">
-
                 <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-danger">确定</button>
-
+                <button type="button" class="btn btn-danger" onclick="del()">确定</button>
             </div>
         </div>
     </div>
 </div>
-{% endfor %}
+
+
+
+<div class="modal fade" id="modal-delAll" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger border-0">
+                <h5 class="modal-title text-white">删除确认</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-5">
+                确定删除所选记录?
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="delAll()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 {% endblock %}
 {% block javascript %}
 <script>
 
 
-    $(function () {
-        var perItem = $.cookie('page_num');
-        if (perItem){
-            $('#pageSelect').val(perItem);
-
-        }
-    })
+//  /* 全局变量 */
+// 定义alert div HTML
+var div_alert_html = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true" onclick="refresh()">&times;</span></button>';
+var itemIdToDelete; // 用于存储要删除的项目的ID
+var trToDelete; // 删除的行
 
 
-    function pageChange(arg) {
-        var value=$(arg).val();
-        $.cookie('page_num',value,{path:'/'});
-        window.parent.location.reload();
+$(function () {
+    var perItem = $.cookie('page_num');
+    if (perItem){
+        $('#pageSelect').val(perItem);
+
     }
+})
 
 
-    function clearContent(arg) {
-            arg.placeholder="";
+function pageChange(arg) {
+    var value=$(arg).val();
+    $.cookie('page_num',value,{path:'/'});
+    window.parent.location.reload();
+}
+
+
+function clearContent(arg) {
+        arg.placeholder="";
+}
+
+
+function fillContent(arg) {
+        arg.placeholder="请输入用户名或邮箱搜索";
+}
+
+
+function refresh(){
+    location.reload();
+}
+
+
+function setItemIdToDelete(obj) {
+    //var tr = obj.parentNode.parentNode;
+    trToDelete = obj.parentNode.parentNode;
+    // 设置要删除的项目的ID
+    itemIdToDelete = trToDelete.cells[1].innerHTML; // 这里替换为你实际的项目ID
+}
+
+
+//function del(obj) {
+function del() {
+    //var tr = obj.parentNode.parentNode;
+    //var tbody = tr.parentNode;
+    //var id = tr.firstElementChild.innerHTML;
+    //var id = tr.cells[1].innerHTML;
+    var id = itemIdToDelete;
+    var tr = trToDelete;
+    var tbody = trToDelete.parentNode;
+    //alert(id);
+    console.log("Delete item with ID " + id);
+    console.log(tr,tbody);
+
+    /*
+    if (confirm("确定删除？")){
+        window.event.returnValue = true;
+    }else {
+        window.event.returnValue = false;
     }
+    if (window.event.returnValue == true){
+    */
 
-
-    function fillContent(arg) {
-            arg.placeholder="请输入用户名或邮箱搜索";
-    }
-
-
-    function del(obj) {
-        var tr = obj.parentNode.parentNode;
-        var tbody = tr.parentNode;
-        //var id = tr.firstElementChild.innerHTML;
-        var id = tr.cells[1].innerHTML;
-        //alert(id)
-        if (confirm("确定删除？")){
-            window.event.returnValue = true;
-        }else {
-            window.event.returnValue = false;
-        }
-        if (window.event.returnValue == true){
-            tbody.removeChild(tr);
-            $.ajax({
-                url:'/cmdb/index/wf/wfbusiness/del/',
-                data:{id:id},
-                type:'POST',
-                success:function (data) {
-                    window.parent.location.reload();
-                    //$(body).html(data);
-                    //alert('删除成功')
-                },
-                error:function () {
-                    alert('服务器异常');
+        $.ajax({
+            url:'/cmdb/index/wf/wfbusiness/del/',
+            data:{id:id},
+            type:'POST',
+            success:function (data) {
+                // 清除 itemIdToDelete，以防止意外删除其他项目
+                itemIdToDelete = null;
+                // 清除 tr
+                trToDelete = null;
+                // 关闭模态框
+                $('#modal-del').modal('hide');
+                //window.parent.location.reload();
+                //alert('删除成功');
+                //alert(data);
+                //console.log(data);
+                // 清除前端数据
+                tbody.removeChild(tr);
+            },
+            error:function (xhr) {
+                if (xhr.status == 403) {
+                    // 清除 itemIdToDelete，以防止意外删除其他项目
+                    itemIdToDelete = null;
+                    // 清除 tr
+                    trToDelete = null;
+                    // 关闭模态框
+                    $('#modal-del').modal('hide');
+                    //alert('服务器异常');
+                    // alert 弹框提示
+                    document.getElementById('alert_fail').removeAttribute('style','display');
+                    document.getElementById('alert_fail').innerHTML = '没有权限操作！' + div_alert_html;
+                } else {
+                    // 清除 itemIdToDelete，以防止意外删除其他项目
+                    itemIdToDelete = null;
+                    // 清除 tr
+                    trToDelete = null;
+                    // 关闭模态框
+                    $('#modal-del').modal('hide');
+                    //alert('服务器异常');
+                    // alert 弹框提示
+                    document.getElementById('alert_fail').removeAttribute('style','display');
+                    document.getElementById('alert_fail').innerHTML = '服务器异常！' + div_alert_html;
                 }
-            });
-        }else{
+            }
+        });
+    /*
+    }else{
+    }
+    */
+}
+
+
+function update(obj) {
+    var tr = obj.parentNode.parentNode;
+    //var userid = tr.firstElementChild.innerHTML;
+    var id = tr.cells[1].innerHTML;
+    location.href='/cmdb/index/wf/wfbusiness/form_update/id='+id;
+    //alert(userid);
+
+}
+
+function deploy(obj) {
+    var tr = obj.parentNode.parentNode;
+    //var userid = tr.firstElementChild.innerHTML;
+    var id = tr.cells[1].innerHTML;
+    location.href='/cmdb/index/wf/wfbusiness/form_deploy/id='+id;
+    //alert(userid);
+
+}
+
+
+function checkOne() {
+    var checks = document.getElementsByName("checkone")
+    var checkall=document.getElementsByName("checkall");
+    //console.log(checks.length,checks)
+    var flag = 0;
+    for (var i = 0; i < checks.length; i++) {
+        console.log(checks[i].checked)
+        if (checks[i].checked) {
+            var flag = flag + 1
         }
     }
-
-
-    function update(obj) {
-        var tr = obj.parentNode.parentNode;
-        //var userid = tr.firstElementChild.innerHTML;
-        var id = tr.cells[1].innerHTML;
-        location.href='/cmdb/index/wf/wfbusiness/form_update/id='+id;
-        //alert(userid);
-
-    }
-
-    function deploy(obj) {
-        var tr = obj.parentNode.parentNode;
-        //var userid = tr.firstElementChild.innerHTML;
-        var id = tr.cells[1].innerHTML;
-        location.href='/cmdb/index/wf/wfbusiness/form_deploy/id='+id;
-        //alert(userid);
-
-    }
-
-
-	function checkOne() {
-        var checks = document.getElementsByName("checkone")
-        var checkall=document.getElementsByName("checkall");
-        //console.log(checks.length,checks)
-        var flag = 0;
-        for (var i = 0; i < checks.length; i++) {
-            console.log(checks[i].checked)
-            if (checks[i].checked) {
-                var flag = flag + 1
-            }
+    console.log(flag)
+    if (flag){
+        if (flag == checks.length){
+            checkall.item(0).checked=true;
+            checkall.item(1).checked=true;
+            console.log(checkall.item(0).checked);
+            console.log(checkall.item(1).checked);
         }
-        console.log(flag)
-        if (flag){
-            if (flag == checks.length){
-                checkall.item(0).checked=true;
-                checkall.item(1).checked=true;
-                console.log(checkall.item(0).checked);
-                console.log(checkall.item(1).checked);
-            }
-            else{
-                checkall.item(0).checked=false;
-                checkall.item(1).checked=false;
-                console.log(checkall.item(0).checked);
-                console.log(checkall.item(1).checked);
-            }
-            document.getElementById("delAll").removeAttribute("disabled")
-            document.getElementById("delAll").setAttribute("class", "btn btn-danger")
-        } else {
+        else{
             checkall.item(0).checked=false;
             checkall.item(1).checked=false;
-            document.getElementById("delAll").setAttribute("disabled", true)
-            document.getElementById("delAll").setAttribute("class", "btn btn-secondary")
+            console.log(checkall.item(0).checked);
+            console.log(checkall.item(1).checked);
         }
-            //break;
+        document.getElementById("delAll").removeAttribute("disabled")
+        document.getElementById("delAll").setAttribute("class", "btn btn-danger")
+    } else {
+        checkall.item(0).checked=false;
+        checkall.item(1).checked=false;
+        document.getElementById("delAll").setAttribute("disabled", true)
+        document.getElementById("delAll").setAttribute("class", "btn btn-secondary")
     }
+        //break;
+}
 
 
-    function checkAll_0() {
-        //获得当前第一个checkbox的状态
-        var checkall = document.getElementsByName("checkall");
-        //得到当前checked状态
-        var checked_0 = checkall.item(0).checked;
-        var checked_1 = checked_0;
-        checkall.item(1).checked = checked_1;
-        var checked =  checked_0 && checked_1;
-        //console.log(checkall.item(0).checked,checkall.item(1).checked);
-        //获得所有分类项的checkbox
-        var checks = document.getElementsByName("checkone");
-        for (var i = 0; i < checks.length; i++) {
-            //修改每一个checkbox的状态
-            checks[i].checked = checked;
+function checkAll_0() {
+    //获得当前第一个checkbox的状态
+    var checkall = document.getElementsByName("checkall");
+    //得到当前checked状态
+    var checked_0 = checkall.item(0).checked;
+    var checked_1 = checked_0;
+    checkall.item(1).checked = checked_1;
+    var checked =  checked_0 && checked_1;
+    //console.log(checkall.item(0).checked,checkall.item(1).checked);
+    //获得所有分类项的checkbox
+    var checks = document.getElementsByName("checkone");
+    for (var i = 0; i < checks.length; i++) {
+        //修改每一个checkbox的状态
+        checks[i].checked = checked;
 
-        }
-        if (checked_0){
-            document.getElementById("delAll").removeAttribute("disabled")
-            document.getElementById("delAll").setAttribute("class","btn btn-danger")
-
-        }else {
-            document.getElementById("delAll").setAttribute("disabled",true)
-            document.getElementById("delAll").setAttribute("class","btn btn-secondary")
-        }
     }
-	
+    if (checked_0){
+        document.getElementById("delAll").removeAttribute("disabled")
+        document.getElementById("delAll").setAttribute("class","btn btn-danger")
 
-     function checkAll_1() {
-        //获得当前第一个checkbox的状态
-         var checkall = document.getElementsByName("checkall");
-         //得到当前checked状态
-         var checked_1 = checkall.item(1).checked;
-         var checked_0 = checked_1;
-         checkall.item(0).checked = checked_0;
-         var checked =  checked_0 && checked_1;
-         //console.log(checkall.item(0).checked,checkall.item(1).checked);
-         //获得所有分类项的checkbox
-         var checks = document.getElementsByName("checkone");
-         for (var i = 0; i < checks.length; i++) {
-             //修改每一个checkbox的状态
-             checks[i].checked = checked;
-         }
-         if (checked_1){
-            document.getElementById("delAll").removeAttribute("disabled")
-            document.getElementById("delAll").setAttribute("class","btn btn-danger")
-        }else {
-            document.getElementById("delAll").setAttribute("disabled",true)
-            document.getElementById("delAll").setAttribute("class","btn btn-secondary")
-        }
+    }else {
+        document.getElementById("delAll").setAttribute("disabled",true)
+        document.getElementById("delAll").setAttribute("class","btn btn-secondary")
+    }
+}
+
+
+ function checkAll_1() {
+    //获得当前第一个checkbox的状态
+     var checkall = document.getElementsByName("checkall");
+     //得到当前checked状态
+     var checked_1 = checkall.item(1).checked;
+     var checked_0 = checked_1;
+     checkall.item(0).checked = checked_0;
+     var checked =  checked_0 && checked_1;
+     //console.log(checkall.item(0).checked,checkall.item(1).checked);
+     //获得所有分类项的checkbox
+     var checks = document.getElementsByName("checkone");
+     for (var i = 0; i < checks.length; i++) {
+         //修改每一个checkbox的状态
+         checks[i].checked = checked;
      }
-	 
+     if (checked_1){
+        document.getElementById("delAll").removeAttribute("disabled")
+        document.getElementById("delAll").setAttribute("class","btn btn-danger")
+    }else {
+        document.getElementById("delAll").setAttribute("disabled",true)
+        document.getElementById("delAll").setAttribute("class","btn btn-secondary")
+    }
+ }
 
-    function delAll() {
-        var checks = document.getElementsByName("checkone");
-        if (confirm("确定删除？")){
-            window.event.returnValue = true;
-        }else {
-            window.event.returnValue = false;
+
+
+function delAll() {
+    var checks = document.getElementsByName("checkone");
+    var array_id = [];
+    var array_tr = [];
+    var array_tbody = [];
+
+    for (var i = 0; i < checks.length; i++) {
+        if (checks[i].checked){
+            var tr = checks[i].parentNode.parentNode;
+            var tbody = tr.parentNode;
+            var id = tr.cells[1].innerHTML;
+            array_id.push(id);
+            array_tr.push(tr);
+            array_tbody.push(tbody);
+
+            console.log("Delete item with ID " + id);
         }
-        for (var i = 0; i < checks.length; i++) {
-            if (checks[i].checked){
-                var tr = checks[i].parentNode.parentNode;
-                var tbody = tr.parentNode;
-                var id = tr.cells[1].innerHTML;
+    };
+    console.log(array_id);
+    console.log(JSON.stringify(array_id));
+    console.log(array_tr);
+    console.log(array_tbody);
 
+    $.ajax({
+        url:'/cmdb/index/wf/wfbusiness/del-all/',
+        data:{id:JSON.stringify(array_id)},
+        type:'POST',
+        success:function (data) {
 
-                if (window.event.returnValue == true){
-                    tbody.removeChild(tr);
-                    $.ajax({
-                        url:'/cmdb/index/wf/wfbusiness/del/',
-                        data:{id:id},
-                        type:'POST',
-                        success:function (data) {
-                            window.parent.location.reload();
-                            //$(body).html(data);
-                            //alert('删除成功')
-                        },
-                        error:function () {
-                            alert('服务器异常');
-                        }
-                    });
-                   i--;
-                }else{
-
-                }
+            // 关闭模态框
+            $('#modal-delAll').modal('hide');
+            // 移除全选高亮
+            document.getElementById("delAll").setAttribute("class","btn btn-secondary");
+            //window.parent.location.reload();
+            //$(body).html(data);
+            //alert('删除成功');
+            // 清除前端数据
+            for (var i = 0; i < array_tr.length; i++) {
+                array_tbody[i].removeChild(array_tr[i]);
+            };
+        },
+        error:function (xhr) {
+            if (xhr.status == 403) {
+                //alert('服务器异常');
+                // 关闭模态框
+                $('#modal-delAll').modal('hide');
+                // alert 弹框提示
+                document.getElementById('alert_fail').removeAttribute('style','display');
+                document.getElementById('alert_fail').innerHTML = '没有权限操作！' + div_alert_html;
+            } else {
+                //alert('服务器异常');
+                // 关闭模态框
+                $('#modal-delAll').modal('hide');
+                // alert 弹框提示
+                document.getElementById('alert_fail').removeAttribute('style','display');
+                document.getElementById('alert_fail').innerHTML = '服务器异常！' + div_alert_html;
             }
         }
-    }
+    });
+
+}
 
 
-    function myTrim(x) {
-        return x.replace(/^\s+|\s+$/gm,'');
-    }
+
+
+function myTrim(x) {
+    return x.replace(/^\s+|\s+$/gm,'');
+}
 
 /*前端搜索打开此条注释
-    window.onload=function(){
-        var oTab=document.getElementById("tab");
-        var oBt=document.getElementsByTagName("input");
+window.onload=function(){
+    var oTab=document.getElementById("tab");
+    var oBt=document.getElementsByTagName("input");
 
-        oBt[1].onclick=function(){
+    oBt[1].onclick=function(){
 
-            var flag=0;
-            for(var i=0;i<oTab.tBodies[0].rows.length;i++)
-            {
-                var str1=oTab.tBodies[0].rows[i].cells[2].innerHTML.toUpperCase();
-                var str2=oBt[0].value.toUpperCase();
-                oTab.tBodies[0].rows[i].style.background = '';    //清除上次搜索痕迹
-                //if (str2.trim()!="") {                                   //未输入或输入为空时，不做搜索
-      //使用string.toUpperCase()(将字符串中的字符全部转换成大写)或string.toLowerCase()(将字符串中的字符全部转换成小写)
-      //所谓忽略大小写的搜索就是将用户输入的字符串全部转换大写或小写，然后把信息表中的字符串的全部转换成大写或小写，最后再去比较两者转换后的字符就行了*/
-      /*******************************JS实现表格忽略大小写搜索*********************************/
-                //if (!str2) return;  //内容不存在即返回
+        var flag=0;
+        for(var i=0;i<oTab.tBodies[0].rows.length;i++)
+        {
+            var str1=oTab.tBodies[0].rows[i].cells[2].innerHTML.toUpperCase();
+            var str2=oBt[0].value.toUpperCase();
+            oTab.tBodies[0].rows[i].style.background = '';    //清除上次搜索痕迹
+            //if (str2.trim()!="") {                                   //未输入或输入为空时，不做搜索
+  //使用string.toUpperCase()(将字符串中的字符全部转换成大写)或string.toLowerCase()(将字符串中的字符全部转换成小写)
+  //所谓忽略大小写的搜索就是将用户输入的字符串全部转换大写或小写，然后把信息表中的字符串的全部转换成大写或小写，最后再去比较两者转换后的字符就行了*/
+  /*******************************JS实现表格忽略大小写搜索*********************************/
+            //if (!str2) return;  //内容不存在即返回
 /*                if (str1 == str2) {
-                    oTab.tBodies[0].rows[i].style.background = 'yellow';
-                    //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
-                } else {
-                    oTab.tBodies[0].rows[i].style.background = '';
-                }*/
-    /***********************************JS实现表格的模糊搜索*************************************/
-    //表格的模糊搜索的就是通过JS中的一个search()方法，使用格式，string1.search(string2);如果
-    //用户输入的字符串是其一个子串，就会返回该子串在主串的位置，不匹配则会返回-1，故操作如下
+                oTab.tBodies[0].rows[i].style.background = 'yellow';
+                //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+            } else {
+                oTab.tBodies[0].rows[i].style.background = '';
+            }*/
+/***********************************JS实现表格的模糊搜索*************************************/
+//表格的模糊搜索的就是通过JS中的一个search()方法，使用格式，string1.search(string2);如果
+//用户输入的字符串是其一个子串，就会返回该子串在主串的位置，不匹配则会返回-1，故操作如下
 /*                if (str1.search(str2) != -1) {
-                    oTab.tBodies[0].rows[i].style.background = 'yellow';
-                    //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
-                } else {
-                    oTab.tBodies[0].rows[i].style.background = '';
-                }*/
-    /***********************************JS实现表格的多关键字搜索********************************/
-        //表格的多关键字搜索，加入用户所输入的多个关键字之间用空格隔开，就用split方法把一个长字符串以空格为标准，分成一个字符串数组，
-        //然后以一个循环将切成的数组的子字符串与信息表中的字符串比较
+                oTab.tBodies[0].rows[i].style.background = 'yellow';
+                //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+            } else {
+                oTab.tBodies[0].rows[i].style.background = '';
+            }*/
+/***********************************JS实现表格的多关键字搜索********************************/
+    //表格的多关键字搜索，加入用户所输入的多个关键字之间用空格隔开，就用split方法把一个长字符串以空格为标准，分成一个字符串数组，
+    //然后以一个循环将切成的数组的子字符串与信息表中的字符串比较
 /*前端搜索打开此条注释                    var arr = str2.trim().split(' ');
-                    for (var j = 0; j < arr.length; j++) {
-                        console.log(arr, arr.length, arr[j], str2)
-                        if (arr != [''] && arr[j] != '') {          //未输入或输入为空时，不做搜索
-                            if (str1.search(arr[j]) != -1) {
-                                oTab.tBodies[0].rows[i].style.background = 'yellow';
-                                //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
-                                flag++;
-                            }
+                for (var j = 0; j < arr.length; j++) {
+                    console.log(arr, arr.length, arr[j], str2)
+                    if (arr != [''] && arr[j] != '') {          //未输入或输入为空时，不做搜索
+                        if (str1.search(arr[j]) != -1) {
+                            oTab.tBodies[0].rows[i].style.background = 'yellow';
+                            //str1=str1.split(str2).join('<span style="background:yellow;">'+str2+'</span>');
+                            flag++;
                         }
                     }
-                //}//else{
-                    //oTab.tBodies[0].rows[i].style.background = '';
-                //}
-            }
-            alert('共找到'+flag+'条');
+                }
+            //}//else{
+                //oTab.tBodies[0].rows[i].style.background = '';
+            //}
         }
+        alert('共找到'+flag+'条');
     }
+}
 前端搜索打开此条注释*/
 
 </script>

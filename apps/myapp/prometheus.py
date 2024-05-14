@@ -11,8 +11,9 @@ from apps.myapp import page_helper
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
 from myweb.settings import *
 import time
+from apps.myapp import models
 
-
+"""
 class PromTools:
     def __init__(self, address, username, password):
         self.address = address
@@ -54,12 +55,14 @@ def prometheus_alert(request, *args, **kwargs):
         pageinfo = page_helper.pageinfo(page, count, perItem)
         alerts = alerts[pageinfo.start:pageinfo.end]
         page_string = page_helper.pager_prometheus_alert_list(request, page, pageinfo.pageCount)
-        userDict = request.session.get('is_login', None)
+        user_dict = request.session.get('is_login', None)
+        wf_dict = request.session.get('wf', None)
         msg = {'alerts': alerts, 'count': count, 'pageCount': pageinfo.pageCount,
-               'page': page_string, 'login_user': userDict['user'], }
+               'page': page_string, 'login_user': user_dict['user'],
+               'wf_count_pending': wf_dict['wf_count_pending'], }
         return render_to_response('monitor/prometheus.html', msg)
     except:
-        return render_to_response('monitor/500.html')
+        return render_to_response('500.html')
 
 
 def prometheus_alert_count(*args, **kwargs):
@@ -70,6 +73,7 @@ def prometheus_alert_count(*args, **kwargs):
     except:
         result = None
     return result
+"""
 
 
 # 2024/01/19 Powered by chatgpt
@@ -164,7 +168,42 @@ def send_alert(request, *args, **kwargs):
             # ret_dict["ret_dingtalk"] = ret_dingtalk.text
             ret_dict["ret_welink"] = ret_welink.text
 
+            # 告警存入数据库
+            models.MonitorPrometheus.objects.create(status=alert_status, alertname=alert_labels['alertname'],
+                                                    severity=alert_labels['severity'],
+                                                    instance=alert_labels['instance'],
+                                                    summary=alert_labels['summary'],
+                                                    description=alert_labels['description'],
+                                                    starts_at=alert_labels['starts_at'],
+                                                    ends_at=alert_labels['ends_at'])
+
             return HttpResponse(json.dumps(ret_dict))
         except Exception as e:
             # print(e)
             return HttpResponse(e)
+
+
+@custom_login_required
+def dashboard(request, *args, **kwargs):
+    return render_to_response('monitor/prometheus_dashboard.html')
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_monitorprometheus')
+def prometheus_alert(request, *args, **kwargs):
+    try:
+        qs_alerts = models.MonitorPrometheus.objects.all()
+        count = qs_alerts.count()
+        page = common.try_int(kwargs['page'], 1)
+        perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+        pageinfo = page_helper.pageinfo(page, count, perItem)
+        qs_alerts_paged = qs_alerts[pageinfo.start:pageinfo.end]
+        page_string = page_helper.pager_prometheus_alert_list(request, page, pageinfo.pageCount)
+        user_dict = request.session.get('is_login', None)
+        wf_dict = request.session.get('wf', None)
+        msg = {'alerts': qs_alerts_paged, 'count': count, 'pageCount': pageinfo.pageCount,
+               'page': page_string, 'login_user': user_dict['user'],
+               'wf_count_pending': wf_dict['wf_count_pending'], }
+        return render_to_response('monitor/prometheus.html', msg)
+    except:
+        return render_to_response('500.html', msg, status=500)

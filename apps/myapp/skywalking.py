@@ -7,8 +7,12 @@ import smtplib
 from email.mime.text import MIMEText
 import requests
 from django.shortcuts import HttpResponse
+
+from apps.myapp import models, common, page_helper
+from apps.myapp.auth_helper import custom_login_required, custom_permission_required
 from myweb.settings import *
 import time
+from django.shortcuts import render_to_response
 
 
 # 2024/1/17 增加webhook告警
@@ -20,9 +24,9 @@ def send_alert(request, *args, **kwargs):
     print("data_dict：", data_dict, type(data_dict))
 
     for alert in data_dict:
-        alter_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(alert["startTime"]) / 1000))
+        alert_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(alert["startTime"]) / 1000))
         formatted_content = """警告时间：%s \n\n警告类型：%s \n\n服务名称：%s \n\n规则名称：%s \n\n详细内容：%s""" % (
-            alter_time, alert["scope"], alert["name"], alert["ruleName"], alert["alarmMessage"])
+            alert_time, alert["scope"], alert["name"], alert["ruleName"], alert["alarmMessage"])
         print("formatted_content：", formatted_content)
 
         # 发送邮件配置
@@ -86,7 +90,38 @@ def send_alert(request, *args, **kwargs):
             ret_dict["ret_email"] = ret_email
             ret_dict["ret_welink"] = ret_welink.text
 
+            # 告警存入数据库
+            models.MonitorSkywalking.objects.create(scope=alert["scope"], name=alert["name"],
+                                                    ruleName=alert["ruleName"], alarmMessage=alert["alarmMessage"],
+                                                    startTime=alert_time)
+
             return HttpResponse(json.dumps(ret_dict))
         except Exception as e:
             # print(e)
             return HttpResponse(e)
+
+
+@custom_login_required
+def dashboard(request, *args, **kwargs):
+    return render_to_response('monitor/skywalking_dashboard.html')
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_monitorskywalking')
+def skywalking_alert(request, *args, **kwargs):
+    try:
+        qs_alerts = models.MonitorPrometheus.objects.all()
+        count = qs_alerts.count()
+        page = common.try_int(kwargs['page'], 1)
+        perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+        pageinfo = page_helper.pageinfo(page, count, perItem)
+        qs_alerts_paged = qs_alerts[pageinfo.start:pageinfo.end]
+        page_string = page_helper.pager_skywalking_alert_list(request, page, pageinfo.pageCount)
+        user_dict = request.session.get('is_login', None)
+        wf_dict = request.session.get('wf', None)
+        msg = {'alerts': qs_alerts_paged, 'count': count, 'pageCount': pageinfo.pageCount,
+               'page': page_string, 'login_user': user_dict['user'],
+               'wf_count_pending': wf_dict['wf_count_pending'], }
+        return render_to_response('monitor/skywalking.html', msg)
+    except:
+        return render_to_response('500.html', msg, status=500)

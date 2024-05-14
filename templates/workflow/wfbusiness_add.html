@@ -97,29 +97,29 @@
 <script>
 
 function repoChange(arg){
-        var wfbusiness=$(arg).val();
-        console.log(wfbusiness);
-        $.ajax({
-                url:'/cmdb/index/wf/wfbusiness/ajax/',
-                data:{wfbusiness:wfbusiness},
-                type:'POST',
-                success:function (data) {
-                    //window.parent.location.reload();
-                    //$(body).html(data);
-                    //alert('删除成功')
-                    console.log(data);
-                    var director=JSON.parse(data)['director'];
-                    var director_id=JSON.parse(data)['director_id'];
-                    console.log(director,director_id);
-                    target=document.getElementById('single-select');
-                    console.log(target);
-                    target.innerHTML='<option value='+director_id+'>'+director+'</option>';
-                },
-                error:function () {
-                    alert('服务器异常');
-                }
-            });
-    }
+    var wfbusiness=$(arg).val();
+    console.log(wfbusiness);
+    $.ajax({
+            url:'/cmdb/index/wf/wfbusiness/ajax/',
+            data:{wfbusiness:wfbusiness},
+            type:'POST',
+            success:function (data) {
+                //window.parent.location.reload();
+                //$(body).html(data);
+                //alert('删除成功')
+                console.log(data);
+                var director=JSON.parse(data)['director'];
+                var director_id=JSON.parse(data)['director_id'];
+                console.log(director,director_id);
+                target=document.getElementById('single-select');
+                console.log(target);
+                target.innerHTML='<option value='+director_id+'>'+director+'</option>';
+            },
+            error:function () {
+                alert('服务器异常');
+            }
+        });
+}
 
 </script>
 {% endblock %}

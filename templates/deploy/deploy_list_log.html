@@ -8,37 +8,31 @@
         <div class="col-md-12">
             <div class="card">
 
+                <div class="card-header bg-light">
 
-
-                    <div class="card-header bg-light">
-
-                        <div style="text-align: right">
-                               <a href="../list/">
-                                   <button class="btn btn-outline-primary px-5">
-                                        <i class="icon icon-action-undo"></i>  返回
-                                   </button>
-                               </a>
-                            </div>
-
-                        发布日志
-                        <br><br>
-                        id：<label style="color: red;" id="id">{{ id }}</label>
-                        项目名称：<label style="color: red;" id="proj_name">{{ proj_name }}</label>
-                        项目id：<label style="color: red;" id="proj_id">{{ proj_id }}</label>
-                        发布tag：<label style="color: red;" id="tag">{{ tag }}</label>
-                        任务id：<label style="color: red;" id="task_id">{{ task_id }}</label>
-
-
-
+                    <div style="text-align: right">
+                       <a href="../list/">
+                           <button class="btn btn-outline-primary px-5"><i class="icon icon-action-undo"></i> 返回</button>
+                       </a>
                     </div>
 
-                    <div class="card-body">
+                    发布日志
+                    <br><br>
+                    id：<label style="color: red;" id="id">{{ id }}</label>
+                    项目名称：<label style="color: red;" id="proj_name">{{ proj_name }}</label>
+                    项目id：<label style="color: red;" id="proj_id">{{ proj_id }}</label>
+                    发布tag：<label style="color: red;" id="tag">{{ tag }}</label>
+                    任务id：<label style="color: red;" id="task_id">{{ task_id }}</label>
+
+                </div>
+
+                <div class="card-body">
                     <pre>
                         <span id="task_log">
                          <!--{{ result }}-->
                         </span>
                     </pre>
-                    </div>
+                </div>
 
             </div>
         </div>

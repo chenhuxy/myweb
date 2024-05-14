@@ -1,0 +1,35 @@
+{% extends "master/layout.html" %}
+{% block formTitle %}
+{% endblock %}
+{% block content %}
+{% load tz %}
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <!--<div class="container-fluid">-->
+
+            <div class="card">
+                <!--<div class="card-header bg-light">
+                    skywalking报警
+                    <label style="color: red;">
+                        {{ status }}
+                    </label>
+                </div>-->
+                <div class="card-body">
+                    <iframe src="http://xxx/?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiJoeS1kZXYtdXNlciIsImV4cCI6NDg2NzQ1NTY5MH0.PBvAHjDvY0hrO4cmohB0_NxSfh5mDsER83pJ63_1xCQ" width="100%" scrolling="No" height="730px" frameborder="0">
+
+                    </iframe>
+                </div>
+            </div>
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block formFooter %}
+{% endblock %}
+{% block javascript %}
+
+{% endblock %}

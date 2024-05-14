@@ -26,14 +26,26 @@ class LogEntryAdmin(admin.ModelAdmin):
         'action_time', 'user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'change_message')
 
 
-'''
 # monitor---------------------------------------------------------------------------------------------------------------
 
-class monitorAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    
-admin.site.register(monitor, monitorAdmin)
-'''
+class MonitorPrometheusAdmin(admin.ModelAdmin):
+    list_display = ('status', 'alertname', 'severity', 'instance', 'summary', 'description', 'starts_at', 'ends_at')
+    search_fields = ('alertname', 'instance')
+    list_filter = ('alertname', 'instance', 'starts_at', 'ends_at')
+    list_display_links = ('alertname', 'instance',)
+    list_per_page = 10
+
+
+class MonitorSkywalkingAdmin(admin.ModelAdmin):
+    list_display = ('scope', 'name', 'ruleName', 'alarmMessage', 'startTime')
+    search_fields = ('name',)
+    list_filter = ('scope', 'name', 'startTime')
+    list_display_links = ('name', 'scope',)
+    list_per_page = 10
+
+
+admin.site.register(MonitorPrometheus, MonitorPrometheusAdmin)
+admin.site.register(MonitorSkywalking, MonitorSkywalkingAdmin)
 
 
 # task-deploy-----------------------------------------------------------------------------------------------------------
@@ -120,7 +132,7 @@ class wf_typeAdmin(admin.ModelAdmin):
     list_per_page = 10
 
 
-class businessAdmin(admin.ModelAdmin):
+class wf_businessAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
     list_filter = ('name',)
@@ -131,30 +143,20 @@ class businessAdmin(admin.ModelAdmin):
 admin.site.register(wf_info, wf_infoAdmin)
 admin.site.register(wf_info_process_history, wf_info_process_historyAdmin)
 admin.site.register(wf_type, wf_typeAdmin)
+admin.site.register(wf_business, wf_businessAdmin)
+
 
 # assets----------------------------------------------------------------------------------------------------------------
-'''
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    list_filter = ('name',)
-    search_fields = ('name',)
-'''
-'''
-class AdmininfoAdmin(admin.ModelAdmin):
-    list_display = ('username',)
-    list_filter = ('username',)
-    search_fields = ('username',)
-'''
 
 
-class DeviceTypeAdmin(admin.ModelAdmin):
+class AssetDeviceTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
     search_fields = ('name',)
     list_per_page = 10
 
 
-class DeviceStatusAdmin(admin.ModelAdmin):
+class AssetDeviceStatusAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
     search_fields = ('name',)
@@ -168,97 +170,38 @@ class AssetAdmin(admin.ModelAdmin):
     list_per_page = 10
 
 
-class ServerAdmin(admin.ModelAdmin):
-    list_display = ('hostname', 'sn', 'manufactory', 'model', 'type', 'bios',)
-    list_filter = ('hostname', 'sn', 'manufactory', 'model', 'type', 'bios',)
-    search_fields = ('hostname', 'sn', 'manufactory', 'model', 'type', 'bios',)
-    list_per_page = 10
-
-
-class NetworkDeviceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'sn', 'manufactory', 'model',)
-    list_filter = ('name', 'sn', 'manufactory', 'model',)
-    search_fields = ('name', 'sn', 'manufactory', 'model',)
-    list_per_page = 10
-
-
-class CPUAdmin(admin.ModelAdmin):
-    list_display = ('name', 'model', 'core_num',)
-    list_filter = ('name', 'model', 'core_num',)
-    search_fields = ('name', 'model', 'core_num',)
-    list_per_page = 10
-
-
-class MemoryAdmin(admin.ModelAdmin):
-    list_display = ('slot', 'model', 'capacity', 'ifac_type',)
-    list_filter = ('slot', 'model', 'capacity', 'ifac_type',)
-    search_fields = ('slot', 'model', 'capacity', 'ifac_type',)
-    list_per_page = 10
-
-
-class DiskAdmin(admin.ModelAdmin):
-    list_display = ('slot', 'model', 'capacity', 'ifac_type',)
-    list_filter = ('slot', 'model', 'capacity', 'ifac_type',)
-    search_fields = ('slot', 'model', 'capacity', 'ifac_type',)
-    list_per_page = 10
-
-
-class NICAdmin(admin.ModelAdmin):
-    list_display = ('name', 'model', 'ipaddr', 'mac',)
-    list_filter = ('name', 'model', 'ipaddr', 'mac',)
-    search_fields = ('name', 'model', 'ipaddr', 'mac',)
-    list_per_page = 10
-
-
-class ContractAdmin(admin.ModelAdmin):
-    list_display = ('name', 'sn', 'cost', 'start_date', 'end_date', 'license_num',)
-    list_filter = ('name', 'sn', 'cost', 'start_date', 'end_date', 'license_num',)
-    search_fields = ('name', 'sn', 'cost', 'start_date', 'end_date', 'license_num',)
-    list_per_page = 10
-
-
-'''
-class BusinessUnitAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    list_filter = ('name',)
-    search_fields = ('name',)
-'''
-
-
-class TagAdmin(admin.ModelAdmin):
+class AssetEnvTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
     search_fields = ('name',)
     list_per_page = 10
 
 
-class IDCAdmin(admin.ModelAdmin):
+class AssetOsTypeAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    list_filter = ('name',)
+    search_fields = ('name',)
+    list_per_page = 10
+
+
+class AssetTagAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    list_filter = ('name',)
+    search_fields = ('name',)
+    list_per_page = 10
+
+
+class AssetIDCAdmin(admin.ModelAdmin):
     list_display = ('region_display_name', 'display_name', 'floor',)
     list_filter = ('region_display_name', 'display_name', 'floor',)
     search_fields = ('region_display_name', 'display_name', 'floor',)
     list_per_page = 10
 
 
-class HandleLogAdmin(admin.ModelAdmin):
-    list_display = ('handle_type',)
-    list_filter = ('handle_type',)
-    search_fields = ('handle_type',)
-    list_per_page = 10
-
-
-# admin.site.register(UserProfile,UserProfileAdmin)
-# admin.site.register(Admininfo,AdmininfoAdmin)
-admin.site.register(DeviceType, DeviceTypeAdmin)
-admin.site.register(DeviceStatus, DeviceStatusAdmin)
+admin.site.register(AssetDeviceType, AssetDeviceTypeAdmin)
+admin.site.register(AssetDeviceStatus, AssetDeviceStatusAdmin)
 admin.site.register(Asset, AssetAdmin)
-admin.site.register(Server, ServerAdmin)
-admin.site.register(NetworkDevice, NetworkDeviceAdmin)
-admin.site.register(CPU, CPUAdmin)
-admin.site.register(Memory, MemoryAdmin)
-admin.site.register(Disk, DiskAdmin)
-admin.site.register(NIC, NICAdmin)
-admin.site.register(Contract, ContractAdmin)
-# admin.site.register(BusinessUnit,BusinessUnitAdmin)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(IDC, IDCAdmin)
-admin.site.register(HandleLog, HandleLogAdmin)
+admin.site.register(AssetEnvType, AssetEnvTypeAdmin)
+admin.site.register(AssetOsType, AssetOsTypeAdmin)
+admin.site.register(AssetTag, AssetTagAdmin)
+admin.site.register(AssetIDC, AssetIDCAdmin)

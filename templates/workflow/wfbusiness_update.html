@@ -1,87 +1,85 @@
 {% extends "master/layout.html" %}
 {% block content %}
-        <div class="content">
-        {% block formTitle %}
-            <form method="post" action="/cmdb/index/wf/wfbusiness/update/id={{id}}">
-        {% endblock %}
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card p-4">
-                            <div class="card-header bg-light">
-                                更新业务单元
-                                <label style="color: red;">
-                                    {{ status }}
-                                </label>
-                            </div>
+<div class="content">
+{% block formTitle %}
+    <form method="post" action="/cmdb/index/wf/wfbusiness/update/id={{id}}">
+{% endblock %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card p-4">
+                    <div class="card-header bg-light">
+                        更新业务单元
+                        <label style="color: red;">{{ status }}</label>
+                    </div>
 
-                            <div class="card-body">
-                                  {% for item in wfbusiness %}
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="wfbusiness" class="form-control-label require">业务名称</label>
-                                            <input type="text" id="wfbusiness" class="form-control" placeholder="业务名称" name="wfbusiness" value="{{ item.name }}">
-                                        </div>
-                                    </div>
-<!--
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="repo" class="form-control-label require">项目地址</label>
-                                            <input type="text" id="repo" class="form-control" value="{{item.repo}}" name="repo">
-                                        </div>
-                                    </div>
--->
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select-2" class="require">业务负责人</label>
-                                            <select id="single-select-2" class="form-control" name="admin">
-                                                <option value={{item.admin.id}}>{{item.admin.username}}</option>
-                                                {% for item in admin %}
-                                                <option value={{item.id}}>{{item.username}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="multi-select" class="">审批人</label>
-                                            <select id="multi-select" class="form-control" name="approval" multiple="">
-                                                {% for item in item.approval.all %}
-                                                <option value={{item.id}} selected>{{item.username}}({{ item.workflow_order }})</option>
-                                                {% endfor %}
-                                                {% for item in approval %}
-                                                <option value={{item.id}}>{{item.username}}({{ item.workflow_order }})</option>
-                                                {% endfor %}
-                                            </select>
-                                            <small class="form-text">**  审批顺序按工作流编号由小到大审批</small>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-
-                            <div class="card-footer p-4">
-                                <div class="row">
-                                    <div class="col-5">
-                                        <button type="submit" class="btn btn-primary px-5">
-                                            <i class="icon icon-check"></i>  更新
-                                        </button>
-                                    </div>
-                                    <div class="col-5">
-                                        <a href="../list/" class="btn btn-outline-primary px-5">
-                                            <i class="icon icon-action-undo"></i>  取消
-                                        </a>
-                                    </div>
+                    <div class="card-body">
+                          {% for item in wfbusiness %}
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="wfbusiness" class="form-control-label require">业务名称</label>
+                                    <input type="text" id="wfbusiness" class="form-control" placeholder="业务名称" name="wfbusiness" value="{{ item.name }}">
                                 </div>
                             </div>
+<!--
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="repo" class="form-control-label require">项目地址</label>
+                                    <input type="text" id="repo" class="form-control" value="{{item.repo}}" name="repo">
+                                </div>
+                            </div>
+-->
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="single-select-2" class="require">业务负责人</label>
+                                    <select id="single-select-2" class="form-control" name="admin">
+                                        <option value={{item.admin.id}}>{{item.admin.username}}</option>
+                                        {% for item in admin %}
+                                        <option value={{item.id}}>{{item.username}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="multi-select" class="">审批人</label>
+                                    <select id="multi-select" class="form-control" name="approval" multiple="">
+                                        {% for item in item.approval.all %}
+                                        <option value={{item.id}} selected>{{item.username}}({{ item.workflow_order }})</option>
+                                        {% endfor %}
+                                        {% for item in approval %}
+                                        <option value={{item.id}}>{{item.username}}({{ item.workflow_order }})</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-text">**  审批顺序按工作流编号由小到大审批</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
 
+                    <div class="card-footer p-4">
+                        <div class="row">
+                            <div class="col-5">
+                                <button type="submit" class="btn btn-primary px-5">
+                                    <i class="icon icon-check"></i>  更新
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <a href="../list/" class="btn btn-outline-primary px-5">
+                                    <i class="icon icon-action-undo"></i>  取消
+                                </a>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
-        {% block formFooter %}
-            </form>
-        {% endblock %}
         </div>
+    </div>
+{% block formFooter %}
+    </form>
+{% endblock %}
+</div>
 {% endblock %}
 {% block javascript %}
     <script>
