@@ -105,7 +105,8 @@ def send_alert(request, *args, **kwargs):
 def dashboard(request, *args, **kwargs):
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
-    msg = {'login_user': user_dict['user'], 'wf_count_pending': wf_dict['wf_count_pending'], }
+    msg = {'login_user': user_dict['user'], 'wf_count_pending': wf_dict['wf_count_pending'],
+           'grafana_url': GRAFANA_URL, 'skywalking_ui_url': SKYWALKING_UI_URL}
     return render_to_response('monitor/skywalking_dashboard.html', msg)
 
 
