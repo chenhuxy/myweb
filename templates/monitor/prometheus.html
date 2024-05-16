@@ -21,14 +21,14 @@
                     <thead>
                     <tr>
                         <th>id</th>
+                        <th>触发时间</th>
+                        <th>结束时间</th>
                         <th>告警状态</th>
                         <th>告警名称</th>
                         <th>告警级别</th>
                         <th>实例地址</th>
                         <th>告警摘要</th>
                         <th>告警详情</th>
-                        <th>触发时间</th>
-                        <th>结束时间</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -46,17 +46,19 @@
                     </tr>
                     {% endfor %}
 -->
+                    {% for item in alerts %}
                     <tr>
                         <td>{{ item.id }}</td>
+                        <td>{{ item.starts_at }}</td>
+                        <td>{{ item.ends_at }}</td>
                         <td>{{ item.status }}</td>
                         <td>{{ item.alertname }}</td>
                         <td>{{ item.severity }}</td>
                         <td>{{ item.instance }}</td>
                         <td>{{ item.summary }}</td>
                         <td>{{ item.description }}</td>
-                        <td>{{ item.starts_at }}</td>
-                        <td>{{ item.ends_at }}</td>
                     </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
 

@@ -114,7 +114,7 @@ def dashboard(request, *args, **kwargs):
 @custom_permission_required('myapp.view_monitorskywalking')
 def skywalking_alert(request, *args, **kwargs):
     try:
-        qs_alerts = models.MonitorPrometheus.objects.all()
+        qs_alerts = models.MonitorSkywalking.objects.all().order_by('-id')
         count = qs_alerts.count()
         page = common.try_int(kwargs['page'], 1)
         perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)

@@ -172,10 +172,11 @@ def send_alert(request, *args, **kwargs):
             models.MonitorPrometheus.objects.create(status=alert_status, alertname=alert_labels['alertname'],
                                                     severity=alert_labels['severity'],
                                                     instance=alert_labels['instance'],
-                                                    summary=alert_labels['summary'],
-                                                    description=alert_labels['description'],
-                                                    starts_at=alert_labels['starts_at'],
-                                                    ends_at=alert_labels['ends_at'])
+                                                    summary=alert_annotations['summary'],
+                                                    description=alert_annotations['description'],
+                                                    starts_at=common.time_tz_fmt(starts_at),
+                                                    ends_at=common.time_tz_fmt(ends_at)
+                                                    )
 
             return HttpResponse(json.dumps(ret_dict))
         except Exception as e:
@@ -196,7 +197,7 @@ def dashboard(request, *args, **kwargs):
 @custom_permission_required('myapp.view_monitorprometheus')
 def prometheus_alert(request, *args, **kwargs):
     try:
-        qs_alerts = models.MonitorPrometheus.objects.all()
+        qs_alerts = models.MonitorPrometheus.objects.all().order_by('-id')
         count = qs_alerts.count()
         page = common.try_int(kwargs['page'], 1)
         perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)

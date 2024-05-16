@@ -406,9 +406,9 @@ class AssetTag(models.Model):
 
 
 class AssetIDC(models.Model):
-    region_display_name = models.CharField('区域名称', max_length=256, default=None)
     display_name = models.CharField('机房名称', max_length=256, default=None)
     floor = models.IntegerField('楼层', default=1)
+    region_display_name = models.CharField('区域名称', max_length=256, default=None)
     memo = models.TextField('备注', blank=True)
 
     class Meta:
@@ -420,6 +420,7 @@ class AssetIDC(models.Model):
 
 
 class Asset(models.Model):
+    ip = models.GenericIPAddressField('ip地址', unique=True, )
     device_type = models.ForeignKey('AssetDeviceType', verbose_name='设备类型', blank=True, null=True,
                                     on_delete=models.CASCADE)
     device_status = models.ForeignKey('AssetDeviceStatus', verbose_name='设备状态', blank=True, null=True,
@@ -441,7 +442,6 @@ class Asset(models.Model):
     os_type = models.ForeignKey('AssetOsType', verbose_name='系统类型', blank=True, null=True,
                                 on_delete=models.CASCADE)
     hostname = models.CharField('主机名', max_length=128, blank=True, null=True)
-    ip = models.GenericIPAddressField('ip地址', unique=True, )
     sn = models.CharField('SN号', max_length=256, blank=True, null=True)
     manufactory = models.CharField('厂商', max_length=256, blank=True, null=True)
     model = models.CharField('型号', max_length=256, blank=True, null=True)
@@ -460,7 +460,7 @@ class Asset(models.Model):
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
-        return 'type:%s %s:%s' % (self.device_type, self.cabinet_num, self.cabinet_order)
+        return 'type:%s %s:%s' % (self.device_type, self.env_type, self.ip)
 
 
 '''

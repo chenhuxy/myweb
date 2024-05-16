@@ -21,11 +21,11 @@
                     <thead>
                     <tr>
                         <th>id</th>
+                        <th>触发时间</th>
                         <th>告警类型</th>
                         <th>服务名称</th>
                         <th>规则名称</th>
                         <th>详细内容</th>
-                        <th>触发时间</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -43,14 +43,16 @@
                     </tr>
                     {% endfor %}
 -->
+                    {% for item in alerts %}
                     <tr>
                         <td>{{ item.id }}</td>
+                        <td>{{ item.startTime }}</td>
                         <td>{{ item.scope }}</td>
                         <td>{{ item.name }}</td>
                         <td>{{ item.ruleName }}</td>
                         <td>{{ item.alarmMessage }}</td>
-                        <td>{{ item.startTime }}</td>
                     </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
 

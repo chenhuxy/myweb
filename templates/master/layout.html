@@ -32,23 +32,39 @@
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item d-md-down-none">
                     <a href="/cmdb/index/wf/tasks/list/">
+                        <span>待审批</span>
                         <i class="fa fa-bell"></i>
                         {% if wf_count_pending > 0 %}
                         <span class="badge badge-pill badge-danger">{{ wf_count_pending }}</span>
                         {% else %}
                         <span class="badge badge-pill badge-danger"></span>
                         {% endif %}
+                        <span style="margin-left: 10px;">|</span>
                     </a>
                 </li>
 
-                <li class="nav-item d-md-down-none">
+                <!-- Add a space between list items -->
+                <li class="nav-item d-md-down-none" style="margin-left: 10px;">
                     <a href="/cmdb/index/monitor/skywalking/alert/list/">
+                        <span>skywalking告警</span>
                         <i class="fa fa-envelope-open"></i>
                         <span class="badge badge-pill badge-danger"></span>
+                        <span style="margin-left: 10px;">|</span>
                     </a>
                 </li>
 
-                <li class="nav-item dropdown">
+                <!-- Add a space between list items -->
+                <li class="nav-item d-md-down-none" style="margin-left: 10px;">
+                    <a href="/cmdb/index/monitor/prometheus/alert/list/">
+                        <span>prometheus告警</span>
+                        <i class="fa fa-envelope-open"></i>
+                        <span class="badge badge-pill badge-danger"></span>
+                        <span style="margin-left: 10px;">|</span>
+                    </a>
+                </li>
+
+                <!-- Add a space between list items -->
+                <li class="nav-item dropdown" style="margin-left: 10px;">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <img src='{% static "myweb/dist/imgs/avatar-1.png" %}' class="avatar avatar-sm" alt="logo">
                         <span class="small ml-1 d-md-down-none">{{ login_user }}</span>
