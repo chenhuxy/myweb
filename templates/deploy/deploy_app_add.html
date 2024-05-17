@@ -11,37 +11,35 @@
 
                             <div class="card-header bg-light">
                                 添加应用
-                                <label style="color: red;">
-                                    {{status}}
-                                </label>
+                                <label style="color: red;">{{status}}</label>
                             </div>
 
                             <div class="card-body">
 
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select" class="require">业务单元</label>
-                                            <select id="single-select" class="form-control" name="unit">
-                                                {% for item in business %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="single-select" class="require">业务单元</label>
+                                        <select id="single-select" class="form-control" name="unit">
+                                            {% for item in business %}
+                                            <option value={{item.id}}>{{item.name}}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
+                                </div>
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="proj_name" class="form-control-label require">项目名称</label>
-                                            <input type="text" id="proj_name" class="form-control" placeholder="项目名称" name="proj_name">
-                                        </div>
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="proj_name" class="form-control-label require">项目名称</label>
+                                        <input type="text" id="proj_name" class="form-control" placeholder="项目名称" name="proj_name">
                                     </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="proj_id" class="form-control-label require">项目id</label>
-                                            <input type="text" id="proj_id" class="form-control" placeholder="项目id" name="proj_id">
-                                        </div>
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="form-group">
+                                        <label for="proj_id" class="form-control-label require">项目id</label>
+                                        <input type="text" id="proj_id" class="form-control" placeholder="项目id" name="proj_id">
                                     </div>
+                                </div>
 
 
                             </div>

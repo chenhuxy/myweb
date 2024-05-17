@@ -22,7 +22,6 @@ from apps.myapp import models
 from django.shortcuts import render_to_response
 from django.utils import timezone
 import paramiko
-from apps.myapp import loop
 import logging
 from django.shortcuts import redirect
 from celery import group, chain, chord

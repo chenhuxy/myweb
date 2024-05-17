@@ -1,129 +1,244 @@
 {% extends "master/layout.html" %}
 {% block content %}
-        <div class="content">
-        {% block formTitle %}
-            <form method="post" action="/cmdb/index/assets/asset/add/">
-        {% endblock %}
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card p-4">
+<div class="content">
+    {% block formTitle %}
+    <form method="post" action="/cmdb/index/assets/asset/add/">
+    {% endblock %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card p-4">
 
-                            <div class="card-header bg-light">
-                                添加资产<label style="color: red;">{{status}}</label>
-                            </div>
+                <div class="card-header bg-light">
+                    添加资产<label style="color: red;">{{status}}</label>
+                </div>
 
-                            <div class="card-body">
+                <div class="card-body">
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="ip" class="form-control-label require">ip地址</label>
+                            <input type="text" id="ip" class="form-control" placeholder="192.168.1.1" name="ip">
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <!--<label for="single-select" class="require">设备类型</label>-->
+                            <label for="single-select">设备类型</label>
+                            <select id="single-select" class="form-control" name="device_type">
+                                <option value=""></option>
+                                {% for item in device_type %}
+                                <option value={{item.id}}>{{item.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <!--<label for="single-select2" class="require">设备状态</label>-->
+                            <label for="single-select2">设备状态</label>
+                            <select id="single-select2" class="form-control" name="device_status">
+                                <option value=""></option>
+                                {% for item in device_status %}
+                                <option value={{item.id}}>{{item.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select" class="require">设备类型</label>
-                                            <select id="single-select" class="form-control" name="device_type">
-                                                {% for item in device_type %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select2" class="require">设备状态</label>
-                                            <select id="single-select2" class="form-control" name="device_status">
-                                                {% for item in device_status %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="cabinet_num" class="form-control-label">机柜号</label>
-                                            <input type="text" id="cabinet_num" class="form-control" placeholder="机柜号" name="cabinet_num">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="cabinet_order" class="form-control-label">机架号</label>
-                                            <input type="text" id="cabinet_order" class="form-control" placeholder="机架号" name="cabinet_order">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <!--<label for="single-select3" class="require">机房</label>-->
-                                            <label for="single-select3">机房</label>
-                                            <select id="single-select3" class="form-control" name="idc">
-                                                {% for item in idc %}
-                                                <option value={{item.id}}>{{item.display_name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select4" class="require">业务线</label>
-                                            <select id="single-select4" class="form-control" name="business_unit">
-                                                {% for item in business_unit %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select5" class="require">管理员</label>
-                                            <select id="single-select5" class="form-control" name="admin">
-                                                {% for item in admin %}
-                                                <option value={{item.id}}>{{item.username}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select6">合同</label>
-                                            <select id="single-select6" class="form-control" name="contract">
-                                                {% for item in contract %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="multi-select">标签</label>
-                                            <select id="multi-select" class="form-control" multiple="" name="tag">
-                                                {% for item in tag %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="textarea">备注</label>
-                                            <textarea id="textarea" class="form-control" rows="6" name="memo"></textarea>
-                                        </div>
-                                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <!--<label for="single-select3" class="require">所属环境</label>-->
+                            <label for="single-select3">所属环境</label>
+                            <select id="single-select3" class="form-control" name="env_type">
+                                <option value=""></option>
+                                {% for item in env_type %}
+                                <option value={{item.id}}>{{item.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
 
-                            </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <!--<label for="single-select4" class="require">操作系统</label>-->
+                            <label for="single-select4">操作系统</label>
+                            <select id="single-select4" class="form-control" name="os_type">
+                                <option value=""></option>
+                                {% for item in os_type %}
+                                <option value={{item.id}}>{{item.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
 
-                            <div class="card-footer p-4">
-                                <div class="row">
-                                    <div class="col-5">
-                                        <button type="submit" class="btn btn-primary px-5">添加</button>
-                                    </div>
-                                    <div class="col-5">
-                                        <a href="/cmdb/index/assets/asset/" class="btn btn-outline-primary px-5">取消</a>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="username" class="form-control-label">用户名</label>
+                            <input type="text" id="username" class="form-control" placeholder="用户名" name="username">
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="password" class="form-control-label">密码</label>
+                            <input type="text" id="password" class="form-control" placeholder="密码" name="password">
+                        </div>
+                    </div>
 
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="hostname" class="form-control-label">主机名</label>
+                            <input type="text" id="hostname" class="form-control" placeholder="主机名" name="hostname">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="manufactory" class="form-control-label">厂商</label>
+                            <input type="text" id="manufactory" class="form-control" placeholder="厂商" name="manufactory">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="model" class="form-control-label">型号</label>
+                            <input type="text" id="model" class="form-control" placeholder="型号" name="model">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="bios" class="form-control-label">BIOS</label>
+                            <input type="text" id="bios" class="form-control" placeholder="BIOS" name="bios">
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="resource_size" class="form-control-label">资源配置</label>
+                            <input type="text" id="resource_size" class="form-control" placeholder="2c4g" name="resource_size">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="disk_size" class="form-control-label">磁盘配置</label>
+                            <input type="text" id="disk_size" class="form-control" placeholder="100Gi" name="disk_size">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="external_ip" class="form-control-label">外网ip地址</label>
+                            <input type="text" id="external_ip" class="form-control" placeholder="1.1.1.1" name="external_ip">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="cabinet_num" class="form-control-label">机柜号</label>
+                            <input type="text" id="cabinet_num" class="form-control" placeholder="机柜号" name="cabinet_num">
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="cabinet_order" class="form-control-label">机架号</label>
+                            <input type="text" id="cabinet_order" class="form-control" placeholder="机架号" name="cabinet_order">
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="sn" class="form-control-label">SN序列号</label>
+                            <input type="text" id="sn" class="form-control" placeholder="xxx" name="sn">
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <!--<label for="single-select3" class="require">机房</label>-->
+                            <label for="single-select5">机房</label>
+                            <select id="single-select5" class="form-control" name="idc">
+                                <option value=""></option>
+                                {% for item in idc %}
+                                <option value={{item.id}}>{{item.display_name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                     <div class="col-md-7">
+                        <div class="form-group">
+                            <!--<label for="single-select3" class="require">机房</label>-->
+                            <label for="single-select6">docker环境</label>
+                            <select id="single-select6" class="form-control" name="is_docker">
+
+                                <option value=0>否</option>
+                                <option value=1>是</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <!--<label for="single-select7" class="require">业务线</label>-->
+                            <label for="single-select7">业务线</label>
+                            <select id="single-select7" class="form-control" name="business_unit">
+                                <option value=""></option>
+                                {% for item in business_unit %}
+                                <option value={{item.id}}>{{item.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="single-select8">管理员</label>
+                            <select id="single-select8" class="form-control" name="admin">
+                                <option value=""></option>
+                                {% for item in admin %}
+                                <option value={{item.id}}>{{item.username}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="multi-select">标签</label>
+                            <select id="multi-select" class="form-control" multiple="" name="tag">
+                                <option value="">None</option>
+                                {% for item in tag %}
+                                <option value={{item.id}}>{{item.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="form-group">
+                            <label for="textarea">备注</label>
+                            <textarea id="textarea" class="form-control" rows="6" name="memo"></textarea>
                         </div>
                     </div>
                 </div>
+
+                <div class="card-footer p-4">
+                    <div class="row">
+                        <div class="col-5">
+                            <button type="submit" class="btn btn-primary px-5">添加</button>
+                        </div>
+                        <div class="col-5">
+                            <a href="../list/" class="btn btn-outline-primary px-5">取消</a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            {% block formFooter %}
-                </form>
-            {% endblock %}
         </div>
+    </div>
+</div>
+    {% block formFooter %}
+        </form>
+    {% endblock %}
+</div>
 {% endblock %}

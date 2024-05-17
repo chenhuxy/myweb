@@ -1,0 +1,100 @@
+{% extends "master/layout.html" %}
+{% block formTitle %}
+{% endblock %}
+{% block content %}
+{% load tz %}
+
+<div class="content">
+    <!--<div class="container-fluid">-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        skywalking告警历史
+                        <label style="color: red;">
+                            {{ status }}
+                        </label>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>触发时间</th>
+                        <th>告警类型</th>
+                        <th>服务名称</th>
+                        <th>规则名称</th>
+                        <th>详细内容</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+<!--
+                    {% for item in alerts %}
+                    <tr>
+                        <td>{{forloop.counter}}</td>
+                        <td>{{ item.labels }}</td>
+                        <td>{{item.annotations}}</td>
+                        <td>{{item.state}}</td>
+                        {% timezone "Asia/Shanghai" %}
+                        <td>{{item.activeAt}}</td>
+                        {% endtimezone %}
+                        <td>{{item.value}}</td>
+                    </tr>
+                    {% endfor %}
+-->
+                    {% for item in alerts %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.startTime }}</td>
+                        <td>{{ item.scope }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.ruleName }}</td>
+                        <td>{{ item.alarmMessage }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                <span style="float: right;">
+                    共有{{count}}条，
+                    每页显示：
+                    <select id="pageSelect" onchange="pageChange(this)">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                    </select>
+                    条&nbsp;&emsp;
+                    {{page}}
+                </span>
+
+
+            </div>
+        </div>
+
+    <!--</div>-->
+</div>
+
+{% endblock %}
+{% block formFooter %}
+{% endblock %}
+{% block javascript %}
+<script>
+ $(function () {
+        var perItem = $.cookie('page_num');
+        if (perItem){
+            $('#pageSelect').val(perItem);
+
+        }
+    })
+
+
+function pageChange(arg) {
+    var value=$(arg).val();
+    $.cookie('page_num',value,{path:'/'});
+    window.parent.location.reload();
+}
+
+</script>
+{% endblock %}

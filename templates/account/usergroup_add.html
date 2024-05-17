@@ -11,9 +11,7 @@
 
                             <div class="card-header bg-light">
                                 添加组/角色
-                                <label style="color: red;">
-                                    {{status}}
-                                </label>
+                                <label style="color: red;">{{status}}</label>
                             </div>
 
                             <div class="card-body">
@@ -24,32 +22,12 @@
                                             <input type="text" id="usergroup" class="form-control" placeholder="组/角色名称" name="usergroup">
                                         </div>
                                     </div>
-<!--
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="leader" class="form-control-label require">负责人</label>
-                                            <input type="text" id="leader" class="form-control" placeholder="负责人" name="leader">
-                                        </div>
-                                    </div>
 
-                                    <div class="col-md-7">
-                                        <div class="form-group">
-                                            <label for="single-select" class="require">上级部门</label>
-                                            <select id="single-select" class="form-control" name="flow_group">
-                                                {% for item in usergroup_selected %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                                {% for item in usergroup %}
-                                                <option value={{item.id}}>{{item.name}}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                    </div>
--->
                                 <div class="col-md-7">
                                         <div class="form-group">
-                                            <label for="multi-select" class="require">组/角色权限</label>
-                                            <select id="multi-select" class="form-control" name="perm" multiple="">
+                                            <label for="multi-select">组/角色权限</label>
+                                            <select id="multi-select" class="form-control" name="perm" multiple="" style="height: 500px;">
+                                                <option value="">None</option>
                                                 {% for item in perm %}
                                                 <option value={{item.id}}>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
                                                 {% endfor %}

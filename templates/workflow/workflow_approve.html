@@ -243,17 +243,17 @@
         </div>
 {% endblock %}
 {% block javascript %}
-    <script>
-        $(function () {
+<script>
+$(function () {
 
-                var type = $('#type').val();
-                //alert(type);
-                //console.log(type);
-                if(type!='生产发布'){
-                    document.getElementById('proj_name').setAttribute("style","display:none");
-                    document.getElementById('proj_tag').setAttribute("style","display:none");
-                }
+    var type = $('#type').val();
+    //alert(type);
+    //console.log(type);
+    if(type!='生产发布'){
+        document.getElementById('proj_name').setAttribute("style","display:none");
+        document.getElementById('proj_tag').setAttribute("style","display:none");
+    }
 
-        })
-    </script>
+})
+</script>
 {% endblock %}

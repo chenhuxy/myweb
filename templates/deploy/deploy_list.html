@@ -8,10 +8,24 @@
                 <div class="card-header bg-light">
                     <div class="card-header bg-light">
                         发布列表
-                        <label style="color: red;">
-                            {{ status }}
-                        </label>
+                        <label style="color: red;">{{ status }}</label>
                     </div>
+
+                    <div class="alert alert-dismissible alert-success" style="display:none" id="alert_success">
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" onclick="refresh()">&times;</span>
+                        </button>
+                    </div>
+
+
+                    <div class="alert alert-dismissible alert-danger" style="display:none" id="alert_fail">
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" onclick="refresh()">&times;</span>
+                        </button>
+                    </div>
+
 
                 </div>
 
@@ -19,19 +33,16 @@
                 <div class="card-body">
 
                     <div class="title">
-                        <!--<div class="title-add" style="display:inline-block;">
-                            <a href="/cmdb/index/deploy/app/form_add/">
-                               <button class="btn btn-primary" style="padding:2px;margin-top:-20px;">
-                                   <i class="icon icon-plus"></i>  添加应用
-                               </button>
-                            </a>
-                        </div>-->
-                        <div class="title-search" style="display:inline-block;float:right;">
-                        <form action="/cmdb/index/deploy/task/search/" method="post"  style="margin-top:-10px;">
-                            <div style="display:inline-block;">
-                                <i class="fa fa-search" id="i-advanced-search-i" style="position:relative;left:25px"></i>
-                                <input type="search" name="keyword" onfocus="clearContent(this)" onblur="fillContent(this)" placeholder="项目名称或任务状态" style="text-indent:30px;">
-                                <input type="submit" value="搜索">
+                        <div class="title-search">
+                        <form action="/cmdb/index/deploy/task/search/" method="post" style="margin-top:-60px;">
+                            <div class="col-md-4" style="display:inline-block;float:right;margin-right:-15px">
+                                <label for="search"></label>
+                                <div class="input-group">
+                                    <input type="search" id="search" name="keyword" class="form-control" placeholder="项目名称或任务状态" onfocus="clearContent(this)" onblur="fillContent(this)">
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> 搜索</button>
+                                    </span>
+                                </div>
                             </div>
                         </form>
                         </div>
@@ -54,20 +65,27 @@
                             </thead>
                             <tbody  id="task_table">
                             {% for item in deploy %}
+                            {% if item.status == "失败" %}
+                            <tr style="color: red">
+                            {% elif item.status == "已取消" %}
+                            <tr style="color: orange">
+                            {% else %}
                             <tr>
+                            {% endif %}
                                 <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
                                 <td>{{item.id}}</td>
                                 <td>{{item.proj_name}}</td>
                                 <td style="display:none">{{item.proj_id}}</td>
                                 <td>{{ item.tag }}</td>
                                 <td style="display:none">{{ item.task_id }}</td>
-                                {% if item.status == "失败" %}
+                                <!--{% if item.status == "失败" %}
                                 <td style="color: red">{{ item.status }}</td>
                                 {% elif item.status == "已取消" %}
                                 <td style="color: orange">{{ item.status }}</td>
                                 {% else %}
                                 <td>{{ item.status }}</td>
-                                {% endif %}
+                                {% endif %}-->
+                                <td>{{ item.status }}</td>
                                 <td>{{item.update_time}}</td>
                                 <td>
                                     <!--<button class="btn btn-primary" data-toggle="modal" data-target="#modal-2">更新</button>-->
@@ -113,8 +131,51 @@
 
 
 
+<div class="modal fade" id="modal-del" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger border-0">
+                <h5 class="modal-title text-white">删除确认</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-5">
+                确定删除这条记录?
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="del()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
+
+<div class="modal fade" id="modal-delAll" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger border-0">
+                <h5 class="modal-title text-white">删除确认</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body p-5">
+                确定删除所选记录?
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-link" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="delAll()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}
@@ -122,6 +183,11 @@
 <script>
 
 
+//  /* 全局变量 */
+// 定义alert div HTML
+var div_alert_html = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true" onclick="refresh()">&times;</span></button>';
+var itemIdToDelete; // 用于存储要删除的项目的ID
+var trToDelete; // 删除的行
 
 
 // ajax轮询celery获取status
@@ -157,9 +223,16 @@ $(function () {
                         //console.log(msg);
                         status = msg.status;
                         id = msg.id;
-                        //console.log(id,status);
+                        console.log(id,status);
                         //window.parent.location.reload();
                         tr.cells[5].innerHTML = status;
+
+                        if (status == '失败') {
+                            tr.style.color = "red";
+                        }else if (status == '已取消') {
+                            tr.style.color = "orange";
+                        };
+
                         /*
                         if (status != "执行中"){
                             //设置取消可撤销状态
@@ -244,35 +317,92 @@ function fillContent(arg) {
 }
 
 
-function del(obj) {
-    var tr = obj.parentNode.parentNode;
-    var tbody = tr.parentNode;
+
+function refresh(){
+    location.reload();
+}
+
+
+function setItemIdToDelete(obj) {
+    //var tr = obj.parentNode.parentNode;
+    trToDelete = obj.parentNode.parentNode;
+    // 设置要删除的项目的ID
+    itemIdToDelete = trToDelete.cells[1].innerHTML; // 这里替换为你实际的项目ID
+}
+
+
+//function del(obj) {
+function del() {
+    //var tr = obj.parentNode.parentNode;
+    //var tbody = tr.parentNode;
     //var id = tr.firstElementChild.innerHTML;
-    var id = tr.cells[1].innerHTML;
-    //alert(id)
+    //var id = tr.cells[1].innerHTML;
+    var id = itemIdToDelete;
+    var tr = trToDelete;
+    var tbody = trToDelete.parentNode;
+    //alert(id);
+    console.log("Delete item with ID " + id);
+    console.log(tr,tbody);
+
+    /*
     if (confirm("确定删除？")){
         window.event.returnValue = true;
     }else {
         window.event.returnValue = false;
     }
     if (window.event.returnValue == true){
-        tbody.removeChild(tr);
+    */
+
         $.ajax({
-            url:'/cmdb/index/wf/wfbusiness/deploy/del/',
+            url:'/cmdb/index/assets/asset/del/',
             data:{id:id},
             type:'POST',
             success:function (data) {
-                window.parent.location.reload();
-                //$(body).html(data);
-                //alert('删除成功')
+                // 清除 itemIdToDelete，以防止意外删除其他项目
+                itemIdToDelete = null;
+                // 清除 tr
+                trToDelete = null;
+                // 关闭模态框
+                $('#modal-del').modal('hide');
+                //window.parent.location.reload();
+                //alert('删除成功');
+                //alert(data);
+                //console.log(data);
+                // 清除前端数据
+                tbody.removeChild(tr);
             },
-            error:function () {
-                alert('服务器异常');
+            error:function (xhr) {
+                if (xhr.status == 403) {
+                    // 清除 itemIdToDelete，以防止意外删除其他项目
+                    itemIdToDelete = null;
+                    // 清除 tr
+                    trToDelete = null;
+                    // 关闭模态框
+                    $('#modal-del').modal('hide');
+                    //alert('服务器异常');
+                    // alert 弹框提示
+                    document.getElementById('alert_fail').removeAttribute('style','display');
+                    document.getElementById('alert_fail').innerHTML = '没有权限操作！' + div_alert_html;
+                } else {
+                    // 清除 itemIdToDelete，以防止意外删除其他项目
+                    itemIdToDelete = null;
+                    // 清除 tr
+                    trToDelete = null;
+                    // 关闭模态框
+                    $('#modal-del').modal('hide');
+                    //alert('服务器异常');
+                    // alert 弹框提示
+                    document.getElementById('alert_fail').removeAttribute('style','display');
+                    document.getElementById('alert_fail').innerHTML = '服务器异常！' + div_alert_html;
+                }
             }
         });
+    /*
     }else{
     }
+    */
 }
+
 
 
 function update(obj) {
@@ -385,42 +515,70 @@ function checkAll_0() {
  }
 
 
+
 function delAll() {
     var checks = document.getElementsByName("checkone");
-    if (confirm("确定删除？")){
-        window.event.returnValue = true;
-    }else {
-        window.event.returnValue = false;
-    }
+    var array_id = [];
+    var array_tr = [];
+    var array_tbody = [];
+
     for (var i = 0; i < checks.length; i++) {
         if (checks[i].checked){
             var tr = checks[i].parentNode.parentNode;
             var tbody = tr.parentNode;
             var id = tr.cells[1].innerHTML;
+            array_id.push(id);
+            array_tr.push(tr);
+            array_tbody.push(tbody);
 
+            console.log("Delete item with ID " + id);
+        }
+    };
+    console.log(array_id);
+    console.log(JSON.stringify(array_id));
+    console.log(array_tr);
+    console.log(array_tbody);
 
-            if (window.event.returnValue == true){
-                tbody.removeChild(tr);
-                $.ajax({
-                    url:'/cmdb/index/wf/wfbusiness/deploy/del/',
-                    data:{id:id},
-                    type:'POST',
-                    success:function (data) {
-                        window.parent.location.reload();
-                        //$(body).html(data);
-                        //alert('删除成功')
-                    },
-                    error:function () {
-                        alert('服务器异常');
-                    }
-                });
-               i--;
-            }else{
+    $.ajax({
+        url:'/cmdb/index/assets/asset/del-all/',
+        data:{id:JSON.stringify(array_id)},
+        type:'POST',
+        success:function (data) {
 
+            // 关闭模态框
+            $('#modal-delAll').modal('hide');
+            // 移除全选高亮
+            document.getElementById("delAll").setAttribute("class","btn btn-secondary");
+            //window.parent.location.reload();
+            //$(body).html(data);
+            //alert('删除成功');
+            // 清除前端数据
+            for (var i = 0; i < array_tr.length; i++) {
+                array_tbody[i].removeChild(array_tr[i]);
+            };
+        },
+        error:function (xhr) {
+            if (xhr.status == 403) {
+                //alert('服务器异常');
+                // 关闭模态框
+                $('#modal-delAll').modal('hide');
+                // alert 弹框提示
+                document.getElementById('alert_fail').removeAttribute('style','display');
+                document.getElementById('alert_fail').innerHTML = '没有权限操作！' + div_alert_html;
+            } else {
+                //alert('服务器异常');
+                // 关闭模态框
+                $('#modal-delAll').modal('hide');
+                // alert 弹框提示
+                document.getElementById('alert_fail').removeAttribute('style','display');
+                document.getElementById('alert_fail').innerHTML = '服务器异常！' + div_alert_html;
             }
         }
-    }
+    });
+
 }
+
+
 
 
 function myTrim(x) {

@@ -1,0 +1,33 @@
+{% extends "master/layout.html" %}
+{% block formTitle %}
+{% endblock %}
+{% block content %}
+{% load tz %}
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <!--<div class="container-fluid">-->
+
+            <div class="card">
+                <!--<div class="card-header bg-light">
+                    skywalking报警
+                    <label style="color: red;">
+                        {{ status }}
+                    </label>
+                </div>-->
+                <div class="card-body">
+                    <iframe src="{{ skywalking_ui_url }}"  width="100%" scrolling="No" height="950px" frameborder="0"></iframe>
+                </div>
+            </div>
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block formFooter %}
+{% endblock %}
+{% block javascript %}
+
+{% endblock %}

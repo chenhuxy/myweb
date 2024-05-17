@@ -8,9 +8,7 @@
                         <div class="card p-4">
                             <div class="card-header bg-light">
                                 用户资料
-                                <label style="color: red;">
-                                    {{ status }}
-                                </label>
+                                <label style="color: red;">{{ status }}</label>
                             </div>
 
                             <div class="card-body">
@@ -120,7 +118,7 @@
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="multi-select-2" class="require">权限</label>
-                                            <select id="multi-select-2" readonly class="form-control" name="perm" multiple="">
+                                            <select id="multi-select-2" readonly class="form-control" name="perm" multiple="" style="height: 500px;">
                                                 {% for item in perm_selected %}
                                                 <!--<option value={{item.id}} selected>-->
                                                 <option value={{item.id}}>

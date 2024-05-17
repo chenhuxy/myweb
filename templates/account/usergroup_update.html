@@ -9,10 +9,7 @@
                     <div class="col-md-12">
                         <div class="card p-4">
                             <div class="card-header bg-light">
-                                更新组/角色
-                                <label style="color: red;">
-                                    {{ status }}
-                                </label>
+                                更新组/角色<label style="color: red;">{{ status }}</label>
                             </div>
 
                             <div class="card-body">
@@ -26,7 +23,8 @@
                                     <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="multi-select" class="require">权限</label>
-                                            <select id="multi-select" class="form-control" name="perm" multiple="">
+                                            <select id="multi-select" class="form-control" name="perm" multiple="" style="height: 500px;">
+                                                <option value="">None</option>
                                                 {% for item in perm_selected %}
                                                 <option value={{item.id}} selected>{{item.content_type.app_label}} | {{item.content_type}} | {{item.name}} | {{item.codename}}</option>
                                                 {% endfor %}

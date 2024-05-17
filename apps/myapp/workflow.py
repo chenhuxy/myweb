@@ -18,7 +18,6 @@ from django.db.models import Q
 from apps.myapp.gitlab_helper import GitTools
 import gitlab
 import paramiko, subprocess
-from apps.myapp import loop
 from django.core.cache import cache
 from myweb.settings import GITLAB_URL, GITLAB_TOKEN
 from django.contrib.auth.models import Group
@@ -34,8 +33,10 @@ from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_C
 def wfbusiness(request, *args, **kwargs):
     wfbusiness = models.wf_business.objects.all()
     count = wfbusiness.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'wfbusiness': wfbusiness, 'login_user': userDict['user'], 'count': count, }
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'wfbusiness': wfbusiness, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('workflow/wfbusiness.html', msg)
 
 
@@ -46,9 +47,11 @@ def wfbusiness_form_add(request, *args, **kwargs):
     wfbusiness = models.wf_business.objects.all()
     # usergroup = models.userGroup.objects.all()
     approval = userinfo.exclude(workflow_order=0)
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     msg = {'wfbusiness': wfbusiness, 'userinfo': userinfo,
-           'login_user': userDict['user'], 'status': '', 'approval': approval, }
+           'login_user': user_dict['user'], 'status': '', 'approval': approval,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     # print(msg)
     return render_to_response('workflow/wfbusiness_add.html', msg)
 
@@ -57,7 +60,8 @@ def wfbusiness_form_add(request, *args, **kwargs):
 @custom_permission_required('myapp.add_wf_business')
 def wfbusiness_add(request, *args, **kwargs):
     userinfo = models.userInfo.objects.all()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     if request.method == 'POST':
         wfbusiness = request.POST.get('wfbusiness', None)
         repo = request.POST.get('repo', None)
@@ -65,20 +69,23 @@ def wfbusiness_add(request, *args, **kwargs):
         approval = request.POST.getlist('approval', None)
         is_exist = models.wf_business.objects.filter(name=wfbusiness)
         # print(is_exist)
-        if not (is_exist):
+        if not is_exist:
             is_empty = all([wfbusiness, ])
             if is_empty:
                 queryset = models.wf_business.objects.create(name=wfbusiness, admin_id=admin_id, )
                 queryset.approval.set(approval)
                 msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
-                       'login_user': userDict['user'], 'status': '添加业务单元成功', }
+                       'login_user': user_dict['user'], 'status': '添加业务单元成功',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
                 return redirect('/cmdb/index/wf/wfbusiness/list/')
             else:
                 msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
-                       'login_user': userDict['user'], 'status': 'xx不能为空', }
+                       'login_user': user_dict['user'], 'status': 'xx不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
         else:
             msg = {'userinfo': userinfo, 'wfbusiness': wfbusiness,
-                   'login_user': userDict['user'], 'status': '该业务单元已存在！', }
+                   'login_user': user_dict['user'], 'status': '该业务单元已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('workflow/wfbusiness_add.html', msg)
 
 
@@ -89,9 +96,10 @@ def wfbusiness_form_update(request, *args, **kwargs):
     wfbusiness = models.wf_business.objects.filter(id=id)
     admin = models.userInfo.objects.all().exclude(admin__id=id)
     approval = models.userInfo.objects.all().exclude(workflow_order=0).exclude(approval__id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id': id, 'login_user': userDict['user'], 'status': u'操作成功', 'wfbusiness': wfbusiness,
-           'admin': admin, 'approval': approval, }
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': id, 'login_user': user_dict['user'], 'status': u'操作成功', 'wfbusiness': wfbusiness,
+           'admin': admin, 'approval': approval, 'wf_count_pending': wf_dict['wf_count_pending'], }
     # print(msg)
     return render_to_response('workflow/wfbusiness_update.html', msg)
 
@@ -110,7 +118,7 @@ def wfbusiness_update(request, *args, **kwargs):
     approval = request.POST.getlist('approval')
 
     update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
     models.wf_business.objects.filter(id=id).update(name=wfbusiness,
                                                     update_time=update_time, admin_id=admin_id, )
     models.wf_business.objects.get(id=id).approval.set(approval)
@@ -128,7 +136,7 @@ def wfbusiness_ajax(request, *args, **kwargs):
             director_id = wfbusiness.values('director_id')[0]['director_id']
             director = models.userInfo.objects.filter(id=director_id).values('username')[0]['username']
             print(wfbusiness, director_id, director, )
-            userDict = request.session.get('is_login', None)
+            user_dict = request.session.get('is_login', None)
             # data = serializers.serialize('json',wfbusiness) #序列化
             # data = json.dumps(wfbusiness)
             data = {'director_id': director_id, 'director': director, }
@@ -143,10 +151,14 @@ def wfbusiness_ajax(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_wf_business')
 def wfbusiness_del(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.wf_business.objects.filter(id=id).delete()
-    # print('delete', id)
-    msg = {'code': 1, 'result': '删除工单类型id:' + id, }
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.wf_business.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除业务单元成功,id列表：' + json.dumps(array_id)}
+    print(msg)
     return render_to_response('workflow/wfbusiness.html', msg)
 
 
@@ -155,8 +167,10 @@ def wfbusiness_del(request, *args, **kwargs):
 def wftype(request, *args, **kwargs):
     wftype = models.wf_type.objects.all()
     count = wftype.count()
-    userDict = request.session.get('is_login', None)
-    msg = {'wftype': wftype, 'login_user': userDict['user'], 'count': count}
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'wftype': wftype, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('workflow/wftype.html', msg)
 
 
@@ -166,8 +180,10 @@ def wftypeForm_add(request, *args, **kwargs):
     # userinfo = models.userInfo.objects.all()
     wftype = models.wf_type.objects.all()
     # usergroup = models.userGroup.objects.all()
-    userDict = request.session.get('is_login', None)
-    msg = {'wftype': wftype, 'login_user': userDict['user'], 'status': '', }
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'wftype': wftype, 'login_user': user_dict['user'], 'status': '',
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('workflow/wftype_add.html', msg)
 
 
@@ -176,26 +192,30 @@ def wftypeForm_add(request, *args, **kwargs):
 def wftypeAdd(request, *args, **kwargs):
     userinfo = models.userInfo.objects.all()
     # usertype = models.userType.objects.all()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     # usergroup = models.userGroup.objects.all()
     # result = {'status': '','usertype':None}
     if request.method == 'POST':
         wftype = request.POST.get('wftype', None)
         is_exist = models.wf_type.objects.filter(name=wftype)
         # print(is_exist)
-        if not (is_exist):
+        if not is_exist:
             is_empty = all([wftype, ])
             if is_empty:
                 models.wf_type.objects.create(name=wftype, )
                 msg = {'userinfo': userinfo, 'wftype': wftype,
-                       'login_user': userDict['user'], 'status': '添加工单类型成功', }
+                       'login_user': user_dict['user'], 'status': '添加工单类型成功',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
                 return redirect('/cmdb/index/wf/wftype/list/')
             else:
                 msg = {'userinfo': userinfo, 'wftype': wftype,
-                       'login_user': userDict['user'], 'status': 'xx不能为空', }
+                       'login_user': user_dict['user'], 'status': '名称不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
         else:
             msg = {'userinfo': userinfo, 'wftype': wftype,
-                   'login_user': userDict['user'], 'status': '该工单类型已存在！', }
+                   'login_user': user_dict['user'], 'status': '该工单类型已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('workflow/wftype_add.html', msg)
 
 
@@ -205,8 +225,10 @@ def wftypeForm_update(request, *args, **kwargs):
     # userid = request.GET.get('userid',None)
     id = kwargs['id']
     wftype = models.wf_type.objects.filter(id=id)
-    userDict = request.session.get('is_login', None)
-    msg = {'id': id, 'login_user': userDict['user'], 'status': '操作成功', 'wftype': wftype, }
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': id, 'login_user': user_dict['user'], 'status': '操作成功', 'wftype': wftype,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     # print(msg)
     return render_to_response('workflow/wftype_update.html', msg)
 
@@ -217,18 +239,22 @@ def wftypeUpdate(request, *args, **kwargs):
     id = kwargs['id']
     wftype = request.POST.get('wftype')
     update_time = timezone.now()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
     models.wf_type.objects.filter(id=id).update(name=wftype, update_time=update_time)
     return redirect('/cmdb/index/wf/wftype/list/')
 
 
 @custom_login_required
 @custom_permission_required('myapp.delete_wf_type')
-def wftypeDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.wf_type.objects.filter(id=id).delete()
-    # print('delete', id)
-    msg = {'code': 1, 'result': '删除工单类型id:' + id, }
+def wftype_del(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.wf_type.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除工单类型成功,id列表：' + json.dumps(array_id)}
+    print(msg)
     return render_to_response('workflow/wftype.html', msg)
 
 
@@ -244,13 +270,17 @@ def wf(request, *args, **kwargs):
     wf_info = models.wf_info.objects.all().order_by('-id')[pageinfo.start:pageinfo.end]
     page_string = page_helper.pager_wf_list(request, page, pageinfo.pageCount)
     # usertype = userType.objects.all()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     msg = {'wf_info': wf_info, 'count': count, 'pageCount': pageinfo.pageCount,
-           'page': page_string, 'login_user': userDict['user'], }
+           'page': page_string, 'login_user': user_dict['user'],
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('workflow/workflow.html', msg)
 
 
 @custom_login_required
+@custom_permission_required('myapp.view_wf_info')
+@custom_permission_required('myapp.view_wf_info_process_history')
 def wf_search(request, *args, **kwargs):
     keyword = request.POST.get('keyword').strip()
     page = '1'
@@ -262,20 +292,24 @@ def wf_search(request, *args, **kwargs):
 
 
 @custom_login_required
+@custom_permission_required('myapp.view_wf_info')
+@custom_permission_required('myapp.view_wf_info_process_history')
 def wf_search_result(request, *args, **kwargs):
     keyword = kwargs['keyword']
     wf_info = models.wf_info.objects.filter(sn__icontains=keyword) | models.wf_info.objects.filter(
         sponsor__icontains=keyword)
     count = wf_info.count()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     page = common.try_int(kwargs['page'], 1)
     # print(keyword, page)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
     pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
     wf_info = wf_info.order_by('-id')[pageinfo.start:pageinfo.end]
     page_string = page_helper.pager_wf_list_search(request, page, pageinfo.pageCount, keyword)
-    msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '操作成功',
-           'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string, }
+    msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': '操作成功',
+           'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     # return render_to_response('user_search.html',msg)
     return render_to_response('workflow/workflow.html', msg)
 
@@ -290,23 +324,25 @@ def wrokflow_form_add(request, *args, **kwargs):
     wf_business = models.wf_business.objects.all()
     # 2023/08/15
     deploy_list = models.deploy_app.objects.all()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     if request.method == 'GET':
-        msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', 'wf_type': wf_type,
-               'user_info': user_info, 'wf_business': wf_business, 'deploy_list': deploy_list}
+        msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': '', 'wf_type': wf_type,
+               'user_info': user_info, 'wf_business': wf_business, 'deploy_list': deploy_list,
+               'wf_count_pending': wf_dict['wf_count_pending'], }
         # print(msg, )
         return render_to_response('workflow/workflow_add.html', msg)
     if request.method == 'POST':
 
         '''
-        dest=open(os.path.join("F:\\upload",files),'wb+')
-        for chunk in files.chunks():
+        dest=open(os.path.join("F:\\upload",import),'wb+')
+        for chunk in import.chunks():
             dest.write(chunk)
         dest.close()
         '''
 
         '''
-        path = default_storage.save('temp/dj', ContentFile(files.read()))
+        path = default_storage.save('temp/dj', ContentFile(import.read()))
         temp_file = os.path.join(settings.MEDIA_ROOT, path)
         status='上传完成'
         msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': status,
@@ -330,8 +366,8 @@ def wrokflow_form_add(request, *args, **kwargs):
                 for chunk in mf:
                     f.write(chunk)
             status = '上传完成'
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': status,
-                   'wf_type': wf_type, 'user_group': user_group, }
+            msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': status,
+                   'wf_type': wf_type, }
             # print(msg, )
             return render_to_response('workflow/workflow_add.html', msg)
         except Exception as e:
@@ -343,7 +379,8 @@ def wrokflow_form_add(request, *args, **kwargs):
 def workflow_add(request, *args, **kwargs):
     wf_info = models.wf_info.objects.all()
     wf_type = models.wf_type.objects.all()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     userinfo = models.userInfo.objects.all()
 
     if request.method == 'POST':
@@ -401,14 +438,14 @@ def workflow_add(request, *args, **kwargs):
             return redirect('/cmdb/index/wf/requests/list/')
         else:
             status = '带有*的选项不能为空！'
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'error': status,
+            msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': status,
                    'wf_type': wf_type, 'userinfo': userinfo, }
-            return render_to_response('500.html', msg)
+            return render_to_response('500.html', msg, status=500)
     else:
         status = '请使用post提交请求！'
-        msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'error': status,
-               'wf_type': wf_type, 'userinfo': userinfo, }
-        return render_to_response('500.html', msg)
+        msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'error': status,
+               'wf_type': wf_type, 'userinfo': userinfo, 'wf_count_pending': wf_dict['wf_count_pending'], }
+        return render_to_response('500.html', msg, status=405)
 
 
 @custom_login_required
@@ -420,10 +457,10 @@ def workflow_form_update(request, *args, **kwargs):
         status = obj.values('status')[0]['status']
         if status == "已提交":
             msg = {'status': '流程进行中，不能修改！'}
-            return render_to_response('500.html', msg)
+            return render_to_response('500.html', msg, status=500)
         elif status == "已完成":
             msg = {'status': '流程已结束，不能修改！'}
-            return render_to_response('500.html', msg)
+            return render_to_response('500.html', msg, status=500)
         else:
             title = obj.values('title')
             sponsor = obj.values('sponsor')
@@ -431,7 +468,8 @@ def workflow_form_update(request, *args, **kwargs):
             type = models.wf_type.objects.filter(wf_info__sn=sn)
             content = obj.values('content')
             memo = obj.values('memo')
-            userDict = request.session.get('is_login', None)
+            user_dict = request.session.get('is_login', None)
+            wf_dict = request.session.get('wf', None)
             # 2023/08/16
             try:
                 proj_name_selected = obj.values('proj_name')[0]['proj_name']
@@ -448,9 +486,10 @@ def workflow_form_update(request, *args, **kwargs):
 
             deploy_list = models.deploy_app.objects.all()
 
-            msg = {'id': id, 'sn': sn, 'title': title, 'sponsor': sponsor, 'type': type, 'login_user': userDict['user'],
+            msg = {'id': id, 'sn': sn, 'title': title, 'sponsor': sponsor, 'type': type,
+                   'login_user': user_dict['user'],
                    'status': '操作成功', 'proj_name_selected': proj_name_selected,
-                   'proj_tag_selected': proj_tag_selected,
+                   'proj_tag_selected': proj_tag_selected, 'wf_count_pending': wf_dict['wf_count_pending'],
                    'deploy_list': deploy_list, 'tags': tags, 'content': content, 'memo': memo, 'business': business}
             # print(msg)
             return render_to_response('workflow/workflow_update.html', msg)
@@ -501,10 +540,11 @@ def workflow_detail(request, *args, **kwargs):
     wf_info_process = models.wf_info_process_history.objects.filter(sn=sn).exclude(status='已提交').exclude(
         status='已完成').order_by('flow_id')
     wf_info_process_end = models.wf_info_process_history.objects.filter(sn=sn).filter(status='已完成')
-    userDict = request.session.get('is_login', None)
-    msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '',
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': '',
            'wf_info_process_start': wf_info_process_start, 'wf_info_process': wf_info_process,
-           'wf_info_process_end': wf_info_process_end}
+           'wf_info_process_end': wf_info_process_end, 'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('workflow/workflow_detail.html', msg)
 
 
@@ -514,22 +554,26 @@ def workflow_approve(request, *args, **kwargs):
     sn = request.GET.get('sn', None)
     wf_info = models.wf_info.objects.filter(sn=sn)
     next_assignee_username = wf_info.values('next_assignee')[0]['next_assignee']
-    userDict = request.session.get('is_login', None)
-    login_user = userDict['user']
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    login_user = user_dict['user']
     # 2023/09/20 判断流程当前状态
     wf_status = wf_info.values('status')[0]['status']
     if wf_status != '已完成':
         # 2023/09/06 判断当前登录用户是否为审批人
         if login_user == next_assignee_username:
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
+            msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': '',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
             return render_to_response('workflow/workflow_approve.html', msg)
         else:
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'],
-                   'status': '前登录用户不是当前流程的审批人，请切换用户再试！', }
-            return render_to_response('500.html', msg)
+            msg = {'wf_info': wf_info, 'login_user': user_dict['user'],
+                   'status': '前登录用户不是当前流程的审批人，请切换用户再试！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
+            return render_to_response('500.html', msg, status=500)
     else:
-        msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '此流程已结束！', }
-        return render_to_response('500.html', msg)
+        msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': '此流程已结束！',
+               'wf_count_pending': wf_dict['wf_count_pending'], }
+        return render_to_response('500.html', msg, status=500)
 
 
 @custom_login_required
@@ -547,24 +591,24 @@ def workflow_tasks_status(request, *args, **kwargs):
 @custom_permission_required('myapp.view_wf_info')
 @custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_tasks(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
-
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     page = common.try_int(kwargs['page'], 1)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
 
-    count_pending = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(
+    count_pending = models.wf_info.objects.filter(next_assignee=user_dict['user']).filter(flow_id__gte=0).filter(
         ~Q(status='已完成')).count()
-    count_processing = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(
+    count_processing = models.wf_info_process_history.objects.filter(assignee=user_dict['user']).filter(
         flow_id__gt=0).count()
 
     pageinfo_pending = page_helper.pageinfo(page, count_pending, perItem)
     pageinfo_processing = page_helper.pageinfo(page, count_processing, perItem)
 
     # 工单列表降序排列
-    wf_info = models.wf_info.objects.filter(next_assignee=userDict['user']).filter(flow_id__gte=0).filter(
+    wf_info = models.wf_info.objects.filter(next_assignee=user_dict['user']).filter(flow_id__gte=0).filter(
         ~Q(status='已完成')).order_by('-id')[pageinfo_pending.start:pageinfo_pending.end]
 
-    wf_info_process = models.wf_info_process_history.objects.filter(assignee=userDict['user']).filter(
+    wf_info_process = models.wf_info_process_history.objects.filter(assignee=user_dict['user']).filter(
         flow_id__gt=0).order_by('-id')
     # 2023/11/27
     # queryset转为list
@@ -579,10 +623,10 @@ def workflow_tasks(request, *args, **kwargs):
     page_string_pending = page_helper.pager_wf_task_list(request, page, pageinfo_pending.pageCount)
     page_string_processing = page_helper.pager_wf_task_list(request, page, pageinfo_processing.pageCount)
 
-    msg = {'wf_info': wf_info, 'wf_info_process': wf_info_process, 'login_user': userDict['user'], 'status': '',
+    msg = {'wf_info': wf_info, 'wf_info_process': wf_info_process, 'login_user': user_dict['user'], 'status': '',
            'wf_type': wf_type, 'count_pending': count_pending, 'count_processing': count_processing,
            'wf_info_process_new': wf_info_process_new, 'page_pending': page_string_pending,
-           'page_processing': page_string_processing}
+           'page_processing': page_string_processing, 'wf_count_pending': wf_dict['wf_count_pending'], }
     # print(msg,)
     return render_to_response('workflow/workflow_tasks.html', msg)
 
@@ -591,23 +635,27 @@ def workflow_tasks(request, *args, **kwargs):
 @custom_permission_required('myapp.view_wf_info')
 @custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_requests(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     wf_type = models.wf_type.objects.all()
     page = common.try_int(kwargs['page'], 1)
     perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
 
-    count = models.wf_info.objects.filter(sponsor=userDict['user']).count()
+    count = models.wf_info.objects.filter(sponsor=user_dict['user']).count()
     pageinfo = page_helper.pageinfo(page, count, perItem)
     # 工单列表降序排列
-    wf_info = models.wf_info.objects.filter(sponsor=userDict['user']).order_by('-id')[pageinfo.start:pageinfo.end]
+    wf_info = models.wf_info.objects.filter(sponsor=user_dict['user']).order_by('-id')[pageinfo.start:pageinfo.end]
     page_string = page_helper.pager_wf_request_list(request, page, pageinfo.pageCount)
 
     msg = {'wf_info': wf_info, 'count': count, 'pageCount': pageinfo.pageCount,
-           'page': page_string, 'login_user': userDict['user'], 'wf_type': wf_type}
+           'page': page_string, 'login_user': user_dict['user'], 'wf_type': wf_type,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     return render_to_response('workflow/workflow_requests.html', msg)
 
 
 @custom_login_required
+@custom_permission_required('myapp.view_wf_info')
+@custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_requests_search(request, *args, **kwargs):
     keyword = request.POST.get('keyword').strip()
     page = '1'
@@ -619,12 +667,15 @@ def workflow_requests_search(request, *args, **kwargs):
 
 
 @custom_login_required
+@custom_permission_required('myapp.view_wf_info')
+@custom_permission_required('myapp.view_wf_info_process_history')
 def workflow_requests_search_result(request, *args, **kwargs):
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     keyword = kwargs['keyword']
-    wf_info = models.wf_info.objects.filter(sponsor=userDict['user']).filter(
+    wf_info = models.wf_info.objects.filter(sponsor=user_dict['user']).filter(
         sn__icontains=keyword) | models.wf_info.objects.filter(
-        sponsor=userDict['user']).filter(title__icontains=keyword)
+        sponsor=user_dict['user']).filter(title__icontains=keyword)
     count = wf_info.count()
     page = common.try_int(kwargs['page'], 1)
     # print(keyword, page)
@@ -632,8 +683,9 @@ def workflow_requests_search_result(request, *args, **kwargs):
     pageinfo = page_helper.pageinfo_search(page, count, perItem, keyword)
     wf_info = wf_info.order_by('-id')[pageinfo.start:pageinfo.end]
     page_string = page_helper.pager_wf_request_list_search(request, page, pageinfo.pageCount, keyword)
-    msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '操作成功',
-           'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string, }
+    msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': '操作成功',
+           'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
     # return render_to_response('user_search.html',msg)
     return render_to_response('workflow/workflow_requests.html', msg)
 
@@ -644,15 +696,16 @@ def workflow_requests_search_result(request, *args, **kwargs):
 def workflow_commit(request, *args, **kwargs):
     if request.method == 'GET':
         sn = kwargs['sn']
-        userDict = request.session.get('is_login', None)
+        user_dict = request.session.get('is_login', None)
+        wf_dict = request.session.get('wf', None)
         wf_info = models.wf_info.objects.filter(sn=sn)
         status = wf_info.values('status')[0]['status']
         if status == "已提交":
             msg = {'status': '流程进行中，不能提交！'}
-            return render_to_response('500.html', msg)
+            return render_to_response('500.html', msg, status=500)
         elif status == "已完成":
             msg = {'status': '流程已结束，不能提交！'}
-            return render_to_response('500.html', msg)
+            return render_to_response('500.html', msg, status=500)
         else:
             # c1 = tasks.workflow_commit.apply_async((sn,), link=tasks.workflow_send_email.s(username, email))
             # print(list(c1.collect()),c1.children,c1.get(),)
@@ -679,7 +732,8 @@ def workflow_commit(request, *args, **kwargs):
                                                      tag=proj_tag, task_id=task_id, status=deploy_status)
             ##################
             '''
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
+            msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': '',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
             return redirect('/cmdb/index/wf/requests/list/', msg)
 
 
@@ -693,14 +747,16 @@ def workflow_withdraw(request, *args, **kwargs):
         flow_id = wf_info.values('flow_id')[0]['flow_id']
         if flow_id > 0:
             msg = {'status': '流程进行中，不能撤回！'}
-            return render_to_response('500.html', msg)
+            return render_to_response('500.html', msg, status=500)
         elif flow_id < 0:
             msg = {'status': '流程未提交，不需要撤回！'}
-            return render_to_response('500.html', msg)
+            return render_to_response('500.html', msg, status=500)
         else:
             tasks.workflow_withdraw(sn)
-            userDict = request.session.get('is_login', None)
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': '', }
+            user_dict = request.session.get('is_login', None)
+            wf_dict = request.session.get('wf', None)
+            msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': '',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
             return redirect('/cmdb/index/wf/requests/list/', msg)
 
 
@@ -709,27 +765,29 @@ def workflow_upload(request, *args, **kwargs):
     wf_info = models.wf_info.objects.all()
     wf_type = models.wf_type.objects.all()
     # user_group = models.userGroup.objects.all()
-    userDict = request.session.get('is_login', None)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
     if request.method == 'POST':
         files = request.FILES.get('mf', None)
-        # print(files, )
+        # print(import, )
         if not files:
             status = '没有文件上传'
-            msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': status,
+            msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': status,
                    'wf_type': wf_type, }
             print(msg, )
             return render_to_response('workflow/workflow_add.html', msg)
         '''
-        dest=open(os.path.join("F:\\upload",files),'wb+')
-        for chunk in files.chunks():
+        dest=open(os.path.join("F:\\upload",import),'wb+')
+        for chunk in import.chunks():
             dest.write(chunk)
         dest.close()
         '''
         path = default_storage.save('temp/dj', ContentFile(files.read()))
         # temp_file = os.path.join(settings.MEDIA_ROOT, path)
         status = '上传完成'
-        msg = {'wf_info': wf_info, 'login_user': userDict['user'], 'status': status,
-               'wf_type': wf_type, 'user_group': user_group, }
+        msg = {'wf_info': wf_info, 'login_user': user_dict['user'], 'status': status,
+               'wf_type': wf_type, 'user_group': user_group,
+               'status': '', 'wf_count_pending': wf_dict['wf_count_pending'], }
         # print(msg, )
         return render_to_response('workflow/workflow_add.html', msg)
 
@@ -744,15 +802,26 @@ def workflow_process(request, *args, **kwargs):
         suggest_reject = request.POST.get('suggest_reject', None)
         sn = request.POST.get('sn', None)
         wf_info = models.wf_info.objects.filter(sn=sn)
-        userDict = request.session.get('is_login', None)
+        user_dict = request.session.get('is_login', None)
+        # wf_dict = request.session.get('wf', None)
         tasks.workflow_process(sn, suggest, suggest_agree, suggest_reject)
-        msg = {'wf_info': wf_info, 'login_user': userDict['user'],
-               'status': '', }
+        # 2024/5/6  更新session待办信息
+        wf_count_pending = models.wf_info.objects.filter(next_assignee=user_dict['user']).filter(
+            flow_id__gte=0).filter(
+            ~Q(status='已完成')).count()
+        print('wf_count_pending:', wf_count_pending)
+        if wf_count_pending > 0:
+            # del request.session['wf']
+            # 处理完减少一次待办数量，直至为'0'
+            request.session['wf'] = {'wf_count_pending': wf_count_pending - 1, }
+        wf_dict = request.session.get('wf', None)
+        msg = {'wf_info': wf_info, 'login_user': user_dict['user'],
+               'status': '', 'wf_count_pending': wf_dict['wf_count_pending'], }
         return redirect('/cmdb/index/wf/tasks/list/')
 
 
 @custom_login_required
-def wftypeChange(request, *args, **kwargs):
+def wftype_change(request, *args, **kwargs):
     if request.method == 'POST':
         try:
             deploy_list_id = request.POST.get('deploy_list_id', None)
@@ -777,7 +846,8 @@ def wftypeChange(request, *args, **kwargs):
             # print(type(tags), tags)
 
             # print(json.dumps(tags))
-            userDict = request.session.get('is_login', None)
+            user_dict = request.session.get('is_login', None)
+            wf_dict = request.session.get('wf', None)
             msg = {'tags_name': tags_name}
             # data = serializers.serialize('json',tags)
             # print(data)
@@ -791,6 +861,17 @@ def wftypeChange(request, *args, **kwargs):
             return HttpResponse(json.dumps(data))
 
 
+@custom_login_required
+def wf_proj_search(request, *args, **kwargs):
+    if request.method == 'POST':
+        # proj_name_list = list(models.deploy_app.objects.all().values_list('proj_name', flat=True))
+        proj_name_list = list(models.deploy_app.objects.all().values_list('id', 'proj_name', ))
+        print(proj_name_list)
+        msg = {'proj_name_list': proj_name_list}
+        return JsonResponse(msg)
+
+
+'''
 @custom_login_required
 def wftypeChange2(request, *args, **kwargs):
     if request.method == 'POST':
@@ -816,7 +897,8 @@ def wftypeChange2(request, *args, **kwargs):
             # print(type(tags), tags)
 
             # print(json.dumps(tags))
-            userDict = request.session.get('is_login', None)
+            user_dict = request.session.get('is_login', None)
+            wf_dict = request.session.get('wf', None)
             msg = {'tags_name': tags_name}
             # data = serializers.serialize('json',tags)
             # print(data)
@@ -828,6 +910,7 @@ def wftypeChange2(request, *args, **kwargs):
             print(e)
             data = {'tags_name': e, }
             return HttpResponse(json.dumps(data))
+'''
 
 
 # @custom_login_required

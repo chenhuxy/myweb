@@ -1,116 +1,154 @@
 {% extends "master/layout.html" %}
 {% block content %}
+<div class="content">
+{% block formTitle %}
+    <!--<form method="post" action="/cmdb/index/table/user/change_password/username={{ username }}">-->
+{% endblock %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="list-group">
+                <a href="#" class="list-group-item">Profile</a>
+                <a href="#" class="list-group-item active">账户设置</a>
+                <a href="#" class="list-group-item">Notifications</a>
+                <a href="#" class="list-group-item">Subscription</a>
+            </div>
+        </div>
 
+        <div class="col-md-10">
+            <div class="card">
 
-        <div class="content">
-        {% block formTitle %}
-            <!--<form method="post" action="/cmdb/index/table/user/change_password/username={{ username }}">-->
-        {% endblock %}
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="list-group">
-                            <a href="#" class="list-group-item">Profile</a>
-                            <a href="#" class="list-group-item active">账户设置</a>
-                            <a href="#" class="list-group-item">Notifications</a>
-                            <a href="#" class="list-group-item">Subscription</a>
-                        </div>
+                <div class="card-header bg-light">
+                    账户设置
+                    <label style="color: red;">{{ status }}</label>
+                    <div class="alert alert-dismissible alert-success" style="display:none" id="alert_success">
+
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" onclick="refresh()">&times;</span>
+                        </button>
                     </div>
 
-                    <div class="col-md-10">
-                        <div class="card">
-                            <div class="card-header bg-light">
-                                账户设置
-                                <label style="color: red;">
-                                    {{ status }}
-                                </label>
-                            </div>
+                    <div class="alert alert-dismissible alert-danger" style="display:none" id="alert_fail">
 
-                            <div class="card-body">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true" onclick="refresh()">&times;</span>
+                        </button>
+                    </div>
 
-                                <hr>
+                </div>
 
-                                <div class="row mt-5">
-                                    <div class="col-md-4 mb-4">
-                                        <div>密码修改</div>
-                                        <div class="text-muted small"></div>
+                <div class="card-body">
+                    <hr>
+                    <div class="row mt-5">
+
+                        <div class="col-md-4 mb-4">
+                            <div>密码修改</div>
+                            <div class="text-muted small"></div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">原密码</label>
+                                        <input id="password_origin" type="password" class="form-control" name="password_origin">
                                     </div>
-
-                                    <div class="col-md-8">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="form-control-label">原密码</label>
-                                                    <input id="password_origin" type="password" class="form-control" name="password_origin">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="form-control-label">新密码</label>
-                                                    <input id="password_new1" type="password" class="form-control" name="password_new1">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="form-control-label">确认密码</label>
-                                                    <input id="password_new2" type="password" class="form-control" name="password_new2">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
 
-                            <div class="card-footer bg-light text-right">
-                                <button type="button" class="btn btn-primary" onclick="refresh()">保存</button>
+                             <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                    <label class="form-control-label">新密码</label>
+                                    <input id="password_new1" type="password" class="form-control" name="password_new1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-control-label">确认密码</label>
+                                    <input id="password_new2" type="password" class="form-control" name="password_new2">
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
+
+                <div class="card-footer bg-light text-right">
+                    <button type="button" class="btn btn-primary" onclick="save(this)">保存</button>
+                </div>
+
             </div>
-        {% block formFooter %}
-            </form>
-        {% endblock %}
         </div>
+    </div>
+</div>
+
+
+
+{% block formFooter %}
+    </form>
+{% endblock %}
+</div>
 
 {% endblock %}
 
 {% block javascript %}
 <script>
 
-       function refresh(obj) {
-            var password_origin = document.getElementById('password_origin').value;
-            var password_new1 = document.getElementById('password_new1').value;
-            var password_new2 = document.getElementById('password_new2').value;
-            //console.log(password_origin,password_new1,password_new2);
-            alert("password_origin: " + password_origin + "\n" + "password_new1: " + password_new1 + "\n" + "password_new2: " + password_new2 + "\n");
-            $.ajax({
-                url:'/cmdb/index/table/user/change_password/username={{login_user}}',
-                data:{
-                    password_origin:password_origin,
-                    password_new1:password_new1,
-                    password_new2:password_new2,
-                },
-                type:'POST',
-                success:function (data) {
-                    //window.parent.location.reload();
-                    //$(body).html(data);
-                    var msg = JSON.parse(data);
-                    console.log(msg);
-                    alert(msg.status);
-                    window.parent.location.reload();
-                },
-                error:function () {
-                    alert('服务器异常');
-                }
-            });
+//  /* 全局变量 */
+// 定义alert div HTML
+var div_alert_html = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true" onclick="refresh()">&times;</span></button>';
 
-       }
+function save(obj) {
+    var password_origin = document.getElementById('password_origin').value;
+    var password_new1 = document.getElementById('password_new1').value;
+    var password_new2 = document.getElementById('password_new2').value;
+    //console.log(password_origin,password_new1,password_new2);
+    //alert("password_origin: " + password_origin + "\n" + "password_new1: " + password_new1 + "\n" + "password_new2: " + password_new2 + "\n");
+
+    $.ajax({
+        url:'/cmdb/index/table/user/change_password/username={{login_user}}',
+        data:{
+            password_origin:password_origin,
+            password_new1:password_new1,
+            password_new2:password_new2,
+        },
+        type:'POST',
+        success:function (data) {
+            //window.parent.location.reload();
+            //$(body).html(data);
+            var msg = JSON.parse(data);
+            console.log(msg);
+            //alert(msg.status);
+            //window.parent.location.reload();
+            // alert 弹框提示
+            if (msg.code == '0'){
+                document.getElementById('alert_success').removeAttribute('style','display');
+                document.getElementById('alert_success').innerHTML = msg.status + div_alert_html;
+                }
+            else{
+                document.getElementById('alert_fail').removeAttribute('style','display');
+                document.getElementById('alert_fail').innerHTML = msg.status + div_alert_html;
+                };
+
+        },
+        error:function () {
+            //alert('服务器异常');
+            // alert 弹框提示
+            document.getElementById('alert_fail').removeAttribute('style','display');
+            document.getElementById('alert_fail').innerHTML = '服务器异常' + div_alert_html;
+        }
+    });
+
+}
+
+function refresh(){
+    location.reload();
+}
+
 
 </script>
 {% endblock %}

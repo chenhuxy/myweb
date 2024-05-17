@@ -405,3 +405,9 @@ API_SECRET = 'yYEtEMvGMVmCaxpOWIjOWjtvTk'
 
 # 定义接口请求超时时间
 API_ACCESS_TIMEOUT = 3000  # ms
+
+# grafana
+GRAFANA_URL = 'https://xxx/grafana/d/aka/be9e3f56-70f9-509c-9efd-be6e2c0b5292?orgId=1&auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZDR05qWnN0dW9RWndDWFlnQ2pTd0NzSHBvMWhzOVRUZkVTb09mWllVLU0ifQ.eyJzdWIiOiJoeS1kZXYtdXNlciIsIm5hbWUiOiJoeS1kZXYtdXNlciIsImlhdCI6MTcxMzQxODQxMywiZXhwIjo0ODY5MDkyMDEzLCJpc3MiOiJodHRwczovL215LXRva2VuLWlzc3VlciIsIm9yZyI6Imh5Iiwicm9sZSI6IlZpZXdlciJ9.8NL2dpKjpUp_MzLzyit-388mCMAo0SzCHLLcFJZ1nrY'
+
+# skywalking_ui
+SKYWALKING_UI_URL = 'http://xxx/?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiJoeS1kZXYtdXNlciIsImV4cCI6NDg2NzQ1NTY5MH0.PBvAHjDvY0hrO4cmohB0_NxSfh5mDsER83pJ63_1xCQ'
