@@ -110,16 +110,6 @@ def env_type_update(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_assetenvtype')
 def env_type_del(request, *args, **kwargs):
-    form_id = request.POST.get('id')
-    models.AssetEnvType.objects.filter(id=form_id).delete()
-    print('delete', form_id)
-    msg = {'code': 1, 'result': '删除环境类型id:' + form_id, }
-    return render_to_response('assets/env_type.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_assetenvtype')
-def env_type_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
@@ -212,16 +202,6 @@ def os_type_update(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_assetostype')
 def os_type_del(request, *args, **kwargs):
-    form_id = request.POST.get('id')
-    models.AssetOsType.objects.filter(id=form_id).delete()
-    print('delete', form_id)
-    msg = {'code': 1, 'result': '删除操作系统类型id:' + form_id, }
-    return render_to_response('assets/os_type.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_assetostype')
-def os_type_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
@@ -314,16 +294,6 @@ def device_type_update(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_assetdevicetype')
 def device_type_del(request, *args, **kwargs):
-    form_id = request.POST.get('id')
-    models.AssetDeviceType.objects.filter(id=form_id).delete()
-    print('delete', form_id)
-    msg = {'code': 1, 'result': '删除设备类型id:' + form_id, }
-    return render_to_response('assets/device_type.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_assetdevicetype')
-def device_type_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
@@ -416,16 +386,6 @@ def device_status_update(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_assetdevicestatus')
 def device_status_del(request, *args, **kwargs):
-    form_id = request.POST.get('id')
-    models.AssetDeviceStatus.objects.filter(id=form_id).delete()
-    print('delete', form_id)
-    msg = {'code': 1, 'result': '删除设备状态id:' + form_id, }
-    return render_to_response('assets/device_status.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_assetdevicestatus')
-def device_status_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
@@ -524,16 +484,6 @@ def idc_update(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_assetidc')
 def idc_del(request, *args, **kwargs):
-    form_id = request.POST.get('id')
-    models.AssetIDC.objects.filter(id=form_id).delete()
-    print('delete', form_id)
-    msg = {'code': 1, 'result': '删除idc id:' + form_id, }
-    return render_to_response('assets/idc.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_assetidc')
-def idc_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
@@ -626,16 +576,6 @@ def tag_update(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_assettag')
 def tag_del(request, *args, **kwargs):
-    form_id = request.POST.get('id')
-    models.AssetTag.objects.filter(id=form_id).delete()
-    print('delete', form_id)
-    msg = {'code': 1, 'result': '删除tag id:' + form_id, }
-    return render_to_response('assets/tag.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_assettag')
-def tag_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
@@ -970,16 +910,6 @@ def asset_update(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_asset')
 def asset_del(request, *args, **kwargs):
-    form_id = request.POST.get('id')
-    models.Asset.objects.filter(id=form_id).delete()
-    print('delete', form_id)
-    msg = {'code': 1, 'result': '删除asset id:' + form_id, }
-    return render_to_response('assets/asset.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_asset')
-def asset_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))

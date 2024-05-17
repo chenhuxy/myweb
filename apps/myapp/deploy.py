@@ -107,16 +107,6 @@ def deploy_script_type_update(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_deploy_script_type')
 def deploy_script_type_del(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.deploy_script_type.objects.filter(id=id).delete()
-    # print('delete', id)
-    msg = {'code': 1, 'result': '删除脚本类型id:' + id, }
-    return render_to_response('deploy/script_type.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_deploy_script_type')
-def deploy_script_type_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
@@ -287,16 +277,6 @@ def deploy_ajax(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_deploy_app')
 def deploy_app_del(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.deploy_app.objects.filter(id=id).delete()
-    # print('delete', id)
-    msg = {'code': 1, 'result': '删除app id:' + id, }
-    return render_to_response('deploy/deploy_app.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_deploy_app')
-def deploy_app_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))

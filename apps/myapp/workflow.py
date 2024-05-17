@@ -151,16 +151,6 @@ def wfbusiness_ajax(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.delete_wf_business')
 def wfbusiness_del(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.wf_business.objects.filter(id=id).delete()
-    # print('delete', id)
-    msg = {'code': 1, 'result': '删除业务单元id:' + id, }
-    return render_to_response('workflow/wfbusiness.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_wf_business')
-def wfbusiness_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
@@ -256,17 +246,7 @@ def wftypeUpdate(request, *args, **kwargs):
 
 @custom_login_required
 @custom_permission_required('myapp.delete_wf_type')
-def wftypeDel(request, *args, **kwargs):
-    id = request.POST.get('id')
-    models.wf_type.objects.filter(id=id).delete()
-    # print('delete', id)
-    msg = {'code': 1, 'result': '删除工单类型id:' + id, }
-    return render_to_response('workflow/wftype.html', msg)
-
-
-@custom_login_required
-@custom_permission_required('myapp.delete_wf_type')
-def wftype_del_all(request, *args, **kwargs):
+def wftype_del(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))

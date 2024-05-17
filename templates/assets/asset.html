@@ -363,6 +363,7 @@ function setItemIdToDelete(obj) {
 
 //function del(obj) {
 function del() {
+    var array_id = [];
     //var tr = obj.parentNode.parentNode;
     //var tbody = tr.parentNode;
     //var id = tr.firstElementChild.innerHTML;
@@ -373,6 +374,7 @@ function del() {
     //alert(id);
     console.log("Delete item with ID " + id);
     console.log(tr,tbody);
+    array_id.push(id);
 
     /*
     if (confirm("确定删除？")){
@@ -385,7 +387,7 @@ function del() {
 
         $.ajax({
             url:'/cmdb/index/assets/asset/del/',
-            data:{id:id},
+            data:{id:JSON.stringify(array_id)},
             type:'POST',
             success:function (data) {
                 // 清除 itemIdToDelete，以防止意外删除其他项目
@@ -579,7 +581,7 @@ function delAll() {
     console.log(array_tbody);
 
     $.ajax({
-        url:'/cmdb/index/assets/asset/del-all/',
+        url:'/cmdb/index/assets/asset/del/',
         data:{id:JSON.stringify(array_id)},
         type:'POST',
         success:function (data) {
@@ -588,7 +590,7 @@ function delAll() {
             $('#modal-delAll').modal('hide');
             // 移除全选高亮
             document.getElementById("delAll").setAttribute("class","btn btn-secondary");
-            document.getElementById("export").setAttribute("class","btn btn-secondary");
+            document.getElementById("exportAll").setAttribute("class","btn btn-secondary");
             //window.parent.location.reload();
             //$(body).html(data);
             //alert('删除成功');

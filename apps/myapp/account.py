@@ -108,34 +108,42 @@ def auth(request, *args, **kwargs):
         password = encrypt_helper.md5_encrypt(password_origin)
         # password = make_password(password_origin)
         # check = check_password(password_origin,password)
-        is_auth = authenticate(username=username, password=password_origin)
-        remember = request.POST.get('remember', None)
-        is_empty = all([username, password_origin])
-        # print(username, password_origin,remember,is_empty,user,type(user))
-        if is_empty:
-            if is_auth:
-                request.session['is_login'] = {'user': username, 'pass': password, }
-                # 2024/5/6 wf待办信息写入session
-                wf_count_pending = wf_info.objects.filter(next_assignee=username).filter(
-                    flow_id__gte=0).filter(
-                    ~Q(status='已完成')).count()
-                # print(wf_count_pending)
-                request.session['wf'] = {'wf_count_pending': wf_count_pending, }
-                obj = redirect('/cmdb/index/')
-                if remember == 'on':
-                    obj.set_cookie('is_login', '{"user": username, "pass": password, }', 3600 * 24 * 7, )
-                    # obj.set_cookie('user',username,3600*24*7,)
-                    # obj.set_cookie('pass',password,3600*24*7,)
-                return obj
-                # result = {'status':'登录成功！'}
-                # return render_to_response('index.html',result)
+        # 2024/5/17  判断用户是否已经被禁用
+        is_active = userInfo.objects.filter(username=username).values('is_active')[0]['is_active']
+        if is_active:
+            is_auth = authenticate(username=username, password=password_origin)
+            remember = request.POST.get('remember', None)
+            is_empty = all([username, password_origin])
+            # print(username, password_origin,remember,is_empty,user,type(user))
+            if is_empty:
+                if is_auth:
+                    request.session['is_login'] = {'user': username, 'pass': password, }
+                    # 2024/5/6 wf待办信息写入session
+                    wf_count_pending = wf_info.objects.filter(next_assignee=username).filter(
+                        flow_id__gte=0).filter(
+                        ~Q(status='已完成')).count()
+                    # print(wf_count_pending)
+                    request.session['wf'] = {'wf_count_pending': wf_count_pending, }
+                    obj = redirect('/cmdb/index/')
+                    if remember == 'on':
+                        obj.set_cookie('is_login', '{"user": username, "pass": password, }', 3600 * 24 * 7, )
+                        # obj.set_cookie('user',username,3600*24*7,)
+                        # obj.set_cookie('pass',password,3600*24*7,)
+                    return obj
+                    # result = {'status':'登录成功！'}
+                    # return render_to_response('index.html',result)
+                else:
+                    msg = {'status': '用户名密码错误！'}
+                    return render_to_response('account/login.html', msg, status=401)
             else:
-                msg = {'status': '用户名密码错误！'}
+                msg = {'status': '用户名或密码不能为空！'}
+                return render_to_response('account/login.html', msg, status=401)
         else:
-            msg = {'status': '用户名或密码不能为空！'}
+            msg = {'status': '该用户已被禁用！'}
+            return render_to_response('account/login.html', msg, status=401)
     else:
         msg = {'status': '无效的请求，请使用post提交！'}
-    return render_to_response('account/login.html', msg, )
+    return render_to_response('account/login.html', msg, status=405)
 
 
 def register(request, *args, **kwargs):
@@ -462,35 +470,15 @@ def usergroup(request, *args, **kwargs):
 
 
 @custom_login_required
-# @custom_permission_required('auth.delete_group')
-def usergroup_del(request, *args, **kwargs):
-    form_id = request.POST.get('id')
-    user_dict = request.session.get('is_login', None)
-    wf_dict = request.session.get('wf', None)
-    # 2024/5/7 增加是否具有权限的判断
-    login_user_obj = get_object_or_404(userInfo, username=user_dict['user'])
-    if login_user_obj.has_perm('myapp.delete_userinfo'):
-        # userGroup.objects.filter(id=id).delete()
-        Group.objects.filter(id=form_id).delete()
-        # print('delete',id)
-        msg = {'code': '1', 'result': '删除用户组id:' + form_id, }
-        return render_to_response('account/usergroup.html', msg)
-    else:
-        msg = {'login_user': user_dict['user'],
-               'wf_count_pending': wf_dict['wf_count_pending'], }
-        return JsonResponse(msg, status=403)
-
-
-@custom_login_required
 # @custom_permission_required('myapp.delete_group')
-def usergroup_del_all(request, *args, **kwargs):
+def usergroup_del(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
     print(array_id, type(array_id))
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
-    # 2024/5/7 增加是否具有权限的判断
+    # 2024/5/7 增加是否具有权限的判断，继承AbstractUser，权限未生效
     login_user_obj = get_object_or_404(userInfo, username=user_dict['user'])
     if login_user_obj.has_perm('myapp.delete_userinfo'):
         Group.objects.filter(id__in=array_id).delete()
@@ -904,33 +892,13 @@ def user(request, *args, **kwargs):
 @custom_login_required
 # @custom_permission_required('myapp.delete_userinfo')
 def user_del(request, *args, **kwargs):
-    form_id = request.POST.get('userid')
-    username = userInfo.objects.filter(id=form_id).values('username')[0]['username']
-    user_dict = request.session.get('is_login', None)
-    wf_dict = request.session.get('wf', None)
-    # 2024/5/7 增加是否具有权限的判断
-    login_user_obj = get_object_or_404(userInfo, username=user_dict['user'])
-    if login_user_obj.has_perm('myapp.delete_userinfo'):
-        userInfo.objects.filter(id=form_id).delete()
-        # print('delete', id)
-        msg = {'code': '0', 'status': '删除用户' + username + '成功', }
-        return render_to_response('account/user.html', msg)
-    else:
-        msg = {'login_user': user_dict['user'],
-               'wf_count_pending': wf_dict['wf_count_pending'], }
-        return JsonResponse(msg, status=403)
-
-
-@custom_login_required
-# @custom_permission_required('myapp.delete_userinfo')
-def user_del_all(request, *args, **kwargs):
     array_form_id = request.POST.get('userid')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
     print(array_id, type(array_id))
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
-    # 2024/5/7 增加是否具有权限的判断
+    # 2024/5/7 增加是否具有权限的判断，继承AbstractUser，权限未生效
     login_user_obj = get_object_or_404(userInfo, username=user_dict['user'])
     if login_user_obj.has_perm('myapp.delete_userinfo'):
         userInfo.objects.filter(id__in=array_id).delete()

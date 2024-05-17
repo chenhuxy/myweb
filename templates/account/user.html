@@ -359,6 +359,8 @@ function setItemIdToDelete(obj) {
 
 //function del(obj) {
 function del() {
+
+    var array_id = [];
     //var tr = obj.parentNode.parentNode;
     //var tbody = tr.parentNode;
     //var id = tr.firstElementChild.innerHTML;
@@ -369,6 +371,7 @@ function del() {
     //alert(id);
     console.log("Delete item with ID " + id);
     console.log(tr,tbody);
+    array_id.push(id);
     /*
     if (confirm("确定删除？")){
         window.event.returnValue = true;
@@ -380,7 +383,7 @@ function del() {
 
         $.ajax({
             url:'/cmdb/index/table/user/del/',
-            data:{userid:id},
+            data:{userid:JSON.stringify(array_id)},
             type:'POST',
             success:function (data) {
                 //$('body').html(data);//引号必须加上
@@ -585,7 +588,7 @@ function delAll() {
     console.log(array_tbody);
 
     $.ajax({
-        url:'/cmdb/index/table/user/del-all/',
+        url:'/cmdb/index/table/user/del/',
         data:{userid:JSON.stringify(array_id)},
         type:'POST',
         success:function (data) {
