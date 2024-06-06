@@ -9,6 +9,18 @@ from .models import *
 # 继承User表，否则admin页面修改密码后明文
 from django.contrib.auth.admin import UserAdmin
 
+
+# ansible-vars----------------------------------------------------------------------------------------------------------
+class AnsibleVarsAdmin(admin.ModelAdmin):
+    list_display = ('name', 'vars', 'create_time', 'update_time',)
+    search_fields = ('vars',)
+    list_filter = ('name',)
+    list_display_links = ('name',)
+    list_per_page = 10
+
+
+admin.site.register(AnsibleVars, AnsibleVarsAdmin)
+
 # admin-log-------------------------------------------------------------------------------------------------------------
 """
 用于显示admin内置的django_admin_log表，

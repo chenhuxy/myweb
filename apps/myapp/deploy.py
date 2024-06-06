@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # _*_ coding:utf-8 _*_
 import datetime
+import re
 import signal
 import time
 
 from django.db.models.functions import ExtractYear, ExtractMonth
 
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.shortcuts import HttpResponse
 from apps.myapp import models
 from django.shortcuts import redirect
@@ -17,18 +18,21 @@ from django.utils import timezone
 import os, json
 from django.http import JsonResponse
 from django.core import serializers
-from celery import chord, group, chain
+from celery import chord, group, chain, current_app
 from django.db.models import Q, Count
 from apps.myapp.gitlab_helper import GitTools
 import gitlab
 import paramiko, subprocess
 from django.core.cache import cache
-from myweb.settings import GITLAB_URL, GITLAB_TOKEN
+from myweb.settings import *
 from apps.myapp.paramiko_ssh_helper import ssh_remote
 from celery.result import AsyncResult
 from celery.app.control import Control
 from myweb.celery import app
 from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR, SSH_SCRIPT_NAME
+from myweb import celery_app
+from myweb.celery import app
+from celery.app.control import Control
 
 
 @custom_login_required
@@ -365,6 +369,7 @@ def deploy_list_form_add(request, *args, **kwargs):
     return render_to_response('deploy/deploy_list_add.html', msg)
 
 
+'''
 @custom_login_required
 @custom_permission_required('myapp.add_deploy_list_detail')
 def deploy_list_add(request, *args, **kwargs):
@@ -400,7 +405,8 @@ def deploy_list_add(request, *args, **kwargs):
             # 'python /root/gitlab/import/OneKeyDeploy.py' + ' ' + proj_id + ' ' + proj_name + ' ' + tag)
             ret = tasks.deploy_ssh_remote_exec_cmd.delay(SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD,
                                                          SSH_CMD + ' ' + proj_id + ' ' + proj_name + ' '
-                                                         + tag + ' ' + str(max_id + 1))
+                                                         + tag + ' ' + str(max_id + 1)
+                                                         )
 
             # tasks.add_deploy_list_detail.delay(proj_name,tag,result)
 
@@ -417,6 +423,7 @@ def deploy_list_add(request, *args, **kwargs):
 
     # return render_to_response('deploy/deploy_list.html', msg)
     return redirect('/cmdb/index/deploy/task/list/')
+'''
 
 
 @custom_login_required
@@ -490,13 +497,13 @@ def get_task_info(request,*args,**kwargs):
 @custom_login_required
 @custom_permission_required('myapp.view_deploy_list_detail')
 def get_task_info(request, *args, **kwargs):
-    id = request.POST.get('id', None)
-    # print(id,type(id),task_id,)
-    task_status = models.deploy_list_detail.objects.filter(id=id).values('status')[0]['status']
-    msg = {'status': task_status, 'id': id, }
+    deploy_id = request.POST.get('id', None)
+    task_status = models.deploy_list_detail.objects.filter(id=deploy_id).values('status')[0]['status']
+    msg = {'status': task_status, 'id': deploy_id, }
     return HttpResponse(json.dumps(msg))
 
 
+'''
 @custom_login_required
 @custom_permission_required('myapp.view_deploy_list_detail')
 def deploy_list_cancel(request, *args, **kwargs):
@@ -533,6 +540,7 @@ def deploy_list_cancel(request, *args, **kwargs):
     else:
         msg = {'status': '任务已经结束，不能执行此操作！'}
         return render_to_response('500.html', msg, status=500)
+'''
 
 
 @custom_login_required
@@ -600,3 +608,184 @@ def deploy_sum_yearly(request, *args, **kwargs):
            }
     # print(msg)
     return HttpResponse(json.dumps(msg))
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_ansiblevars')
+def ansible_vars(request, *args, **kwargs):
+    qs = models.AnsibleVars.objects.all()
+    count = qs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'ansible_vars': qs, 'login_user': user_dict['user'], 'count': count,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('deploy/ansible_vars.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_ansiblevars')
+def ansible_vars_form_add(request, *args, **kwargs):
+    qs = models.AnsibleVars.objects.all()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'ansible_vars': qs, 'login_user': user_dict['user'], 'status': '',
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('deploy/ansible_vars_add.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_ansiblevars')
+def ansible_vars_add(request, *args, **kwargs):
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    if request.method == 'POST':
+        name = request.POST.get('name', None)
+        vars = request.POST.get('vars', None)
+        is_exist = models.AnsibleVars.objects.filter(name=name)
+        print(is_exist)
+        if not is_exist:
+            is_empty = all([name, ])
+            if is_empty:
+                models.AnsibleVars.objects.create(name=name, vars=vars, )
+                msg = {'name': name,
+                       'login_user': user_dict['user'], 'status': '添加Ansible变量成功', }
+                return redirect('/cmdb/index/deploy/ansible-vars/list/')
+            else:
+                msg = {'name': name,
+                       'login_user': user_dict['user'], 'status': '名称不能为空',
+                       'wf_count_pending': wf_dict['wf_count_pending'], }
+        else:
+            msg = {'name': name,
+                   'login_user': user_dict['user'], 'status': '该Ansible变量已存在！',
+                   'wf_count_pending': wf_dict['wf_count_pending'], }
+    return render_to_response('deploy/ansible_vars_add.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_ansiblevars')
+def ansible_vars_form_update(request, *args, **kwargs):
+    # userid = request.GET.get('userid',None)
+    form_id = kwargs['id']
+    qs = models.AnsibleVars.objects.filter(id=form_id)
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'id': form_id, 'login_user': user_dict['user'], 'status': '操作成功', 'ansible_vars': qs,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    print(msg)
+    return render_to_response('deploy/ansible_vars_update.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_ansiblevars')
+def ansible_vars_update(request, *args, **kwargs):
+    form_id = kwargs['id']
+    name = request.POST.get('name')
+    form_vars = request.POST.get('vars')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    models.AnsibleVars.objects.filter(id=form_id).update(name=name, vars=form_vars, )
+    return redirect('/cmdb/index/deploy/ansible-vars/list/')
+
+
+@custom_login_required
+@custom_permission_required('myapp.delete_ansiblevars')
+def ansible_vars_del(request, *args, **kwargs):
+    array_form_id = request.POST.get('id')
+    array_id = json.loads(array_form_id)
+    print(array_form_id, type(array_form_id))
+    print(array_id, type(array_id))
+    models.AnsibleVars.objects.filter(id__in=array_id).delete()
+    print('delete', array_id)
+    msg = {'code': '0', 'status': '删除Ansible变量成功,id列表：' + json.dumps(array_id)}
+    print(msg)
+    return render_to_response('deploy/ansible_vars.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.add_deploy_list_detail')
+def deploy_list_add(request, *args, **kwargs):
+    userinfo = models.userInfo.objects.all()
+    user_dict = request.session.get('is_login', None)
+    try:
+        max_id = models.deploy_list_detail.objects.all().order_by('-id')[0].id
+    except AttributeError:
+        # 如果数据库为空，则从 ID 为 1 的数据开始提取
+        max_id = 0
+    # print(max_id, type(max_id))
+    if request.method == 'POST':
+        # 2024/6/5
+        tomcat_job = TOMCAT_JOB_LIST
+        unit = request.POST.get('unit', None)
+        unit_id = get_object_or_404(models.wf_business, name=unit)
+        qs_asset = models.Asset.objects.filter(business_unit_id=unit_id)
+        # 通过value_list 获取ansible_vars外键中的字段
+        host_list = list(qs_asset.values_list('ip', 'ansible_vars__vars'))
+        print(host_list)
+        proj_name = request.POST.get('proj_name', None)
+        proj_id = request.POST.get('proj_id', None)
+        tag = request.POST.get('tag', None)
+        scriptType = request.POST.get('scriptType', None)
+        # print(proj_name, type(proj_name), proj_id, type(proj_id), tag, type(tag), scriptType, type(scriptType))
+        if scriptType == 'python':
+            interpreter = 'python'
+        if scriptType == 'shell':
+            interpreter = 'sh'
+        is_empty = all([proj_id, proj_name, ])
+        if tag == 'NULL':
+            status = 'tag为空，请重新选择tag！！！'
+            msg = {'status': status, }
+        elif not is_empty:
+            status = '项目id或名称为空，请重新配置！！！'
+            msg = {'status': status, }
+        else:
+            if proj_name in tomcat_job:
+                job_name = "build_java_prod"
+            else:
+                job_name = "build_java"
+            log_dir = os.path.join(ANSIBLE_BASE_DIR, 'logs')  # 设置日志目录
+            log_file_path = os.path.join(log_dir, f"ansible_deploy-{max_id + 1}.log")
+            # 执行发布
+            ret = tasks.deploy_deploy.delay(unit, host_list, GITLAB_URL, {"PRIVATE-TOKEN": GITLAB_TOKEN, },
+                                            os.path.join(ANSIBLE_BASE_DIR, 'temp_download'),
+                                            os.path.join(ANSIBLE_BASE_DIR, 'temp_unzip'),
+                                            os.path.join(ANSIBLE_BASE_DIR, 'roles'),
+                                            proj_name, proj_id, tag, job_name,
+                                            os.path.join(ANSIBLE_BASE_DIR, 'inventory', f'{unit}.ini'),
+                                            os.path.join(ANSIBLE_BASE_DIR, f'{proj_name}.yml'),
+                                            str(max_id + 1), log_file_path
+                                            )
+            # 发布记录写入数据库
+            models.deploy_list_detail.objects.create(unit=unit, proj_name=proj_name, proj_id=proj_id,
+                                                     tag=tag, task_id=ret.id, status="执行中")
+
+    return redirect('/cmdb/index/deploy/task/list/')
+
+
+# celery revoke未成功，暂时不可用
+@custom_login_required
+@custom_permission_required('myapp.view_deploy_list_detail')
+def deploy_list_cancel(request, *args, **kwargs):
+    deploy_id = kwargs['id']
+    deploy = models.deploy_list_detail.objects.filter(id=deploy_id).first()
+    if not deploy:
+        msg = {'status': '任务不存在'}
+        return render_to_response('500.html', msg, status=500)
+
+    task_id = deploy.task_id
+    task_status = deploy.status
+
+    if task_status == '执行中':
+        tasks.deploy_cancel.delay(deploy_id, task_id)
+        # 更新数据库中任务状态
+        deploy.status = '已取消'
+        deploy.save()
+
+        # 记录日志
+        print(f"任务 {task_id} 成功撤销")
+        return redirect('/cmdb/index/deploy/task/list/')
+    elif task_status == '已取消':
+        msg = {'status': '任务已经取消过了，不要重复操作！'}
+        return render_to_response('500.html', msg, status=500)
+    else:
+        msg = {'status': '任务已经结束，不能执行此操作！'}
+        return render_to_response('500.html', msg, status=500)

@@ -333,26 +333,20 @@ CELERY_BROKER_URL = 'redis://:ssR*Yaw{(Pd7@redis:6379/2'
 CELERY_RESULT_BACKEND = 'redis://:ssR*Yaw{(Pd7@redis:6379/2'
 CELERY_TASK_SERIALIZER = 'json'
 
-# zabbix配置
-ZABBIX_URL = 'http://10.180.10.84/zabbix'
-ZABBIX_USER = 'xxx'
-ZABBIX_PASSWORD = 'xxx'
 
 # prometheus配置
-PROM_URL = 'http://xxx'
-PROM_USER = 'xxx'
-PROM_PASSWROD = 'xxx'
 PROM_DINGTALK_WEBHOOK_URL = 'https://oapi.dingtalk.com/robot/send?access_token=xxx'
 # 测试
-# PROM_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-# PROM_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
-# 生产
 PROM_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-PROM_WELINK_UUID = "efe21978936a4122bdb2b8fa73b3bc88"
+PROM_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
+# 生产
+#PROM_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
+#PROM_WELINK_UUID = "efe21978936a4122bdb2b8fa73b3bc88"
 
 # gitlab配置
-GITLAB_URL = 'http://xxx'
-GITLAB_TOKEN = 'xxx'
+#GITLAB_URL = 'http://xxx'
+#GITLAB_TOKEN = 'xxx'
+#GITLAB_TOKEN = 'glpat-kqPgKptRo6_ekUAiBvHb'
 
 # 自定义用户表配置
 AUTH_USER_MODEL = "myapp.userInfo"
@@ -374,15 +368,6 @@ CHANNEL_LAYERS = {
 }
 """
 
-# ssh配置
-SSH_HOST = '192.168.38.129'
-SSH_PORT = 22
-SSH_USERNAME = 'root'
-SSH_PASSWORD = 'redhat'
-SSH_WORKDIR = '/root/gitlab/download'
-SSH_SCRIPT_NAME = 'auto-OneKeyDeploy'
-SSH_CMD = 'cd ' + SSH_WORKDIR + '&& python ' + SSH_SCRIPT_NAME + '.py'
-
 # WORKFLOW_EMAIL 配置
 EXTERNAL_URL = 'http://ip:8000'
 WF_EMAIL_SUBJECT = '【运维发布系统流程审批提醒】'
@@ -394,11 +379,11 @@ SKYWALKING_EMAIL_SUBJECT = '【Skywalking链路监控告警】'
 SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗号分割
 SKYWALKING_DINGTALK_WEBHOOK_URL = 'https://oapi.dingtalk.com/robot/send?access_token=xxx'
 # 测试
-# SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-# SKYWALKING_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
-# 生产
 SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-SKYWALKING_WELINK_UUID = "ab1c18520f2b4728bee5943b2a3e9046"
+SKYWALKING_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
+# 生产
+#SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
+#SKYWALKING_WELINK_UUID = "ab1c18520f2b4728bee5943b2a3e9046"
 
 # secret
 API_SECRET = 'yYEtEMvGMVmCaxpOWIjOWjtvTk'
@@ -411,3 +396,11 @@ GRAFANA_URL = 'https://xxx/grafana/d/aka/be9e3f56-70f9-509c-9efd-be6e2c0b5292?or
 
 # skywalking_ui
 SKYWALKING_UI_URL = 'http://xxx/?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiJoeS1kZXYtdXNlciIsImV4cCI6NDg2NzQ1NTY5MH0.PBvAHjDvY0hrO4cmohB0_NxSfh5mDsER83pJ63_1xCQ'
+
+# ansible
+ANSIBLE_BASE_DIR = '/etc/ansible'
+TOMCAT_JOB_LIST = ["passengerCar", "passengerCar_zczr", "heavyTruck", "heavyTruck_zczr"]
+DEPLOY_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=c8a5bfca28ac44f2b3360dc8a4c60778&channel=standard'
+DEPLOY_DINGTALK_UUID = "181778b68d784679ac3d71d5a09fec86"
+DEPLOY_DINGTALK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=c8a5bfca28ac44f2b3360dc8a4c60778&channel=standard'
+DEPLOY_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"

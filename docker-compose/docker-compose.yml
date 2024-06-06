@@ -51,7 +51,7 @@ services:
         condition: "service_healthy"
 
   myweb:
-    image: chenhuxy/myweb:v2.6.0
+    image: chenhuxy/myweb:v3.0.0
     environment:
       LANG: "en_US.utf8"
       #http_proxy: "http://1.1.1.1:3128"
@@ -61,6 +61,7 @@ services:
     - ./conf/myweb/uwsgi.ini:/myweb/apps/uwsgi/uwsgi.ini
     - ./logs/:/myweb/logs
     - static_vol:/myweb/static
+    - ./data/ansible/:/etc/ansible
     depends_on:
       mysql:
         condition: "service_healthy"
@@ -78,8 +79,8 @@ services:
       timeout: 5s
       retries: 3
       start_period: 60s
-    #extra_hosts:
-    #  - "xxx.com:1.1.1.1"
+    extra_hosts:
+      - "gitlab.utfinancing.com:192.168.13.213"
     #  - "xxx.com:2.2.2.2"
 
 networks:

@@ -155,6 +155,12 @@
                         </div>
                         <div class="col-md-7">
                             <div class="form-group">
+                                <label for="admin">Ansible变量</label>
+                                <input readonly type="text" id="ansible_vars" class="form-control" value={{ item.ansible_vars.name }}>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="form-group">
                                 <label for="create_time">创建时间</label>
                                 <input readonly type="text" id="create_time" class="form-control" value={{ item.create_time | date }}{{ item.create_time | time:"H:i:s" }}>
                             </div>

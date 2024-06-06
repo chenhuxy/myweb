@@ -60,3 +60,5 @@ xlrd==1.2.0
 xlutils==2.0.0
 xlwt==1.3.0
 
+ansible==2.9.2
+

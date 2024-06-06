@@ -8,6 +8,21 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
+# AnsibleVars-----------------------------------------------------------------------------------------------------------
+class AnsibleVars(models.Model):
+    name = models.CharField('名称', max_length=128, default='default')
+    vars = models.TextField('远程登录参数', max_length=512, blank=True, null=True)
+    create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True, null=True)
+    update_time = models.DateTimeField('更新时间', auto_now=True, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Ansible变量'
+        verbose_name_plural = verbose_name
+
+    def __unicode__(self):
+        return self.name
+
+
 # OpLogs----------------------------------------------------------------------------------------------------------------
 class OpLogs(models.Model):
     id = models.AutoField(primary_key=True)
@@ -454,6 +469,8 @@ class Asset(models.Model):
     external_ip = models.GenericIPAddressField('外网ip地址', blank=True, null=True)
     create_time = models.DateTimeField('创建时间', auto_now_add=True, blank=True, null=True)
     update_time = models.DateTimeField('更新时间', auto_now=True, blank=True, null=True)
+    ansible_vars = models.ForeignKey('AnsibleVars', verbose_name='ansible参数', blank=True, null=True,
+                                     on_delete=models.CASCADE, related_name='ansible_vars', )
 
     class Meta:
         verbose_name = '资产总表'

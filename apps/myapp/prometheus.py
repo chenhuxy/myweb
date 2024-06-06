@@ -6,7 +6,7 @@ import json
 import requests
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from apps.myapp import common
+from apps.myapp import common, notify_helper
 from apps.myapp import page_helper
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
 from myweb.settings import *
@@ -78,110 +78,95 @@ def prometheus_alert_count(*args, **kwargs):
 
 # 2024/01/19 Powered by chatgpt
 def send_alert(request, *args, **kwargs):
-    # 将 JSON 数据解析为 Python 字典
-    webhook_data_dict = json.loads(request.body.decode())
-    # 打印原始信息
-    print(f"webhook_data_dict: {webhook_data_dict}")
+    try:
+        # 将 JSON 数据解析为 Python 字典
+        webhook_data_dict = json.loads(request.body.decode())
+        # 打印原始信息
+        print(f"webhook_data_dict: {webhook_data_dict}")
 
-    # 提取关键信息
-    group_labels = webhook_data_dict.get('groupLabels', {})
-    common_labels = webhook_data_dict.get('commonLabels', {})
-    common_annotations = webhook_data_dict.get('commonAnnotations', {})
-    alerts = webhook_data_dict.get('alerts', [])
+        # 提取关键信息
+        group_labels = webhook_data_dict.get('groupLabels', {})
+        common_labels = webhook_data_dict.get('commonLabels', {})
+        common_annotations = webhook_data_dict.get('commonAnnotations', {})
+        alerts = webhook_data_dict.get('alerts', [])
 
-    # 打印一些信息，实际情况下可以根据需求进行处理
-    print(f"Group Labels: {group_labels}")
-    print(f"Common Labels: {common_labels}")
-    print(f"Common Annotations: {common_annotations}")
+        # 打印一些信息，实际情况下可以根据需求进行处理
+        print(f"Group Labels: {group_labels}")
+        print(f"Common Labels: {common_labels}")
+        print(f"Common Annotations: {common_annotations}")
 
-    for alert in alerts:
-        alert_status = alert.get('status', '')
-        alert_labels = alert.get('labels', {})
-        alert_annotations = alert.get('annotations', {})
-        starts_at = alert.get('startsAt', '')
-        ends_at = alert.get('endsAt', '')
-        generator_url = alert.get('generatorURL', '')
+        for alert in alerts:
+            alert_status = alert.get('status', '')
+            alert_labels = alert.get('labels', {})
+            alert_annotations = alert.get('annotations', {})
+            starts_at = alert.get('startsAt', '')
+            ends_at = alert.get('endsAt', '')
+            generator_url = alert.get('generatorURL', '')
 
-        # 打印或处理告警信息
-        print(f"Status: {alert_status}, Alert: {alert_labels}, Annotations: {alert_annotations}")
-        print(f"Starts At: {starts_at}, Ends At: {ends_at}, Generator URL: {generator_url}")
-        print("=" * 60)
+            # 打印或处理告警信息
+            print(f"Status: {alert_status}, Alert: {alert_labels}, Annotations: {alert_annotations}")
+            print(f"Starts At: {starts_at}, Ends At: {ends_at}, Generator URL: {generator_url}")
+            print("=" * 60)
 
-        # 生成格式化内容
-        formatted_content = f"告警状态： {alert_status.upper()}\n\n"
-        formatted_content += f"告警名称： {alert_labels['alertname']}\n\n"
-        formatted_content += f"告警级别： {alert_labels['severity']}\n\n"
-        formatted_content += f"实例地址： {alert_labels['instance']}\n\n"
-        formatted_content += f"告警摘要： {alert_annotations.get('summary', '')}\n\n"
-        formatted_content += f"告警详情： {alert_annotations.get('description', '')}\n\n"
-        formatted_content += f"触发时间： {common.time_tz_fmt(starts_at)}\n\n"
-        formatted_content += f"结束时间： {common.time_tz_fmt(ends_at)}\n\n"
-        # formatted_content += f"Generator URL: {generator_url}"
+            # 检查所有必需字段是否存在
+            required_labels = ['alertname', 'severity', 'instance']
+            for label in required_labels:
+                if label not in alert_labels:
+                    print(f"Missing required label: {label}")
+                    continue
 
-        # 打印格式化后信息
-        print(f"formatted_content: {formatted_content}")
+            # 生成格式化内容
+            formatted_content = f"告警状态： {alert_status.upper()}\n\n"
+            formatted_content += f"告警名称： {alert_labels['alertname']}\n\n"
+            formatted_content += f"告警级别： {alert_labels['severity']}\n\n"
+            formatted_content += f"实例地址： {alert_labels['instance']}\n\n"
+            formatted_content += f"告警摘要： {alert_annotations.get('summary', '')}\n\n"
+            formatted_content += f"告警详情： {alert_annotations.get('description', '')}\n\n"
+            formatted_content += f"触发时间： {common.time_tz_fmt(starts_at)}\n\n"
+            formatted_content += f"结束时间： {common.time_tz_fmt(ends_at)}\n\n"
+            # formatted_content += f"Generator URL: {generator_url}"
 
-        # webhook告警
-        '''
-        # 钉钉
-        data = {
-            "msgtype": "markdown",
-            "markdown": {
-                "title": "【Prometheus监控告警】 " + {alert_labels['alertname']},
-                "text": formatted_content
-            }
-        }
-        headers = {"Content-Type": "application/json"}
-        '''
-        # weLink
-        # 时间戳，毫秒计算
-        timestamp = time.time() * 1000
-        data = {
-            "messageType": "text",
-            "content": {
-                "text": formatted_content,
-            },
-            # "timeStamp": i["startTime"],
-            "timeStamp": timestamp,
-            # 测试
-            # "uuid": PROM_WELINK_UUID,
-            # 生产
-            "uuid": PROM_WELINK_UUID,
-            "isAtAll": False
-        }
-        headers = {
-            "Content-Type": "application/json",
-            "Accept-Charset": "UTF-8"
-        }
+            # 打印格式化后信息
+            print(f"formatted_content: {formatted_content}")
 
-        try:
-            ret_dict = {}
-            '''
-            # 钉钉
-            ret_dingtalk = requests.post(PROM_DINGTALK_WEBHOOK_URL, json=data, headers=headers)
-            # print(ret_dingtalk.text)
-            '''
-            # weLink
-            ret_welink = requests.post(PROM_WELINK_WEBHOOK_URL, json=data, headers=headers)
-            # print(ret_welink.text)
+            try:
+                ret_dict = {}
+                alert_sender = notify_helper.AlertSender()
 
-            # ret_dict["ret_dingtalk"] = ret_dingtalk.text
-            ret_dict["ret_welink"] = ret_welink.text
+                '''
+                # 钉钉
+                ret_dingtalk = alert_sender.send_dingtalk(PROM_DINGTALK_WEBHOOK_URL,
+                                                          f"【Prometheus监控告警】 {alert_labels['alertname']}",
+                                                          formatted_content
+                                                          )
+                # print(ret_dingtalk.text)
+                '''
 
-            # 告警存入数据库
-            models.MonitorPrometheus.objects.create(status=alert_status, alertname=alert_labels['alertname'],
-                                                    severity=alert_labels['severity'],
-                                                    instance=alert_labels['instance'],
-                                                    summary=alert_annotations['summary'],
-                                                    description=alert_annotations['description'],
-                                                    starts_at=common.time_tz_fmt(starts_at),
-                                                    ends_at=common.time_tz_fmt(ends_at)
-                                                    )
+                # weLink
+                ret_welink = alert_sender.send_welkin(PROM_WELINK_WEBHOOK_URL, PROM_WELINK_UUID, formatted_content)
+                # print(ret_welink.text)
 
-            return HttpResponse(json.dumps(ret_dict))
-        except Exception as e:
-            # print(e)
-            return HttpResponse(e)
+                # ret_dict["ret_dingtalk"] = ret_dingtalk.text
+                ret_dict["ret_welink"] = ret_welink.text
+
+                # 告警存入数据库
+                models.MonitorPrometheus.objects.create(status=alert_status,
+                                                        alertname=alert_labels['alertname'],
+                                                        severity=alert_labels['severity'],
+                                                        instance=alert_labels['instance'],
+                                                        summary=alert_annotations.get('summary', ''),
+                                                        description=alert_annotations.get('description', ''),
+                                                        starts_at=common.time_tz_fmt(starts_at),
+                                                        ends_at=common.time_tz_fmt(ends_at)
+                                                        )
+
+            except Exception as e:
+                print(f"Error processing alert: {e}")
+                continue
+        return HttpResponse(json.dumps(ret_dict), content_type="application/json")
+    except Exception as e:
+        print(f"Error in send_alert: {e}")
+        return HttpResponse(json.dumps({"error": str(e)}), status=500, content_type="application/json")
 
 
 @custom_login_required
@@ -210,5 +195,6 @@ def prometheus_alert(request, *args, **kwargs):
                'page': page_string, 'login_user': user_dict['user'],
                'wf_count_pending': wf_dict['wf_count_pending'], }
         return render_to_response('monitor/prometheus.html', msg)
-    except:
+    except Exception as e:
+        msg = str(e)
         return render_to_response('500.html', msg, status=500)
