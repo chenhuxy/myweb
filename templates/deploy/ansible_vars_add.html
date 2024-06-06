@@ -1,0 +1,53 @@
+{% extends "master/layout.html" %}
+{% block content %}
+<div class="content">
+{% block formTitle %}
+    <form method="post" action="/cmdb/index/deploy/ansible-vars/add/">
+{% endblock %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card p-4">
+
+                    <div class="card-header bg-light">
+                        添加Ansible变量
+                        <label style="color: red;">{{status}}</label>
+                    </div>
+
+                    <div class="card-body">
+
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="name" class="form-control-label require">名称</label>
+                                    <input type="text" id="name" class="form-control" placeholder="名称" name="name">
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="vars" class="form-control-label">登录参数</label>
+                                    <textarea id="vars" class="form-control" rows="6" name="vars"></textarea>
+                                </div>
+                            </div>
+
+                    </div>
+
+                    <div class="card-footer p-4">
+                        <div class="row">
+                            <div class="col-5">
+                                <button type="submit" class="btn btn-primary px-5">添加</button>
+                            </div>
+                            <div class="col-5">
+                                <a href="../list/" class="btn btn-outline-primary px-5">取消</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    {% block formFooter %}
+        </form>
+    {% endblock %}
+</div>
+{% endblock %}
