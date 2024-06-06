@@ -317,6 +317,7 @@ class AnsibleRunner(object):
 
         # return self.results_raw
 
+        # 以主机维度统计各个状态值
         host_status_count = {}
 
         for status, hosts in self.results_raw.items():
