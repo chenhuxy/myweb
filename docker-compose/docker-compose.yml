@@ -51,7 +51,7 @@ services:
         condition: "service_healthy"
 
   myweb:
-    image: chenhuxy/myweb:v2.6.0
+    image: chenhuxy/myweb:v2.6.1
     environment:
       LANG: "en_US.utf8"
       #http_proxy: "http://1.1.1.1:3128"
