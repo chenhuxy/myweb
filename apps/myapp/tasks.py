@@ -453,7 +453,7 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
         deploy_status = '执行中'
         try:
             max_id = models.deploy_list_detail.objects.all().order_by('-id')[0].id
-        except AttributeError:
+        except IndexError:
             # 如果数据库为空，则返回0:
             max_id = 0
         print(max_id, type(max_id))
@@ -465,6 +465,9 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
             job_name = "build_java_prod"
         else:
             job_name = "build_java"
+
+        # 2024/6/7   1:发布服务
+        deploy_type_id = '1'
 
         order_list = []
         for i in range(length):
@@ -514,7 +517,8 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
                         workflow_chain = chain(
                             parallel_tasks,
                             workflow_end_send_email.si(sn, username, email),
-                            deploy_add_deploy_list_detail.si(unit, proj_name, proj_id, proj_tag, deploy_status),
+                            deploy_add_deploy_list_detail.si(unit, proj_name, proj_id, proj_tag, deploy_status,
+                                                             deploy_type_id),
                             deploy_main.si(unit, host_list, GITLAB_URL, {"PRIVATE-TOKEN": GITLAB_TOKEN, },
                                            os.path.join(ANSIBLE_BASE_DIR, 'temp_download'),
                                            os.path.join(ANSIBLE_BASE_DIR, 'temp_unzip'),
@@ -522,7 +526,7 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
                                            proj_name, proj_id, proj_tag, job_name,
                                            os.path.join(ANSIBLE_BASE_DIR, 'inventory', f'{unit}.ini'),
                                            os.path.join(ANSIBLE_BASE_DIR, f'{proj_name}.yml'),
-                                           str(max_id + 1), log_file_path)
+                                           str(max_id + 1), log_file_path, deploy_type_id)
                         )
 
                         # Run the task chain
@@ -699,7 +703,7 @@ def deploy_cancel_ssh_remote_exec_cmd(self, ip, port, username, password, cmd):
 
 
 @shared_task(bind=True)
-def deploy_add_deploy_list_detail(self, unit, proj_name, proj_id, proj_tag, deploy_status):
+def deploy_add_deploy_list_detail(self, unit, proj_name, proj_id, proj_tag, deploy_status, deploy_type_id):
     # 配置日志记录器
     logger = logging.getLogger(__name__)
     logger.info(f"Starting deploy_add_deploy_list_detail task with ID: {self.request.id}")
@@ -711,7 +715,8 @@ def deploy_add_deploy_list_detail(self, unit, proj_name, proj_id, proj_tag, depl
             proj_id=proj_id,
             tag=proj_tag,
             task_id=self.request.id,
-            status=deploy_status
+            status=deploy_status,
+            type_id=deploy_type_id
         )
         logger.info(f"Successfully created deploy_list_detail record for task ID: {self.request.id}")
 
@@ -856,10 +861,13 @@ def deploy_download_artifact(self, host, headers, download_dir, unzip_dir, deplo
     return {'deploy_id': deploy_id, 'stage': 'deploy_download_artifact', 'result': result}
 
 
-def deploy_notify(host_status_count, deploy_id, playbooks):
+def deploy_notify(host_status_count, deploy_id, playbooks, deploy_type_id, proj_tag):
     # 以主机维度统计各个状态值（简化状态显示，用“成功/失败”表示）
     host_statuses = {}
     failed_or_unreachable_count = 0
+
+    deploy_type_name = models.DeployType.objects.filter(id=deploy_type_id).values('name')[0]['name']
+    print(deploy_type_name)
 
     for host, status in host_status_count.items():
         if status["failed"] > 0 or status["unreachable"] > 0:
@@ -878,6 +886,8 @@ def deploy_notify(host_status_count, deploy_id, playbooks):
     msg = (
         f"服务名称：{playbooks}\n\n"
         f"执行结果：{status}\n\n"
+        f"执行类型：{deploy_type_name}\n\n"
+        f"发布tag：{proj_tag}\n\n"
         f"发布时间：{current_time}\n\n"
         f"发布详情：\n{host_statuses_json}"
     )
@@ -892,7 +902,7 @@ def deploy_notify(host_status_count, deploy_id, playbooks):
 
 
 @shared_task(bind=True, soft_time_limit=300, time_limit=600)  # 5 minutes soft limit, 10 minutes hard limit
-def deploy_ansible_playbook(self, host_file, playbooks, deploy_id):
+def deploy_ansible_playbook(self, host_file, playbooks, deploy_id, deploy_type_id, proj_tag):
     # 配置 logger
     logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ANSIBLE_BASE_DIR, 'logs'))
     logger = logger_setup.get_logger()
@@ -921,7 +931,13 @@ def deploy_ansible_playbook(self, host_file, playbooks, deploy_id):
     try:
         playbooks = [playbooks]
         ansible_runner = ansible_helper.AnsibleRunner(inventory_path)
-        ansible_runner.run_playbook(playbooks)
+        # 2024/6/7 增加重启
+        # 发布服务
+        if deploy_type_id == '1':
+            ansible_runner.run_playbook(playbooks)
+        # 重启服务
+        elif deploy_type_id == '2':
+            ansible_runner.run_playbook(playbooks, tags="restart")
         ansible_runner.print_results()
         result = ansible_runner.get_result()
 
@@ -933,7 +949,7 @@ def deploy_ansible_playbook(self, host_file, playbooks, deploy_id):
         # models.deploy_list_detail.objects.filter(id=deploy_id).update(task_id=self.request.id)
 
         # 判断整体任务状态并发送通知
-        notify_result = deploy_notify(result, deploy_id, playbooks)
+        notify_result = deploy_notify(result, deploy_id, playbooks, deploy_type_id, proj_tag)
         logger.info(f"通知结果: {notify_result}")
 
         logger.info(f"阶段 deploy_ansible_playbook 完成，任务id： '{self.request.id}'")
@@ -1021,7 +1037,7 @@ def deploy_stat(self, deploy_id, log_file_path):
 
 @shared_task(bind=True)
 def deploy_main(self, unit, host_list, host, headers, download_dir, unzip_dir, deploy_dir, pkg_name, project_id,
-                project_tag, job_name, host_file, playbooks, deploy_id, log_file_path):
+                project_tag, job_name, host_file, playbooks, deploy_id, log_file_path, deploy_type_id):
     # 配置 logger
     logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ANSIBLE_BASE_DIR, 'logs'))
     logger = logger_setup.get_logger()
@@ -1036,13 +1052,24 @@ def deploy_main(self, unit, host_list, host, headers, download_dir, unzip_dir, d
         deploy_download_artifact.si(host, headers, download_dir, unzip_dir, deploy_dir, pkg_name, project_id,
                                     project_tag, job_name, deploy_id)  # Immutable signature
     )
+    # 发布服务
+    if deploy_type_id == '1':
 
-    # Chain the group with `deploy_ansible_playbook` to run it after the parallel tasks complete
-    deployment_chain = chain(
-        parallel_tasks,
-        deploy_ansible_playbook.si(host_file, playbooks, deploy_id),  # Immutable signature
-        deploy_stat.si(deploy_id, log_file_path)
-    )
+        # Chain the group with `deploy_ansible_playbook` to run it after the parallel tasks complete
+        deployment_chain = chain(
+            parallel_tasks,
+            deploy_ansible_playbook.si(host_file, playbooks, deploy_id, deploy_type_id, project_tag),  # Immutable signature
+            deploy_stat.si(deploy_id, log_file_path)
+        )
+    # 重启服务
+    elif deploy_type_id == '2':
+
+        # Chain the group with `deploy_ansible_playbook` to run it after the parallel tasks complete
+        deployment_chain = chain(
+            deploy_generate_config.si(unit, host_list, deploy_id),  # Immutable signature
+            deploy_ansible_playbook.si(host_file, playbooks, deploy_id, deploy_type_id, project_tag),  # Immutable signature
+            deploy_stat.si(deploy_id, log_file_path)
+        )
 
     # Run the task chain
     task_result = deployment_chain.apply_async()

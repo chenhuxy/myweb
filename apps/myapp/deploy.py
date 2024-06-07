@@ -29,7 +29,6 @@ from apps.myapp.paramiko_ssh_helper import ssh_remote
 from celery.result import AsyncResult
 from celery.app.control import Control
 from myweb.celery import app
-from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR, SSH_SCRIPT_NAME
 from myweb import celery_app
 from myweb.celery import app
 from celery.app.control import Control
@@ -37,89 +36,89 @@ from celery.app.control import Control
 
 @custom_login_required
 @custom_permission_required('myapp.view_deploy_script_type')
-def deploy_script_type(request, *args, **kwargs):
-    scripttype = models.deploy_script_type.objects.all()
-    count = scripttype.count()
+def deploy_type(request, *args, **kwargs):
+    qs_deploy_type = models.DeployType.objects.all()
+    count = qs_deploy_type.count()
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
-    msg = {'scripttype': scripttype, 'login_user': user_dict['user'], 'count': count,
+    msg = {'qs_deploy_type': qs_deploy_type, 'login_user': user_dict['user'], 'count': count,
            'wf_count_pending': wf_dict['wf_count_pending'], }
-    return render_to_response('deploy/script_type.html', msg)
+    return render_to_response('deploy/deploy_type.html', msg)
 
 
 @custom_login_required
 @custom_permission_required('myapp.add_deploy_script_type')
-def deploy_script_type_form_add(request, *args, **kwargs):
-    scripttype = models.deploy_script_type.objects.all()
+def deploy_type_form_add(request, *args, **kwargs):
+    qs_deploy_type = models.DeployType.objects.all()
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
-    msg = {'scripttype': scripttype, 'login_user': user_dict['user'], 'status': '',
+    msg = {'qs_deploy_type': qs_deploy_type, 'login_user': user_dict['user'], 'status': '',
            'wf_count_pending': wf_dict['wf_count_pending'], }
-    return render_to_response('deploy/script_type_add.html', msg)
+    return render_to_response('deploy/deploy_type_add.html', msg)
 
 
 @custom_login_required
 @custom_permission_required('myapp.change_deploy_script_type')
-def deploy_script_type_form_update(request, *args, **kwargs):
-    # userid = request.GET.get('userid',None)
-    id = kwargs['id']
-    scripttype = models.deploy_script_type.objects.filter(id=id)
+def deploy_type_form_update(request, *args, **kwargs):
+    deploy_type_id = kwargs['id']
+    qs_deploy_type = models.DeployType.objects.filter(id=deploy_type_id)
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
-    msg = {'id': id, 'login_user': user_dict['user'], 'status': '操作成功', 'scripttype': scripttype,
-           'wf_count_pending': wf_dict['wf_count_pending'], }
+    msg = {'login_user': user_dict['user'], 'status': '操作成功', 'id': deploy_type_id,
+           'qs_deploy_type': qs_deploy_type, 'wf_count_pending': wf_dict['wf_count_pending'], }
     # print(msg)
-    return render_to_response('deploy/script_type_update.html', msg)
+    return render_to_response('deploy/deploy_type_update.html', msg)
 
 
 @custom_login_required
 @custom_permission_required('myapp.add_deploy_script_type')
-def deploy_script_type_add(request, *args, **kwargs):
+def deploy_type_add(request, *args, **kwargs):
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
     if request.method == 'POST':
-        scripttype = request.POST.get('scripttype', None)
-        is_exist = models.deploy_script_type.objects.filter(name=scripttype)
+        deploy_type_name = request.POST.get('deploy-type', None)
+        is_exist = models.DeployType.objects.filter(name=deploy_type_name)
         # print(is_exist)
         if not is_exist:
-            is_empty = all([scripttype, ])
+            is_empty = all([deploy_type_name, ])
             if is_empty:
-                models.deploy_script_type.objects.create(name=scripttype, )
-                msg = {'scripttype': scripttype, 'login_user': user_dict['user'], 'status': '添加脚本类型成功',
+                models.DeployType.objects.create(name=deploy_type_name, )
+                msg = {'deploy_type_name': deploy_type_name, 'login_user': user_dict['user'],
+                       'status': '添加发布类型成功',
                        'wf_count_pending': wf_dict['wf_count_pending'], }
-                return redirect('/cmdb/index/deploy/scripttype/list/')
+                return redirect('/cmdb/index/deploy/deploy-type/list/')
             else:
-                msg = {'scripttype': scripttype, 'login_user': user_dict['user'], 'status': '名称不能为空',
+                msg = {'deploy_type_name': deploy_type_name, 'login_user': user_dict['user'], 'status': '名称不能为空',
                        'wf_count_pending': wf_dict['wf_count_pending'], }
         else:
-            msg = {'scripttype': scripttype, 'login_user': user_dict['user'], 'status': '该脚本类型已存在！',
+            msg = {'deploy_type_name': deploy_type_name, 'login_user': user_dict['user'], 'status': '该发布类型已存在！',
                    'wf_count_pending': wf_dict['wf_count_pending'], }
-    return render_to_response('deploy/script_type_add.html', msg)
+    return render_to_response('deploy/deploy_type_add.html', msg)
 
 
 @custom_login_required
 @custom_permission_required('myapp.change_deploy_script_type')
-def deploy_script_type_update(request, *args, **kwargs):
-    id = kwargs['id']
-    scripttype = request.POST.get('scripttype')
+def deploy_type_update(request, *args, **kwargs):
+    deploy_type_id = kwargs['id']
+    deploy_type_name = request.POST.get('deploy-type')
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
-    models.deploy_script_type.objects.filter(id=id).update(name=scripttype, )
-    return redirect('/cmdb/index/deploy/scripttype/list/')
+    models.DeployType.objects.filter(id=deploy_type_id).update(name=deploy_type_name, )
+    return redirect('/cmdb/index/deploy/deploy-type/list/')
 
 
 @custom_login_required
 @custom_permission_required('myapp.delete_deploy_script_type')
-def deploy_script_type_del(request, *args, **kwargs):
+def deploy_type_del(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
     print(array_form_id, type(array_form_id))
     print(array_id, type(array_id))
-    models.deploy_script_type.objects.filter(id__in=array_id).delete()
+    models.DeployType.objects.filter(id__in=array_id).delete()
     print('delete', array_id)
-    msg = {'code': '0', 'status': '删除脚本类型成功,id列表：' + json.dumps(array_id)}
+    msg = {'code': '0', 'status': '删除发布类型成功,id列表：' + json.dumps(array_id)}
     print(msg)
-    return render_to_response('deploy/script_type.html', msg)
+    return render_to_response('deploy/deploy_type.html', msg)
 
 
 @custom_login_required
@@ -359,11 +358,10 @@ def deploy_list_form_add(request, *args, **kwargs):
     branches = proj.branches.list()
     tags = proj.tags.list()
     # hostInfo = models.Server.objects.all()
-    scriptType = models.deploy_script_type.objects.all()
-    # print(scriptType,type(scriptType))
+    qs_deploy_type = models.DeployType.objects.all()
     msg = {'id': id, 'login_user': user_dict['user'], 'status': '操作成功',
            'deploy': deploy, 'userinfo': userinfo,
-           'branches': branches, 'tags': tags, 'scriptType': scriptType,
+           'branches': branches, 'tags': tags, 'qs_deploy_type': qs_deploy_type,
            'wf_count_pending': wf_dict['wf_count_pending'], }
     # print(msg)
     return render_to_response('deploy/deploy_list_add.html', msg)
@@ -708,8 +706,8 @@ def deploy_list_add(request, *args, **kwargs):
     user_dict = request.session.get('is_login', None)
     try:
         max_id = models.deploy_list_detail.objects.all().order_by('-id')[0].id
-    except AttributeError:
-        # 如果数据库为空，则从 ID 为 1 的数据开始提取
+    except IndexError:
+        # 如果数据库为空，则返回0:
         max_id = 0
     # print(max_id, type(max_id))
     if request.method == 'POST':
@@ -724,41 +722,55 @@ def deploy_list_add(request, *args, **kwargs):
         proj_name = request.POST.get('proj_name', None)
         proj_id = request.POST.get('proj_id', None)
         tag = request.POST.get('tag', None)
-        scriptType = request.POST.get('scriptType', None)
+        deploy_type_id = request.POST.get('deploy_type', None)
+        print(deploy_type_id, type(deploy_type_id))   # str类型
         # print(proj_name, type(proj_name), proj_id, type(proj_id), tag, type(tag), scriptType, type(scriptType))
-        if scriptType == 'python':
-            interpreter = 'python'
-        if scriptType == 'shell':
-            interpreter = 'sh'
-        is_empty = all([proj_id, proj_name, ])
-        if tag == 'NULL':
-            status = 'tag为空，请重新选择tag！！！'
-            msg = {'status': status, }
-        elif not is_empty:
-            status = '项目id或名称为空，请重新配置！！！'
-            msg = {'status': status, }
+        if proj_name in tomcat_job:
+            job_name = "build_java_prod"
         else:
-            if proj_name in tomcat_job:
-                job_name = "build_java_prod"
-            else:
-                job_name = "build_java"
-            log_dir = os.path.join(ANSIBLE_BASE_DIR, 'logs')  # 设置日志目录
-            log_file_path = os.path.join(log_dir, f"ansible_deploy-{max_id + 1}.log")
+            job_name = "build_java"
+        log_dir = os.path.join(ANSIBLE_BASE_DIR, 'logs')  # 设置日志目录
+        log_file_path = os.path.join(log_dir, f"ansible_deploy-{max_id + 1}.log")
+
+        if deploy_type_id == '1':
+            if tag == 'NULL':
+                status = 'tag为空，请重新选择tag！！！'
+                msg = {'status': status, }
+                return render_to_response('500.html', msg, status=500)
+
             # 执行发布
-            ret = tasks.deploy_deploy.delay(unit, host_list, GITLAB_URL, {"PRIVATE-TOKEN": GITLAB_TOKEN, },
-                                            os.path.join(ANSIBLE_BASE_DIR, 'temp_download'),
-                                            os.path.join(ANSIBLE_BASE_DIR, 'temp_unzip'),
-                                            os.path.join(ANSIBLE_BASE_DIR, 'roles'),
-                                            proj_name, proj_id, tag, job_name,
-                                            os.path.join(ANSIBLE_BASE_DIR, 'inventory', f'{unit}.ini'),
-                                            os.path.join(ANSIBLE_BASE_DIR, f'{proj_name}.yml'),
-                                            str(max_id + 1), log_file_path
-                                            )
+            ret = tasks.deploy_main.delay(unit, host_list, GITLAB_URL, {"PRIVATE-TOKEN": GITLAB_TOKEN, },
+                                          os.path.join(ANSIBLE_BASE_DIR, 'temp_download'),
+                                          os.path.join(ANSIBLE_BASE_DIR, 'temp_unzip'),
+                                          os.path.join(ANSIBLE_BASE_DIR, 'roles'),
+                                          proj_name, proj_id, tag, job_name,
+                                          os.path.join(ANSIBLE_BASE_DIR, 'inventory', f'{unit}.ini'),
+                                          os.path.join(ANSIBLE_BASE_DIR, f'{proj_name}.yml'),
+                                          str(max_id + 1), log_file_path, deploy_type_id
+                                          )
             # 发布记录写入数据库
             models.deploy_list_detail.objects.create(unit=unit, proj_name=proj_name, proj_id=proj_id,
-                                                     tag=tag, task_id=ret.id, status="执行中")
+                                                     tag=tag, task_id=ret.id, status="执行中", type_id=deploy_type_id
+                                                     )
+        elif deploy_type_id == '2':
+            tag = "---"
+            # 执行发布
+            ret = tasks.deploy_main.delay(unit, host_list, GITLAB_URL, {"PRIVATE-TOKEN": GITLAB_TOKEN, },
+                                          os.path.join(ANSIBLE_BASE_DIR, 'temp_download'),
+                                          os.path.join(ANSIBLE_BASE_DIR, 'temp_unzip'),
+                                          os.path.join(ANSIBLE_BASE_DIR, 'roles'),
+                                          proj_name, proj_id, tag, job_name,
+                                          os.path.join(ANSIBLE_BASE_DIR, 'inventory', f'{unit}.ini'),
+                                          os.path.join(ANSIBLE_BASE_DIR, f'{proj_name}.yml'),
+                                          str(max_id + 1), log_file_path, deploy_type_id
+                                          )
+            # 发布记录写入数据库
+            models.deploy_list_detail.objects.create(unit=unit, proj_name=proj_name, proj_id=proj_id,
+                                                     tag=tag, task_id=ret.id, status="执行中", type_id=deploy_type_id
+                                                     )
 
-    return redirect('/cmdb/index/deploy/task/list/')
+        return redirect('/cmdb/index/deploy/task/list/')
+    return render_to_response('500.html', status=405)
 
 
 # celery revoke未成功，暂时不可用

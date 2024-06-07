@@ -25,7 +25,7 @@ from apps.myapp import common
 from apps.myapp import page_helper
 from apps.myapp import json_helper
 from celery.result import AsyncResult
-from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR, API_SECRET
+from myweb.settings import *
 
 
 @custom_login_required

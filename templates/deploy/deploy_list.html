@@ -60,6 +60,7 @@
                                 <th style="display:none">任务id</th>
                                 <th>任务状态</th>
                                 <th>发布时间</th>
+                                <th>类型</th>
                                 <th>动作</th>
                             </tr>
                             </thead>
@@ -87,6 +88,7 @@
                                 {% endif %}-->
                                 <td>{{ item.status }}</td>
                                 <td>{{item.update_time}}</td>
+                                <td>{{item.type.name}}</td>
                                 <td>
                                     <!--<button class="btn btn-primary" data-toggle="modal" data-target="#modal-2">更新</button>-->
 

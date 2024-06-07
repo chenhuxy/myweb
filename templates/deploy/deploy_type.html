@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-light">
-                    <div>脚本类型</div>
+                    <div>发布类型</div>
 
                     <div class="alert alert-dismissible alert-success" style="display:none" id="alert_success">
 
@@ -28,7 +28,7 @@
                 <div class="card-body">
                     <div class="title">
                         <div class="title-add">
-                            <a href="/cmdb/index/deploy/scripttype/form_add/">
+                            <a href="/cmdb/index/deploy/deploy-type/form_add/">
                                <button class="btn btn-primary" style="margin-top:-20px;margin-bottom:4.5px"><i class="icon icon-plus"></i> 添加脚本类型</button>
                             </a>
                         </div>
@@ -45,7 +45,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for item in scripttype %}
+                            {% for item in qs_deploy_type %}
                             <tr>
                                 <td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>
                                 <td>{{item.id}}</td>
@@ -212,7 +212,7 @@ function del() {
     */
 
         $.ajax({
-            url:'/cmdb/index/deploy/scripttype/del/',
+            url:'/cmdb/index/deploy/deploy-type/del/',
             data:{id:JSON.stringify(array_id)},
             type:'POST',
             success:function (data) {
@@ -266,7 +266,7 @@ function update(obj) {
     var tr = obj.parentNode.parentNode;
     //var userid = tr.firstElementChild.innerHTML;
     var id = tr.cells[1].innerHTML;
-    location.href='/cmdb/index/deploy/scripttype/form_update/id='+id;
+    location.href='/cmdb/index/deploy/deploy-type/form_update/id='+id;
     //alert(userid);
 
 }
@@ -386,7 +386,7 @@ function delAll() {
     console.log(array_tbody);
 
     $.ajax({
-        url:'/cmdb/index/deploy/scripttype/del/',
+        url:'/cmdb/index/deploy/deploy-type/del/',
         data:{id:JSON.stringify(array_id)},
         type:'POST',
         success:function (data) {

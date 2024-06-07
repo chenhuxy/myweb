@@ -62,7 +62,7 @@ admin.site.register(MonitorSkywalking, MonitorSkywalkingAdmin)
 
 # task-deploy-----------------------------------------------------------------------------------------------------------
 
-class deploy_script_typeAdmin(admin.ModelAdmin):
+class DeployTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
     list_filter = ('name',)
@@ -86,7 +86,7 @@ class deploy_list_detailAdmin(admin.ModelAdmin):
 
 
 # admin.site.register(business,businessAdmin)
-admin.site.register(deploy_script_type, deploy_script_typeAdmin)
+admin.site.register(DeployType, DeployTypeAdmin)
 admin.site.register(deploy_app, deploy_appAdmin)
 admin.site.register(deploy_list_detail, deploy_list_detailAdmin)
 

@@ -164,11 +164,18 @@ class AnsibleRunner(object):
             # we always need to cleanup child procs and the structures we use to communicate with them
             self._cleanup()
 
-    def run_playbook(self, playbooks):
+    def run_playbook(self, playbooks, tags=None):
         """
         run ansible palybook
         """
         try:
+            # 创建新的 ImmutableDict 包含 tags
+            cliargs = {**context.CLIARGS, 'tags': tags.split(',') if tags else []}
+            context.CLIARGS = ImmutableDict(cliargs)
+
+            # 调试日志
+            logging.info(f"Running playbook with CLIARGS: {context.CLIARGS}")
+
             # actually run it
             self.tqm = PlaybookExecutor(
                 playbooks=playbooks,

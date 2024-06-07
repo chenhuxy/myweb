@@ -178,11 +178,11 @@ class MonitorSkywalking(models.Model):
 
 # task-deploy-----------------------------------------------------------------------------------------------------------
 
-class deploy_script_type(models.Model):
-    name = models.CharField('脚本类型', max_length=200, default='shell', )
+class DeployType(models.Model):
+    name = models.CharField('发布类型', max_length=128, default='发布服务', )
 
     class Meta:
-        verbose_name = '发布脚本类型'
+        verbose_name = '发布类型'
         verbose_name_plural = verbose_name
 
     def __unicode__(self):
@@ -214,6 +214,8 @@ class deploy_list_detail(models.Model):
     update_time = models.DateTimeField('修改时间', auto_now=True)
     status = models.CharField('任务状态', max_length=128)
     action = models.CharField('动作', max_length=128)
+    type = models.ForeignKey('DeployType', on_delete=models.CASCADE, verbose_name='类型',
+                             related_name='deploy_type', default=1)  # 1: '发布服务'
 
     class Meta:
         verbose_name = '发布列表'
