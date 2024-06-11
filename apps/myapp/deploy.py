@@ -35,7 +35,7 @@ from celery.app.control import Control
 
 
 @custom_login_required
-@custom_permission_required('myapp.view_deploy_script_type')
+@custom_permission_required('myapp.view_deploytype')
 def deploy_type(request, *args, **kwargs):
     qs_deploy_type = models.DeployType.objects.all()
     count = qs_deploy_type.count()
@@ -47,7 +47,7 @@ def deploy_type(request, *args, **kwargs):
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_deploy_script_type')
+@custom_permission_required('myapp.add_deploytype')
 def deploy_type_form_add(request, *args, **kwargs):
     qs_deploy_type = models.DeployType.objects.all()
     user_dict = request.session.get('is_login', None)
@@ -58,7 +58,7 @@ def deploy_type_form_add(request, *args, **kwargs):
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_deploy_script_type')
+@custom_permission_required('myapp.change_deploytype')
 def deploy_type_form_update(request, *args, **kwargs):
     deploy_type_id = kwargs['id']
     qs_deploy_type = models.DeployType.objects.filter(id=deploy_type_id)
@@ -71,7 +71,7 @@ def deploy_type_form_update(request, *args, **kwargs):
 
 
 @custom_login_required
-@custom_permission_required('myapp.add_deploy_script_type')
+@custom_permission_required('myapp.add_deploytype')
 def deploy_type_add(request, *args, **kwargs):
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
@@ -97,7 +97,7 @@ def deploy_type_add(request, *args, **kwargs):
 
 
 @custom_login_required
-@custom_permission_required('myapp.change_deploy_script_type')
+@custom_permission_required('myapp.change_deploytype')
 def deploy_type_update(request, *args, **kwargs):
     deploy_type_id = kwargs['id']
     deploy_type_name = request.POST.get('deploy-type')
@@ -108,7 +108,7 @@ def deploy_type_update(request, *args, **kwargs):
 
 
 @custom_login_required
-@custom_permission_required('myapp.delete_deploy_script_type')
+@custom_permission_required('myapp.delete_deploytype')
 def deploy_type_del(request, *args, **kwargs):
     array_form_id = request.POST.get('id')
     array_id = json.loads(array_form_id)
