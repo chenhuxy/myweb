@@ -31,6 +31,11 @@ def time_tz_fmt(utc_timestamp_str):
     eastern_timezone = pytz.timezone("Asia/Shanghai")
     eastern_time = utc_time.astimezone(eastern_timezone)
 
+    # 返回天真的（naive）datetime对象
+    naive_eastern_time = eastern_time.replace(tzinfo=None)
+
     print("UTC时间:", utc_time)
     print("东八区时间:", eastern_time)
-    return eastern_time
+    print("天真东八区时间:", naive_eastern_time)
+    # return eastern_time
+    return naive_eastern_time
