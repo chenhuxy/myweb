@@ -14,11 +14,11 @@ from myweb.settings import *
 
 class AlertSender:
     def __init__(self):
-        self.smtp = smtplib.SMTP()
         self.headers = {
             "Content-Type": "application/json",
             "Accept-Charset": "UTF-8"
-        }
+        },
+        self.smtp = None
 
     def send_email(self, email_host, email_user, email_pass, subject, send_from, send_to, content):
         try:
@@ -27,9 +27,28 @@ class AlertSender:
             msg['From'] = send_from
             msg['To'] = send_to
 
-            self.smtp.connect(email_host)
+            # 判断是否使用tls ssl等加密
+            if EMAIL_USE_TLS:
+                # Initialize the SMTP connection
+                self.smtp = smtplib.SMTP(email_host, 587)  # Port 587 is typically used for TLS
+                # Secure the SMTP connection with TLS
+                self.smtp.starttls()
+            elif EMAIL_USE_SSL:
+                # Initialize the SMTP connection with SSL
+                self.smtp = smtplib.SMTP_SSL(email_host, 465)  # Port 465 is typically used for SSL
+            else:
+                # Initialize the SMTP connection without encryption
+                self.smtp = smtplib.SMTP(email_host)
+
+            # Log in to the SMTP server
             self.smtp.login(user=email_user, password=email_pass)
+
+            # Send the email
             self.smtp.sendmail(msg['From'], msg['To'].split(','), msg.as_string())
+
+            # Quit the SMTP server
+            self.smtp.quit()
+
             return "Email sent successfully"
         except Exception as e:
             return str(e)
