@@ -349,6 +349,8 @@ PROM_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
 #GITLAB_TOKEN = 'glpat-kqPgKptRo6_ekUAiBvHb'
 GITLAB_URL = 'https://gitlab.utfinancing.com'
 GITLAB_TOKEN = 'glpat-wMMzPzUF4Hqd79f8hxy7'
+GITLAB_JOB_NAME = "build_java"
+GITLAB_JOB_NAME_TOMCAT = "build_java_prod"
 
 # 自定义用户表配置
 AUTH_USER_MODEL = "myapp.userInfo"

@@ -726,9 +726,9 @@ def deploy_list_add(request, *args, **kwargs):
         print(deploy_type_id, type(deploy_type_id))   # str类型
         # print(proj_name, type(proj_name), proj_id, type(proj_id), tag, type(tag), scriptType, type(scriptType))
         if proj_name in tomcat_job:
-            job_name = "build_java_prod"
+            job_name = GITLAB_JOB_NAME_TOMCAT
         else:
-            job_name = "build_java"
+            job_name = GITLAB_JOB_NAME
         log_dir = os.path.join(ANSIBLE_BASE_DIR, 'logs')  # 设置日志目录
         log_file_path = os.path.join(log_dir, f"ansible_deploy-{max_id + 1}.log")
 
