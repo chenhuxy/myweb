@@ -334,24 +334,6 @@ CELERY_RESULT_BACKEND = 'redis://:ssR*Yaw{(Pd7@redis:6379/2'
 CELERY_TASK_SERIALIZER = 'json'
 
 
-# prometheus配置
-PROM_DINGTALK_WEBHOOK_URL = 'https://oapi.dingtalk.com/robot/send?access_token=xxx'
-# 测试
-PROM_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-PROM_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
-# 生产
-#PROM_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-#PROM_WELINK_UUID = "efe21978936a4122bdb2b8fa73b3bc88"
-
-# gitlab配置
-#GITLAB_URL = 'http://xxx'
-#GITLAB_TOKEN = 'xxx'
-#GITLAB_TOKEN = 'glpat-kqPgKptRo6_ekUAiBvHb'
-GITLAB_URL = 'https://gitlab.utfinancing.com'
-GITLAB_TOKEN = 'glpat-wMMzPzUF4Hqd79f8hxy7'
-GITLAB_JOB_NAME = "build_java"
-GITLAB_JOB_NAME_TOMCAT = "build_java_prod"
-
 # 自定义用户表配置
 AUTH_USER_MODEL = "myapp.userInfo"
 
@@ -372,39 +354,5 @@ CHANNEL_LAYERS = {
 }
 """
 
-# WORKFLOW_EMAIL 配置
-EXTERNAL_URL = 'http://ip:8000'
-WF_EMAIL_SUBJECT = '【运维发布系统流程审批提醒】'
-ACTIVE_EMAIL_SUBJECT = '【运维发布系统账号激活邮件】'
-VERIFY_CODE_EMAIL_SUBJECT = '【运维发布系统找回密码邮件】'
-
-# SKYWALKING_EMAIL 配置
-SKYWALKING_EMAIL_SUBJECT = '【Skywalking链路监控告警】'
-SKYWALKING_EMAIL_RECEIVER = 'xxx,xxx'  # 添加更多的收件人邮箱,用逗号分割
-SKYWALKING_DINGTALK_WEBHOOK_URL = 'https://oapi.dingtalk.com/robot/send?access_token=xxx'
-# 测试
-SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-SKYWALKING_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"
-# 生产
-#SKYWALKING_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=xxx&channel=standard'
-#SKYWALKING_WELINK_UUID = "ab1c18520f2b4728bee5943b2a3e9046"
-
 # secret
 API_SECRET = 'yYEtEMvGMVmCaxpOWIjOWjtvTk'
-
-# 定义接口请求超时时间
-API_ACCESS_TIMEOUT = 3000  # ms
-
-# grafana
-GRAFANA_URL = 'https://xxx/grafana/d/aka/be9e3f56-70f9-509c-9efd-be6e2c0b5292?orgId=1&auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZDR05qWnN0dW9RWndDWFlnQ2pTd0NzSHBvMWhzOVRUZkVTb09mWllVLU0ifQ.eyJzdWIiOiJoeS1kZXYtdXNlciIsIm5hbWUiOiJoeS1kZXYtdXNlciIsImlhdCI6MTcxMzQxODQxMywiZXhwIjo0ODY5MDkyMDEzLCJpc3MiOiJodHRwczovL215LXRva2VuLWlzc3VlciIsIm9yZyI6Imh5Iiwicm9sZSI6IlZpZXdlciJ9.8NL2dpKjpUp_MzLzyit-388mCMAo0SzCHLLcFJZ1nrY'
-
-# skywalking_ui
-SKYWALKING_UI_URL = 'http://xxx/?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiJoeS1kZXYtdXNlciIsImV4cCI6NDg2NzQ1NTY5MH0.PBvAHjDvY0hrO4cmohB0_NxSfh5mDsER83pJ63_1xCQ'
-
-# ansible
-ANSIBLE_BASE_DIR = '/etc/ansible'
-TOMCAT_JOB_LIST = ["passengerCar", "passengerCar_zczr", "heavyTruck", "heavyTruck_zczr"]
-DEPLOY_WELINK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=c8a5bfca28ac44f2b3360dc8a4c60778&channel=standard'
-DEPLOY_DINGTALK_UUID = "181778b68d784679ac3d71d5a09fec86"
-DEPLOY_DINGTALK_WEBHOOK_URL = 'https://open.welink.huaweicloud.com/api/werobot/v1/webhook/send?token=c8a5bfca28ac44f2b3360dc8a4c60778&channel=standard'
-DEPLOY_WELINK_UUID = "181778b68d784679ac3d71d5a09fec86"

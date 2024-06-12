@@ -346,7 +346,14 @@ def deploy_list_search_result(request, *args, **kwargs):
 @custom_login_required
 @custom_permission_required('myapp.add_deploy_list_detail')
 def deploy_list_form_add(request, *args, **kwargs):
-    git_tools = gitlab.Gitlab(GITLAB_URL, GITLAB_TOKEN)
+    # gitlab_url = GITLAB_URL
+    # gitlab_token = GITLAB_TOKEN
+    # 数据库获取
+    gitlab_url = models.SystemConfig.objects.filter(name='default').values(
+        'gitlab_url')[0]['gitlab_url']
+    gitlab_token = models.SystemConfig.objects.filter(name='default').values(
+        'gitlab_token')[0]['gitlab_token']
+    git_tools = gitlab.Gitlab(gitlab_url, gitlab_token)
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
     id = kwargs['id']
@@ -711,8 +718,7 @@ def deploy_list_add(request, *args, **kwargs):
         max_id = 0
     # print(max_id, type(max_id))
     if request.method == 'POST':
-        # 2024/6/5
-        tomcat_job = TOMCAT_JOB_LIST
+
         unit = request.POST.get('unit', None)
         unit_id = get_object_or_404(models.wf_business, name=unit)
         qs_asset = models.Asset.objects.filter(business_unit_id=unit_id)
@@ -723,13 +729,39 @@ def deploy_list_add(request, *args, **kwargs):
         proj_id = request.POST.get('proj_id', None)
         tag = request.POST.get('tag', None)
         deploy_type_id = request.POST.get('deploy_type', None)
-        print(deploy_type_id, type(deploy_type_id))   # str类型
+        print(deploy_type_id, type(deploy_type_id))  # str类型
         # print(proj_name, type(proj_name), proj_id, type(proj_id), tag, type(tag), scriptType, type(scriptType))
+
+        # ansible_base_dir = ANSIBLE_BASE_DIR
+        # gitlab_url = GITLAB_URL
+        # gitlab_token = GITLAB_TOKEN
+        # gitlab_job_name = GITLAB_JOB_NAME
+        # gitlab_job_name_tomcat = GITLAB_JOB_NAME_TOMCAT
+        # 2024/6/5
+        # tomcat_job = TOMCAT_JOB_LIST
+
+        # 数据库获取
+        ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+            'ansible_base_dir']
+        gitlab_url = models.SystemConfig.objects.filter(name='default').values('gitlab_url')[0][
+            'gitlab_url']
+        gitlab_token = models.SystemConfig.objects.filter(name='default').values('gitlab_token')[0][
+            'gitlab_token']
+        gitlab_job_name = models.SystemConfig.objects.filter(name='default').values('gitlab_job_name')[0][
+            'gitlab_job_name']
+        gitlab_job_name_tomcat = models.SystemConfig.objects.filter(name='default').values('gitlab_job_name_tomcat')[0][
+            'gitlab_job_name_tomcat']
+        tomcat_project_list = models.SystemConfig.objects.filter(name='default').values('tomcat_project_list')[0][
+            'tomcat_project_list']
+
+        tomcat_job = tomcat_project_list.split(',')
+
         if proj_name in tomcat_job:
-            job_name = GITLAB_JOB_NAME_TOMCAT
+            job_name = gitlab_job_name_tomcat
         else:
-            job_name = GITLAB_JOB_NAME
-        log_dir = os.path.join(ANSIBLE_BASE_DIR, 'logs')  # 设置日志目录
+            job_name = gitlab_job_name
+
+        log_dir = os.path.join(ansible_base_dir, 'logs')  # 设置日志目录
         log_file_path = os.path.join(log_dir, f"ansible_deploy-{max_id + 1}.log")
 
         if deploy_type_id == '1':
@@ -739,13 +771,13 @@ def deploy_list_add(request, *args, **kwargs):
                 return render_to_response('500.html', msg, status=500)
 
             # 执行发布
-            ret = tasks.deploy_main.delay(unit, host_list, GITLAB_URL, {"PRIVATE-TOKEN": GITLAB_TOKEN, },
-                                          os.path.join(ANSIBLE_BASE_DIR, 'temp_download'),
-                                          os.path.join(ANSIBLE_BASE_DIR, 'temp_unzip'),
-                                          os.path.join(ANSIBLE_BASE_DIR, 'roles'),
+            ret = tasks.deploy_main.delay(unit, host_list, gitlab_url, {"PRIVATE-TOKEN": gitlab_token, },
+                                          os.path.join(ansible_base_dir, 'temp_download'),
+                                          os.path.join(ansible_base_dir, 'temp_unzip'),
+                                          os.path.join(ansible_base_dir, 'roles'),
                                           proj_name, proj_id, tag, job_name,
-                                          os.path.join(ANSIBLE_BASE_DIR, 'inventory', f'{unit}.ini'),
-                                          os.path.join(ANSIBLE_BASE_DIR, f'{proj_name}.yml'),
+                                          os.path.join(ansible_base_dir, 'inventory', f'{unit}.ini'),
+                                          os.path.join(ansible_base_dir, f'{proj_name}.yml'),
                                           str(max_id + 1), log_file_path, deploy_type_id
                                           )
             # 发布记录写入数据库
@@ -755,13 +787,13 @@ def deploy_list_add(request, *args, **kwargs):
         elif deploy_type_id == '2':
             tag = "---"
             # 执行发布
-            ret = tasks.deploy_main.delay(unit, host_list, GITLAB_URL, {"PRIVATE-TOKEN": GITLAB_TOKEN, },
-                                          os.path.join(ANSIBLE_BASE_DIR, 'temp_download'),
-                                          os.path.join(ANSIBLE_BASE_DIR, 'temp_unzip'),
-                                          os.path.join(ANSIBLE_BASE_DIR, 'roles'),
+            ret = tasks.deploy_main.delay(unit, host_list, gitlab_url, {"PRIVATE-TOKEN": gitlab_token, },
+                                          os.path.join(ansible_base_dir, 'temp_download'),
+                                          os.path.join(ansible_base_dir, 'temp_unzip'),
+                                          os.path.join(ansible_base_dir, 'roles'),
                                           proj_name, proj_id, tag, job_name,
-                                          os.path.join(ANSIBLE_BASE_DIR, 'inventory', f'{unit}.ini'),
-                                          os.path.join(ANSIBLE_BASE_DIR, f'{proj_name}.yml'),
+                                          os.path.join(ansible_base_dir, 'inventory', f'{unit}.ini'),
+                                          os.path.join(ansible_base_dir, f'{proj_name}.yml'),
                                           str(max_id + 1), log_file_path, deploy_type_id
                                           )
             # 发布记录写入数据库

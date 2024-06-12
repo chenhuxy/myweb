@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # coding:utf-8
-from django.shortcuts import render_to_response
+import json
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render_to_response, get_object_or_404
 
 from apps.myapp import common, page_helper
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
-from apps.myapp.models import OpLogs
-from myweb.settings import API_ACCESS_TIMEOUT
+from apps.myapp import models
+from myweb.settings import *
 
 
 @custom_login_required
 @custom_permission_required('myapp.view_oplogs')
 def oplog(request, *args, **kwargs):
-    op_logs = OpLogs.objects.all().order_by('-id')
+    op_logs = models.OpLogs.objects.all().order_by('-id')
     count = op_logs.count()
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
@@ -21,8 +25,82 @@ def oplog(request, *args, **kwargs):
     pageinfo = page_helper.pageinfo(page, count, perItem)
     op_logs_paged = op_logs[pageinfo.start:pageinfo.end]
     page_string = page_helper.pager_oplog_list(request, page, pageinfo.pageCount)
+    # api_access_timeout = API_ACCESS_TIMEOUT
+    # 数据库获取
+    api_access_timeout_str = models.SystemConfig.objects.filter(name='default').values('api_access_timeout')[0][
+        'api_access_timeout']
+    api_access_timeout = int(api_access_timeout_str)
     msg = {'op_logs': op_logs_paged, 'login_user': user_dict['user'], 'status': '操作成功',
            'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string,
-           'api_access_timeout': API_ACCESS_TIMEOUT, 'wf_count_pending': wf_dict['wf_count_pending']}
+           'api_access_timeout': api_access_timeout, 'wf_count_pending': wf_dict['wf_count_pending']}
     # return render_to_response('user_search.html',msg)
     return render_to_response('audit/oplog.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_systemconfig')
+def system_config(request, *args, **kwargs):
+    qs_configs = models.SystemConfig.objects.filter(name='default')
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    msg = {'qs_configs': qs_configs, 'login_user': user_dict['user'], 'status': '操作成功',
+           'wf_count_pending': wf_dict['wf_count_pending']}
+    # return render_to_response('user_search.html',msg)
+    return render_to_response('audit/settings.html', msg)
+
+
+@custom_login_required
+@custom_permission_required('myapp.change_systemconfig')
+def system_config_change(request, *args, **kwargs):
+    try:
+        # Extract data from POST request with default values if necessary
+        data = {
+            'external_url': request.POST.get('external_url', ''),
+            'active_email_subject': request.POST.get('active_email_subject', ''),
+            'verify_email_subject': request.POST.get('verify_email_subject', ''),
+            'gitlab_url': request.POST.get('gitlab_url', ''),
+            'gitlab_token': request.POST.get('gitlab_token', ''),
+            'gitlab_job_name': request.POST.get('gitlab_job_name', ''),
+            'gitlab_job_name_tomcat': request.POST.get('gitlab_job_name_tomcat', ''),
+            'wf_email_subject': request.POST.get('wf_email_subject', ''),
+            'skywalking_email_subject': request.POST.get('skywalking_email_subject', ''),
+            'skywalking_email_receiver': request.POST.get('skywalking_email_receiver', ''),
+            'skywalking_dingtalk_url': request.POST.get('skywalking_dingtalk_url', ''),
+            'skywalking_welink_url': request.POST.get('skywalking_welink_url', ''),
+            'skywalking_welink_uuid': request.POST.get('skywalking_welink_uuid', ''),
+            'prom_dingtalk_url': request.POST.get('prom_dingtalk_url', ''),
+            'prom_welink_url': request.POST.get('prom_welink_url', ''),
+            'prom_welink_uuid': request.POST.get('prom_welink_uuid', ''),
+            'deploy_dingtalk_url': request.POST.get('deploy_dingtalk_url', ''),
+            'deploy_welink_url': request.POST.get('deploy_welink_url', ''),
+            'deploy_welink_uuid': request.POST.get('deploy_welink_uuid', ''),
+            'ansible_base_dir': request.POST.get('ansible_base_dir', ''),
+            'tomcat_project_list': request.POST.get('tomcat_project_list', ''),
+            'grafana_url': request.POST.get('grafana_url', ''),
+            'skywalking_ui_url': request.POST.get('skywalking_ui_url', ''),
+            'api_access_timeout': request.POST.get('api_access_timeout', '')
+        }
+
+        print(data)
+
+        # Fetch user and workflow information from session
+        user_dict = request.session.get('is_login', {})
+        wf_dict = request.session.get('wf', {})
+
+        # Update the SystemConfig model
+        models.SystemConfig.objects.filter(name='default').update(**data)
+
+        # Prepare the response message
+        msg = {
+            'status': '修改成功',
+            'login_user': user_dict.get('user', ''),
+            'code': '0',
+            'wf_count_pending': wf_dict.get('wf_count_pending', 0)
+        }
+        return JsonResponse(msg)
+
+    except ObjectDoesNotExist:
+        return JsonResponse({'status': '修改失败', 'code': '1', 'message': 'System configuration not found'},
+                            status=404)
+    except Exception as e:
+        return JsonResponse({'status': '修改失败', 'code': '1', 'message': str(e)}, status=500)

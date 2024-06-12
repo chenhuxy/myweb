@@ -120,7 +120,13 @@ class TasklogConsumer(WebsocketConsumer):
 
             # print(task_log)
 
-            log_dir = os.path.join(ANSIBLE_BASE_DIR, 'logs')  # 设置日志目录
+            # ansible_base_dir = ANSIBLE_BASE_DIR
+
+            # 数据库获取
+            ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+                'ansible_base_dir']
+
+            log_dir = os.path.join(ansible_base_dir, 'logs')  # 设置日志目录
             log_file_path = os.path.join(log_dir, f"ansible_deploy-{deploy_id}.log")
 
             # 如果执行完成则从数据库读取
@@ -136,7 +142,7 @@ class TasklogConsumer(WebsocketConsumer):
                             nextline = log_file.readline()
                             if nextline:
                                 # self.send(text_data=json.dumps(nextline.strip()))
-                                self.send(text_data=json.dumps(nextline))
+                                self.send(text_data=json.dumps(nextline))  # 不要去除换行
                                 if nextline.strip().endswith(f"deploy_id {deploy_id} 结束----------------------"):
                                     break
                             else:
@@ -152,5 +158,3 @@ class TasklogConsumer(WebsocketConsumer):
             # 关闭websocket连接
             self.disconnect(self.channel_group_name)
             print("后端关闭websocket连接")
-
-

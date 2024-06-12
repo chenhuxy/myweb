@@ -31,25 +31,42 @@ def send_alert(request, *args, **kwargs):
                 alert_time, alert["scope"], alert["name"], alert["ruleName"], alert["alarmMessage"])
             print("formatted_content：", formatted_content)
 
+            # skywalking_dingtalk_url = SKYWALKING_DINGTALK_WEBHOOK_URL
+            # skywalking_welink_url = SKYWALKING_WELINK_WEBHOOK_URL
+            # skywalking_welink_uuid = SKYWALKING_WELINK_UUID
+            # skywalking_email_subject = SKYWALKING_EMAIL_SUBJECT
+            # skywalking_email_receiver = SKYWALKING_EMAIL_RECEIVER
+            # 数据库获取
+            skywalking_dingtalk_url = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_dingtalk_url')[0]['skywalking_dingtalk_url']
+            skywalking_welink_url = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_welink_url')[0]['skywalking_welink_url']
+            skywalking_welink_uuid = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_welink_uuid')[0]['skywalking_welink_uuid']
+            skywalking_email_subject = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_email_subject')[0]['skywalking_email_subject']
+            skywalking_email_receiver = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_email_receiver')[0]['skywalking_email_receiver']
+
             try:
                 # Email告警发送
                 email_msg = MIMEText(formatted_content, "plain", 'utf-8')
-                email_msg['Subject'] = SKYWALKING_EMAIL_SUBJECT
+                email_msg['Subject'] = skywalking_email_subject
                 email_msg['From'] = EMAIL_SEND_FROM
-                email_msg['To'] = ', '.join(SKYWALKING_EMAIL_RECEIVER)
+                email_msg['To'] = ', '.join(skywalking_email_receiver)
                 ret_email = alert_sender.send_email(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, email_msg)
                 ret_dict["ret_email"] = ret_email
 
                 '''
                 # 钉钉告警发送
-                ret_dingtalk = alert_sender.send_dingtalk(SKYWALKING_DINGTALK_WEBHOOK_URL,
+                ret_dingtalk = alert_sender.send_dingtalk(skywalking_dingtalk_url,
                                                           f"【Skywalking监控告警】 {alert['name']}",
                                                           formatted_content)
                 ret_dict["ret_dingtalk"] = ret_dingtalk.text
                 '''
 
                 # weLink告警发送
-                ret_welink = alert_sender.send_welink(SKYWALKING_WELINK_WEBHOOK_URL, SKYWALKING_WELINK_UUID,
+                ret_welink = alert_sender.send_welink(skywalking_welink_url, skywalking_welink_uuid,
                                                       formatted_content)
                 ret_dict["ret_welink"] = ret_welink.text
 
@@ -76,8 +93,12 @@ def send_alert(request, *args, **kwargs):
 def dashboard(request, *args, **kwargs):
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
+    # skywalking_ui_url = SKYWALKING_UI_URL
+    # 数据库获取
+    skywalking_ui_url = models.SystemConfig.objects.filter(name='default').values('skywalking_ui_url')[0][
+        'skywalking_ui_url']
     msg = {'login_user': user_dict['user'], 'wf_count_pending': wf_dict['wf_count_pending'],
-           'grafana_url': GRAFANA_URL, 'skywalking_ui_url': SKYWALKING_UI_URL}
+           'skywalking_ui_url': skywalking_ui_url}
     return render_to_response('monitor/skywalking_dashboard.html', msg)
 
 

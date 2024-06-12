@@ -10,6 +10,33 @@ from .models import *
 from django.contrib.auth.admin import UserAdmin
 
 
+# SystemConfig----------------------------------------------------------------------------------------------------------
+class SystemConfigAdmin(admin.ModelAdmin):
+    """
+    list_display = ('name', 'external_url', 'active_email_subject', 'verify_email_subject', 'gitlab_url',
+                    'gitlab_token', 'gitlab_job_name', 'gitlab_job_name_tomcat', 'email_host', 'email_port',
+                    'email_user', 'email_pass', 'email_address', 'wf_email_subject', 'skywalking_email_subject',
+                    'skywalking_email_receiver', 'skywalking_dingtalk_url', 'skywalking_welink_url',
+                    'skywalking_welink_uuid', 'prom_dingtalk_url', 'prom_welink_url', 'prom_welink_uuid',
+                    'deploy_dingtalk_url', 'deploy_welink_url', 'deploy_welink_uuid', 'ansible_base_dir',
+                    'tomcat_project_list', 'grafana_url', 'skywalking_ui_url', 'api_access_timeout',)
+    """
+    list_display = ('name', 'external_url', 'active_email_subject', 'verify_email_subject', 'gitlab_url',
+                    'gitlab_token', 'gitlab_job_name', 'gitlab_job_name_tomcat','wf_email_subject',
+                    'skywalking_email_subject', 'skywalking_email_receiver', 'skywalking_dingtalk_url',
+                    'skywalking_welink_url', 'skywalking_welink_uuid', 'prom_dingtalk_url', 'prom_welink_url',
+                    'prom_welink_uuid', 'deploy_dingtalk_url', 'deploy_welink_url', 'deploy_welink_uuid',
+                    'ansible_base_dir', 'tomcat_project_list', 'grafana_url', 'skywalking_ui_url',
+                    'api_access_timeout',)
+    # search_fields = ('summary', 'instance', 'description',)
+    # list_filter = ('alertname', 'severity', 'starts_at', 'ends_at',)
+    # list_display_links = ('instance',)
+    list_per_page = 10
+
+
+admin.site.register(SystemConfig, SystemConfigAdmin)
+
+
 # ansible-vars----------------------------------------------------------------------------------------------------------
 class AnsibleVarsAdmin(admin.ModelAdmin):
     list_display = ('name', 'vars', 'create_time', 'update_time',)

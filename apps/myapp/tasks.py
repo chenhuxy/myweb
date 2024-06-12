@@ -48,19 +48,27 @@ def account_send_email(email, username):
     # 获取当前模块命名的记录器
     logger = logging.getLogger(__name__)
 
-    title = ACTIVE_EMAIL_SUBJECT
+    # title = ACTIVE_EMAIL_SUBJECT
+    # 数据库获取
+    title = models.SystemConfig.objects.filter(name='default').values('active_email_subject')[0][
+        'active_email_subject']
     msg = ''
     send_from = EMAIL_SEND_FROM
     send_to = [email, ]
     fail_silently = False
     token = token_helper.get_random_uuid()
 
+    # external_url = EXTERNAL_URL
+    # 数据库获取
+    external_url = models.SystemConfig.objects.filter(name='default').values('external_url')[0][
+        'external_url']
+
     logger.info(f"Starting account_send_email task with parameters - email: {email}, username: {username}")
 
     try:
         # 加载和渲染模板
         template = loader.get_template('account/email.html')
-        html_str = template.render({"username": username, 'token': token, 'external_url': EXTERNAL_URL})
+        html_str = template.render({"username": username, 'token': token, 'external_url': external_url})
 
         # 发送邮件
         send_mail(
@@ -93,7 +101,10 @@ def account_send_email_code(email, verify_code):
     # 获取当前模块命名的记录器
     logger = logging.getLogger(__name__)
 
-    title = VERIFY_CODE_EMAIL_SUBJECT
+    # title = VERIFY_CODE_EMAIL_SUBJECT
+    # 数据库获取
+    title = models.SystemConfig.objects.filter(name='default').values('verify_email_subject')[0][
+        'verify_email_subject']
     msg = ''
     send_from = EMAIL_SEND_FROM
     send_to = [email, ]
@@ -136,17 +147,25 @@ def workflow_send_email(sn, username, email):
     # 获取当前模块命名的记录器
     logger = logging.getLogger(__name__)
 
-    title = WF_EMAIL_SUBJECT
+    # title = WF_EMAIL_SUBJECT
+    # 数据库获取
+    title = models.SystemConfig.objects.filter(name='default').values('wf_email_subject')[0][
+        'wf_email_subject']
     msg = ''
     send_from = EMAIL_SEND_FROM
     send_to = [email, ]
     fail_silently = False
 
+    # external_url = EXTERNAL_URL
+    # 数据库获取
+    external_url = models.SystemConfig.objects.filter(name='default').values('external_url')[0][
+        'external_url']
+
     logger.info(f"Starting workflow_send_email task with parameters - sn: {sn}, username: {username}, email: {email}")
 
     try:
         template = loader.get_template('workflow/workflow_email.html')
-        html_str = template.render({"username": username, 'sn': sn, 'external_url': EXTERNAL_URL})
+        html_str = template.render({"username": username, 'sn': sn, 'external_url': external_url})
 
         send_mail(
             subject=title,
@@ -173,18 +192,26 @@ def workflow_end_send_email(sn, username, email):
     # 获取当前模块命名的记录器
     logger = logging.getLogger(__name__)
 
-    title = WF_EMAIL_SUBJECT
+    # title = WF_EMAIL_SUBJECT
+    # 数据库获取
+    title = models.SystemConfig.objects.filter(name='default').values('wf_email_subject')[0][
+        'wf_email_subject']
     msg = ''
     send_from = EMAIL_SEND_FROM
     send_to = [email, ]
     fail_silently = False
+
+    # external_url = EXTERNAL_URL
+    # 数据库获取
+    external_url = models.SystemConfig.objects.filter(name='default').values('external_url')[0][
+        'external_url']
 
     logger.info(
         f"Starting workflow_end_send_email task with parameters - sn: {sn}, username: {username}, email: {email}")
 
     try:
         template = loader.get_template('workflow/workflow_end_email.html')
-        html_str = template.render({"username": username, 'sn': sn, 'external_url': EXTERNAL_URL})
+        html_str = template.render({"username": username, 'sn': sn, 'external_url': external_url})
 
         send_mail(
             subject=title,
@@ -441,7 +468,6 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
         # 通过value_list 获取ansible_vars外键中的字段
         host_list = list(qs_asset.values_list('ip', 'ansible_vars__vars'))
         print(host_list)
-        tomcat_job = TOMCAT_JOB_LIST
 
         memo = wf_info.values('memo')[0]['memo']
 
@@ -459,12 +485,35 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
         print(max_id, type(max_id))
 
         # 2024/6/5
-        log_dir = os.path.join(ANSIBLE_BASE_DIR, 'logs')  # 设置日志目录
+        # ansible_base_dir = ANSIBLE_BASE_DIR
+        # tomcat_job = TOMCAT_JOB_LIST
+        # gitlab_url = GITLAB_URL
+        # gitlab_token = GITLAB_TOKEN
+        # gitlab_job_name = GITLAB_JOB_NAME
+        # gitlab_job_name_tomcat = GITLAB_JOB_NAME_TOMCAT
+
+        # 数据库获取
+        ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+            'ansible_base_dir']
+        gitlab_url = models.SystemConfig.objects.filter(name='default').values('gitlab_url')[0][
+            'gitlab_url']
+        gitlab_token = models.SystemConfig.objects.filter(name='default').values('gitlab_token')[0][
+            'gitlab_token']
+        gitlab_job_name = models.SystemConfig.objects.filter(name='default').values('gitlab_job_name')[0][
+            'gitlab_job_name']
+        gitlab_job_name_tomcat = models.SystemConfig.objects.filter(name='default').values('gitlab_job_name_tomcat')[0][
+            'gitlab_job_name_tomcat']
+        tomcat_project_list = models.SystemConfig.objects.filter(name='default').values('tomcat_project_list')[0][
+            'tomcat_project_list']
+
+        tomcat_job = tomcat_project_list.split(',')
+
+        log_dir = os.path.join(ansible_base_dir, 'logs')  # 设置日志目录
         log_file_path = os.path.join(log_dir, f"ansible_deploy-{max_id + 1}.log")
         if proj_name in tomcat_job:
-            job_name = "build_java_prod"
+            job_name = gitlab_job_name_tomcat
         else:
-            job_name = "build_java"
+            job_name = gitlab_job_name
 
         # 2024/6/7   1:发布服务
         deploy_type_id = '1'
@@ -519,13 +568,13 @@ def workflow_process(sn, suggest, suggest_agree, suggest_reject, ):
                             workflow_end_send_email.si(sn, username, email),
                             deploy_add_deploy_list_detail.si(unit, proj_name, proj_id, proj_tag, deploy_status,
                                                              deploy_type_id),
-                            deploy_main.si(unit, host_list, GITLAB_URL, {"PRIVATE-TOKEN": GITLAB_TOKEN, },
-                                           os.path.join(ANSIBLE_BASE_DIR, 'temp_download'),
-                                           os.path.join(ANSIBLE_BASE_DIR, 'temp_unzip'),
-                                           os.path.join(ANSIBLE_BASE_DIR, 'roles'),
+                            deploy_main.si(unit, host_list, gitlab_url, {"PRIVATE-TOKEN": gitlab_token, },
+                                           os.path.join(ansible_base_dir, 'temp_download'),
+                                           os.path.join(ansible_base_dir, 'temp_unzip'),
+                                           os.path.join(ansible_base_dir, 'roles'),
                                            proj_name, proj_id, proj_tag, job_name,
-                                           os.path.join(ANSIBLE_BASE_DIR, 'inventory', f'{unit}.ini'),
-                                           os.path.join(ANSIBLE_BASE_DIR, f'{proj_name}.yml'),
+                                           os.path.join(ansible_base_dir, 'inventory', f'{unit}.ini'),
+                                           os.path.join(ansible_base_dir, f'{proj_name}.yml'),
                                            str(max_id + 1), log_file_path, deploy_type_id)
                         )
 
@@ -738,8 +787,14 @@ def deploy_add_deploy_list_detail(self, unit, proj_name, proj_id, proj_tag, depl
 
 @shared_task(bind=True)
 def deploy_generate_config(self, unit, host_list, deploy_id):
+
+    # ansible_base_dir = ANSIBLE_BASE_DIR
+
+    # 数据库获取
+    ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+        'ansible_base_dir']
     # 配置 logger
-    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ANSIBLE_BASE_DIR, 'logs'))
+    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ansible_base_dir, 'logs'))
     logger = logger_setup.get_logger()
     logger_setup.redirect_std_output()  # 重定向标准输出和标准错误
 
@@ -782,7 +837,7 @@ def deploy_generate_config(self, unit, host_list, deploy_id):
             config.set(section, full_entry, full_entry)
 
     # 判断配置目录是否存在
-    inventory_dir = os.path.join(ANSIBLE_BASE_DIR, 'inventory')
+    inventory_dir = os.path.join(ansible_base_dir, 'inventory')
     if not os.path.exists(inventory_dir):
         os.makedirs(inventory_dir)
 
@@ -815,8 +870,14 @@ def deploy_generate_config(self, unit, host_list, deploy_id):
 @shared_task(bind=True)
 def deploy_download_artifact(self, host, headers, download_dir, unzip_dir, deploy_dir, pkg_name, project_id,
                              project_tag, job_name, deploy_id):
+
+    # ansible_base_dir = ANSIBLE_BASE_DIR
+
+    # 数据库获取
+    ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+        'ansible_base_dir']
     # 配置 logger
-    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ANSIBLE_BASE_DIR, 'logs'))
+    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ansible_base_dir, 'logs'))
     logger = logger_setup.get_logger()
     logger_setup.redirect_std_output()  # 重定向标准输出和标准错误
     try:
@@ -894,17 +955,34 @@ def deploy_notify(host_status_count, deploy_id, playbooks, deploy_type_id, proj_
 
     print(msg)
 
+    # deploy_dingtalk_url = DEPLOY_DINGTALK_WEBHOOK_URL
+    # deploy_welink_url = DEPLOY_WELINK_WEBHOOK_URL
+    # deploy_welink_uuid = DEPLOY_WELINK_UUID
+    # 数据库获取
+    deploy_dingtalk_url = models.SystemConfig.objects.filter(name='default').values(
+        'deploy_dingtalk_url')[0]['deploy_dingtalk_url']
+    deploy_welink_url = models.SystemConfig.objects.filter(name='default').values(
+        'deploy_welink_url')[0]['deploy_welink_url']
+    deploy_welink_uuid = models.SystemConfig.objects.filter(name='default').values(
+        'deploy_welink_uuid')[0]['deploy_welink_uuid']
+
     # 发送通知
     alert_sender = notify_helper.AlertSender()
-    alert_sender.send_welkin(DEPLOY_WELINK_WEBHOOK_URL, DEPLOY_WELINK_UUID, msg)
+    # alert_sender.send_dingtalk(deploy_dingtalk_url, f"【生产发布通知】 {playbooks}", msg)
+    alert_sender.send_welkin(deploy_welink_url, deploy_welink_uuid, msg)
 
     return {'deploy_id': deploy_id, 'stage': 'deploy_notify', 'host_statuses': host_statuses}
 
 
 @shared_task(bind=True, soft_time_limit=300, time_limit=600)  # 5 minutes soft limit, 10 minutes hard limit
 def deploy_ansible_playbook(self, host_file, playbooks, deploy_id, deploy_type_id, proj_tag):
+    # ansible_base_dir = ANSIBLE_BASE_DIR
+
+    # 数据库获取
+    ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+        'ansible_base_dir']
     # 配置 logger
-    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ANSIBLE_BASE_DIR, 'logs'))
+    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ansible_base_dir, 'logs'))
     logger = logger_setup.get_logger()
     logger_setup.redirect_std_output()  # 重定向标准输出和标准错误
 
@@ -918,7 +996,7 @@ def deploy_ansible_playbook(self, host_file, playbooks, deploy_id, deploy_type_i
     4: Full debug, including detailed internal execution steps.
     '''
 
-    inventory_path = os.path.join(ANSIBLE_BASE_DIR, 'inventory', host_file)
+    inventory_path = os.path.join(ansible_base_dir, 'inventory', host_file)
 
     '''
     # Create a temporary ansible.cfg file
@@ -970,8 +1048,13 @@ def deploy_ansible_playbook(self, host_file, playbooks, deploy_id, deploy_type_i
 
 @shared_task(bind=True)
 def deploy_stat(self, deploy_id, log_file_path):
+    # ansible_base_dir = ANSIBLE_BASE_DIR
+
+    # 数据库获取
+    ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+        'ansible_base_dir']
     # 配置 logger
-    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ANSIBLE_BASE_DIR, 'logs'))
+    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ansible_base_dir, 'logs'))
     logger = logger_setup.get_logger()
     logger_setup.redirect_std_output()  # 重定向标准输出和标准错误
     try:
@@ -1038,8 +1121,13 @@ def deploy_stat(self, deploy_id, log_file_path):
 @shared_task(bind=True)
 def deploy_main(self, unit, host_list, host, headers, download_dir, unzip_dir, deploy_dir, pkg_name, project_id,
                 project_tag, job_name, host_file, playbooks, deploy_id, log_file_path, deploy_type_id):
+    # ansible_base_dir = ANSIBLE_BASE_DIR
+
+    # 数据库获取
+    ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+        'ansible_base_dir']
     # 配置 logger
-    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ANSIBLE_BASE_DIR, 'logs'))
+    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ansible_base_dir, 'logs'))
     logger = logger_setup.get_logger()
     logger_setup.redirect_std_output()  # 重定向标准输出和标准错误
 
@@ -1058,7 +1146,8 @@ def deploy_main(self, unit, host_list, host, headers, download_dir, unzip_dir, d
         # Chain the group with `deploy_ansible_playbook` to run it after the parallel tasks complete
         deployment_chain = chain(
             parallel_tasks,
-            deploy_ansible_playbook.si(host_file, playbooks, deploy_id, deploy_type_id, project_tag),  # Immutable signature
+            deploy_ansible_playbook.si(host_file, playbooks, deploy_id, deploy_type_id, project_tag),
+            # Immutable signature
             deploy_stat.si(deploy_id, log_file_path)
         )
     # 重启服务
@@ -1067,7 +1156,8 @@ def deploy_main(self, unit, host_list, host, headers, download_dir, unzip_dir, d
         # Chain the group with `deploy_ansible_playbook` to run it after the parallel tasks complete
         deployment_chain = chain(
             deploy_generate_config.si(unit, host_list, deploy_id),  # Immutable signature
-            deploy_ansible_playbook.si(host_file, playbooks, deploy_id, deploy_type_id, project_tag),  # Immutable signature
+            deploy_ansible_playbook.si(host_file, playbooks, deploy_id, deploy_type_id, project_tag),
+            # Immutable signature
             deploy_stat.si(deploy_id, log_file_path)
         )
 
@@ -1115,8 +1205,13 @@ def deploy_main(self, unit, host_list, host, headers, download_dir, unzip_dir, d
 # celery revoke未成功，暂时不可用
 @shared_task(bind=True, soft_time_limit=30, time_limit=60)
 def deploy_cancel(self, deploy_id, task_id):
+    # ansible_base_dir = ANSIBLE_BASE_DIR
+
+    # 数据库获取
+    ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+        'ansible_base_dir']
     # 配置 logger
-    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ANSIBLE_BASE_DIR, 'logs'))
+    logger_setup = logger_helper.LoggerSetup(f"ansible_deploy-{deploy_id}.log", os.path.join(ansible_base_dir, 'logs'))
     logger = logger_setup.get_logger()
     logger_setup.redirect_std_output()
     """

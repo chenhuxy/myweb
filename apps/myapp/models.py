@@ -45,6 +45,48 @@ class OpLogs(models.Model):
         return self.re_user
 
 
+# SystemConfig----------------------------------------------------------------------------------------------------------
+class SystemConfig(models.Model):
+    name = models.CharField(max_length=256, verbose_name='名称')
+    external_url = models.CharField(max_length=256, verbose_name='外部访问地址')
+    active_email_subject = models.CharField(max_length=256, verbose_name='激活账号邮件主题')
+    verify_email_subject = models.CharField(max_length=256, verbose_name='找回密码邮件主题')
+    gitlab_url = models.CharField(max_length=256, verbose_name='Gitlab 地址')
+    gitlab_token = models.CharField(max_length=256, verbose_name='Gitlab Token')
+    gitlab_job_name = models.CharField(max_length=256, verbose_name=' 流水线Artifact job名称')
+    gitlab_job_name_tomcat = models.CharField(max_length=256, verbose_name=' 流水线Artifact job名称(tomcat)')
+    # email_host = models.CharField(max_length=256, verbose_name='邮件服务器地址')
+    # email_port = models.CharField(max_length=256, verbose_name='邮件服务器端口')
+    # email_user = models.CharField(max_length=256, verbose_name='邮箱用户名')
+    # email_pass = models.CharField(max_length=256, verbose_name='邮箱密码')
+    # email_address = models.CharField(max_length=256, verbose_name='邮箱地址')
+    wf_email_subject = models.CharField(max_length=256, verbose_name='流程审批邮件主题')
+    skywalking_email_subject = models.CharField(max_length=256, verbose_name='Skywalking 邮件主题', blank=True,)
+    skywalking_email_receiver = models.CharField(max_length=256, verbose_name='Skywalking 邮件收件人', blank=True,)
+    skywalking_dingtalk_url = models.CharField(max_length=256, verbose_name='Skywalking 钉钉 webhook地址', blank=True,)
+    skywalking_welink_url = models.CharField(max_length=256, verbose_name='Skywalking welink webhook地址', blank=True,)
+    skywalking_welink_uuid = models.CharField(max_length=256, verbose_name='Skywalking welink uuid', blank=True,)
+    prom_dingtalk_url = models.CharField(max_length=256, verbose_name='Prometheus 钉钉 webhook地址', blank=True,)
+    prom_welink_url = models.CharField(max_length=256, verbose_name='Prometheus welink webhook地址', blank=True,)
+    prom_welink_uuid = models.CharField(max_length=256, verbose_name='Prometheus welink uuid', blank=True,)
+    deploy_dingtalk_url = models.CharField(max_length=256, verbose_name='发布 钉钉 webhook地址', blank=True,)
+    deploy_welink_url = models.CharField(max_length=256, verbose_name='发布 welink webhook地址', blank=True,)
+    deploy_welink_uuid = models.CharField(max_length=256, verbose_name='发布 welink uuid', blank=True,)
+    ansible_base_dir = models.CharField(max_length=256, verbose_name='Ansible 工作目录')
+    tomcat_project_list = models.CharField(max_length=256, verbose_name='Tomcat 项目列表', blank=True,)
+    grafana_url = models.CharField(max_length=1024, verbose_name='Grafana 地址', blank=True,)
+    skywalking_ui_url = models.CharField(max_length=1024, verbose_name='Skywalking ui 地址', blank=True,)
+    api_access_timeout = models.CharField(max_length=256, verbose_name='接口请求超时时间（ms为单位）')
+
+    class Meta:
+        # db_table = 'system_config'
+        verbose_name = '系统设置'
+        verbose_name_plural = verbose_name
+
+    def __unicode__(self):
+        return self.name
+
+
 # users-----------------------------------------------------------------------------------------------------------------
 
 '''

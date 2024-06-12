@@ -129,13 +129,24 @@ def send_alert(request, *args, **kwargs):
             # 打印格式化后信息
             print(f"formatted_content: {formatted_content}")
 
+            # prom_dingtalk_url = PROM_DINGTALK_WEBHOOK_URL
+            # prom_welink_url = PROM_WELINK_WEBHOOK_URL
+            # prom_welink_uuid = PROM_WELINK_UUID
+            # 数据库获取
+            prom_dingtalk_url = models.SystemConfig.objects.filter(name='default').values('prom_dingtalk_url')[0][
+                'prom_dingtalk_url']
+            prom_welink_url = models.SystemConfig.objects.filter(name='default').values('prom_welink_url')[0][
+                'prom_welink_url']
+            prom_welink_uuid = models.SystemConfig.objects.filter(name='default').values('prom_welink_uuid')[0][
+                'prom_welink_uuid']
+
             try:
                 ret_dict = {}
                 alert_sender = notify_helper.AlertSender()
 
                 '''
                 # 钉钉
-                ret_dingtalk = alert_sender.send_dingtalk(PROM_DINGTALK_WEBHOOK_URL,
+                ret_dingtalk = alert_sender.send_dingtalk(prom_dingtalk_url,
                                                           f"【Prometheus监控告警】 {alert_labels['alertname']}",
                                                           formatted_content
                                                           )
@@ -143,7 +154,7 @@ def send_alert(request, *args, **kwargs):
                 '''
 
                 # weLink
-                ret_welink = alert_sender.send_welkin(PROM_WELINK_WEBHOOK_URL, PROM_WELINK_UUID, formatted_content)
+                ret_welink = alert_sender.send_welkin(prom_welink_url, prom_welink_uuid, formatted_content)
                 # print(ret_welink.text)
 
                 # ret_dict["ret_dingtalk"] = ret_dingtalk.text
@@ -173,8 +184,12 @@ def send_alert(request, *args, **kwargs):
 def dashboard(request, *args, **kwargs):
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
+    # grafana_url = GRAFANA_URL
+    # 数据库获取
+    grafana_url = models.SystemConfig.objects.filter(name='default').values('grafana_url')[0][
+        'skywalking_ui_url']
     msg = {'login_user': user_dict['user'], 'wf_count_pending': wf_dict['wf_count_pending'],
-           'grafana_url': GRAFANA_URL, 'skywalking_ui_url': SKYWALKING_UI_URL}
+           'grafana_url': grafana_url, }
     return render_to_response('monitor/prometheus_dashboard.html', msg)
 
 

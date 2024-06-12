@@ -23,6 +23,8 @@ urlpatterns = [
 
     # audit-------------------------------------------------------------------------------------------------------------
     url(r'^index/audit/oplog/list/(?P<page>\d*)', audit.oplog, ),
+    path('index/audit/system/settings/', audit.system_config, ),
+    path('index/audit/system/settings/change/', audit.system_config_change),
 
     # login-------------------------------------------------------------------------------------------------------------
 
