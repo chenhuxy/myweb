@@ -34,8 +34,21 @@ def send_alert(request, *args, **kwargs):
         msg['Subject'] = SKYWALKING_EMAIL_SUBJECT
         msg['From'] = EMAIL_SEND_FROM
         msg['To'] = SKYWALKING_EMAIL_RECEIVER
-        smtp = smtplib.SMTP()
-        smtp.connect(EMAIL_HOST)
+
+        # 判断是否使用tls ssl等加密
+        if EMAIL_USE_TLS:
+            # Initialize the SMTP connection
+            smtp = smtplib.SMTP(EMAIL_HOST, 587)  # Port 587 is typically used for TLS
+            # Secure the SMTP connection with TLS
+            smtp.starttls()
+        elif EMAIL_USE_SSL:
+            # Initialize the SMTP connection with SSL
+            smtp = smtplib.SMTP_SSL(EMAIL_HOST, 465)  # Port 465 is typically used for SSL
+        else:
+            # Initialize the SMTP connection without encryption
+            smtp = smtplib.SMTP(EMAIL_HOST)
+
+        # Log in to the SMTP server
         smtp.login(user=EMAIL_HOST_USER, password=EMAIL_HOST_PASSWORD)
 
         # webhook告警配置
@@ -73,9 +86,13 @@ def send_alert(request, *args, **kwargs):
         try:
             ret_dict = {}
             # Email告警发送
-            # Email
+            # Send the email
             ret_email = smtp.sendmail(msg['From'], msg['To'].split(','), msg.as_string())
             # print(ret_email)
+
+            # Quit the SMTP server
+            smtp.quit()
+
             # webhook告警发送
             '''
             # 钉钉
