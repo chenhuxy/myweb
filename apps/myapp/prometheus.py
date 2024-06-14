@@ -187,7 +187,7 @@ def dashboard(request, *args, **kwargs):
     # grafana_url = GRAFANA_URL
     # 数据库获取
     grafana_url = models.SystemConfig.objects.filter(name='default').values('grafana_url')[0][
-        'skywalking_ui_url']
+        'grafana_url']
     msg = {'login_user': user_dict['user'], 'wf_count_pending': wf_dict['wf_count_pending'],
            'grafana_url': grafana_url, }
     return render_to_response('monitor/prometheus_dashboard.html', msg)
