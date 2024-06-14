@@ -1,0 +1,508 @@
+{% extends "master/layout.html" %}
+{% block content %}
+<div class="content">
+{% block formTitle %}
+    <!--<form method="post" action="/cmdb/index/table/user/change_password/username={{ username }}">-->
+{% endblock %}
+
+<div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="list-group" id="menu">
+                    <a href="#" class="list-group-item active" onclick="showForm('general-settings')">一般设置</a>
+                    <a href="#" class="list-group-item" onclick="showForm('gitlab-settings')">Gitlab设置</a>
+                    <!--<a href="#" class="list-group-item" onclick="showForm('email-settings')">邮件设置</a>-->
+                    <a href="#" class="list-group-item" onclick="showForm('workflow-settings')">工作流设置</a>
+                    <a href="#" class="list-group-item" onclick="showForm('notification-settings')">通知设置</a>
+                    <a href="#" class="list-group-item" onclick="showForm('publishing-settings')">发布设置</a>
+                    <a href="#" class="list-group-item" onclick="showForm('other-settings')">其他设置</a>
+                </div>
+            </div>
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        系统设置
+                        <label style="color: red;">{{ status }}</label>
+                        <div class="alert alert-dismissible alert-success" style="display:none" id="alert_success">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true" onclick="refresh()">&times;</span>
+                            </button>
+                        </div>
+                        <div class="alert alert-dismissible alert-danger" style="display:none" id="alert_fail">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true" onclick="refresh()">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% for item in qs_configs %}
+                        <!-- General Settings -->
+                        <div id="general-settings" class="settings-form">
+                            <hr>
+                            <div class="row mt-5">
+                                <div class="col-md-4 mb-4">
+                                    <div>General Settings</div>
+                                    <div class="text-muted small"></div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">外部访问地址</label>
+                                                <input id="external_url" type="text" class="form-control" name="external_url" value="{{ item.external_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">激活账号邮件主题</label>
+                                                <input id="active_email_subject" type="text" class="form-control" name="active_email_subject" value="{{ item.active_email_subject }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">找回密码邮件主题</label>
+                                                <input id="verify_email_subject" type="text" class="form-control" name="verify_email_subject" value="{{ item.verify_email_subject }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Gitlab Settings -->
+                        <div id="gitlab-settings" class="settings-form">
+                            <hr>
+                            <div class="row mt-5">
+                                <div class="col-md-4 mb-4">
+                                    <div>Gitlab Settings</div>
+                                    <div class="text-muted small"></div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Gitlab 地址</label>
+                                                <input id="gitlab_url" type="text" class="form-control" name="gitlab_url" value="{{ item.gitlab_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Gitlab Token</label>
+                                                <input id="gitlab_token" type="text" class="form-control" name="gitlab_token" value="{{ item.gitlab_token }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Gitlab 流水线Artifact job名称</label>
+                                                <input id="gitlab_job_name" type="text" class="form-control" name="gitlab_job_name" value="{{ item.gitlab_job_name }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Gitlab 流水线Artifact job名称(tomcat)</label>
+                                                <input id="gitlab_job_name_tomcat" type="text" class="form-control" name="gitlab_job_name_tomcat" value="{{ item.gitlab_job_name_tomcat }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Email Settings
+                        <div id="email-settings" class="settings-form">
+                            <hr>
+                            <div class="row mt-5">
+                                <div class="col-md-4 mb-4">
+                                    <div>Email Settings</div>
+                                    <div class="text-muted small"></div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">邮件服务器地址</label>
+                                                <input id="email_host" type="text" class="form-control" name="email_host" value="{{ item.email_host }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">邮件服务器端口</label>
+                                                <input id="email_port" type="text" class="form-control" name="email_port" value="{{ item.email_port }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">邮箱用户名</label>
+                                                <input id="email_user" type="text" class="form-control" name="email_user" value="{{ item.email_user }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">邮箱密码</label>
+                                                <input id="email_pass" type="text" class="form-control" name="email_pass" value="{{ item.email_pass }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">邮箱地址</label>
+                                                <input id="email_address" type="text" class="form-control" name="email_address" value="{{ item.email_address }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                        <!-- Workflow Settings -->
+                        <div id="workflow-settings" class="settings-form">
+                            <hr>
+                            <div class="row mt-5">
+                                <div class="col-md-4 mb-4">
+                                    <div>Workflow Settings</div>
+                                    <div class="text-muted small"></div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">流程审批邮件主题</label>
+                                                <input id="wf_email_subject" type="text" class="form-control" name="wf_email_subject" value="{{ item.wf_email_subject }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Notification Settings -->
+                        <div id="notification-settings" class="settings-form">
+                            <hr>
+                            <div class="row mt-5">
+                                <div class="col-md-4 mb-4">
+                                    <div>Notification Settings</div>
+                                    <div class="text-muted small"></div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Skywalking 邮件主题</label>
+                                                <input id="skywalking_email_subject" type="text" class="form-control" name="skywalking_email_subject" value="{{ item.skywalking_email_subject }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Skywalking 邮件收件人（多个收件人以逗号分隔）</label>
+                                                <input id="skywalking_email_receiver" type="text" class="form-control" name="skywalking_email_receiver" value="{{ item.skywalking_email_receiver }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Skywalking 钉钉 webhook地址</label>
+                                                <input id="skywalking_dingtalk_url" type="text" class="form-control" name="skywalking_dingtalk_url" value="{{ item.skywalking_dingtalk_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Skywalking welink webhook地址</label>
+                                                <input id="skywalking_welink_url" type="text" class="form-control" name="skywalking_welink_url" value="{{ item.skywalking_welink_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Skywalking welink uuid</label>
+                                                <input id="skywalking_welink_uuid" type="text" class="form-control" name="skywalking_welink_uuid" value="{{ item.skywalking_welink_uuid }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Prometheus 钉钉 webhook地址</label>
+                                                <input id="prom_dingtalk_url" type="text" class="form-control" name="prom_dingtalk_url" value="{{ item.prom_dingtalk_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Prometheus welink webhook地址</label>
+                                                <input id="prom_welink_url" type="text" class="form-control" name="prom_welink_url" value="{{ item.prom_welink_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Prometheus welink uuid</label>
+                                                <input id="prom_welink_uuid" type="text" class="form-control" name="prom_welink_uuid" value="{{ item.prom_welink_uuid }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">发布 钉钉 webhook地址</label>
+                                                <input id="deploy_dingtalk_url" type="text" class="form-control" name="deploy_dingtalk_url" value="{{ item.deploy_dingtalk_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">发布 welink webhook地址</label>
+                                                <input id="deploy_welink_url" type="text" class="form-control" name="deploy_welink_url" value="{{ item.deploy_welink_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">发布 welink uuid</label>
+                                                <input id="deploy_welink_uuid" type="text" class="form-control" name="deploy_welink_uuid" value="{{ item.deploy_welink_uuid }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- Publishing Settings -->
+                        <div id="publishing-settings" class="settings-form">
+                            <hr>
+                            <div class="row mt-5">
+                                <div class="col-md-4 mb-4">
+                                    <div>Publishing Settings</div>
+                                    <div class="text-muted small"></div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Ansible 工作目录</label>
+                                                <input id="ansible_base_dir" type="text" class="form-control" name="ansible_base_dir" value="{{ item.ansible_base_dir }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Tomcat 项目列表（多个项目以逗号分隔）</label>
+                                                <input id="tomcat_project_list" type="text" class="form-control" name="tomcat_project_list" value="{{ item.tomcat_project_list }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Other Settings -->
+                        <div id="other-settings" class="settings-form">
+                            <hr>
+                            <div class="row mt-5">
+                                <div class="col-md-4 mb-4">
+                                    <div>Other Settings</div>
+                                    <div class="text-muted small"></div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Grafana 地址</label>
+                                                <input id="grafana_url" type="text" class="form-control" name="grafana_url" value="{{ item.grafana_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">Skywalking ui 地址</label>
+                                                <input id="skywalking_ui_url" type="text" class="form-control" name="skywalking_ui_url" value="{{ item.skywalking_ui_url }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label require">接口请求超时时间（ms为单位）</label>
+                                                <input id="api_access_timeout" type="text" class="form-control" name="api_access_timeout" value="{{ item.api_access_timeout }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End of Forms -->
+                        {% endfor %}
+                    </div>
+                    <div class="card-footer bg-light text-right">
+                        <button type="button" class="btn btn-primary" onclick="save(this)">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% block formFooter %}
+    </form>
+{% endblock %}
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+            showForm('general-settings'); // Show the Gitlab Settings by default
+        });
+
+        function showForm(formId) {
+            const forms = document.querySelectorAll('.settings-form');
+            forms.forEach(form => {
+                if (form.id === formId) {
+                    form.style.display = 'block';
+                } else {
+                    form.style.display = 'none';
+                }
+            });
+            updateActiveMenu(formId);
+        }
+
+        function updateActiveMenu(formId) {
+            const menuItems = document.querySelectorAll('.list-group-item');
+            menuItems.forEach(item => {
+                if (item.getAttribute('onclick').includes(formId)) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+//  /* 全局变量 */
+// 定义alert div HTML
+var div_alert_html = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true" onclick="refresh()">&times;</span></button>';
+
+function save(obj) {
+    var external_url = document.getElementById('external_url').value;
+    var active_email_subject = document.getElementById('active_email_subject').value;
+    var verify_email_subject = document.getElementById('verify_email_subject').value;
+    var gitlab_url = document.getElementById('gitlab_url').value;
+    var gitlab_token = document.getElementById('gitlab_token').value;
+    var gitlab_job_name = document.getElementById('gitlab_job_name').value;
+    var gitlab_job_name_tomcat = document.getElementById('gitlab_job_name_tomcat').value;
+    var wf_email_subject = document.getElementById('wf_email_subject').value;
+    var skywalking_email_subject = document.getElementById('skywalking_email_subject').value;
+    var skywalking_email_receiver = document.getElementById('skywalking_email_receiver').value;
+    var skywalking_dingtalk_url = document.getElementById('skywalking_dingtalk_url').value;
+    var skywalking_welink_url = document.getElementById('skywalking_welink_url').value;
+    var skywalking_welink_uuid = document.getElementById('skywalking_welink_uuid').value;
+    var prom_dingtalk_url = document.getElementById('prom_dingtalk_url').value;
+    var prom_welink_url = document.getElementById('prom_welink_url').value;
+    var prom_welink_uuid = document.getElementById('prom_welink_uuid').value;
+    var deploy_dingtalk_url = document.getElementById('deploy_dingtalk_url').value;
+    var deploy_welink_url = document.getElementById('deploy_welink_url').value;
+    var deploy_welink_uuid = document.getElementById('deploy_welink_uuid').value;
+    var ansible_base_dir = document.getElementById('ansible_base_dir').value;
+    var tomcat_project_list = document.getElementById('tomcat_project_list').value;
+    var grafana_url = document.getElementById('grafana_url').value;
+    var skywalking_ui_url = document.getElementById('skywalking_ui_url').value;
+    var api_access_timeout = document.getElementById('api_access_timeout').value;
+
+    console.log(external_url,active_email_subject,verify_email_subject,gitlab_url,gitlab_token,gitlab_job_name,gitlab_job_name_tomcat,
+    wf_email_subject,skywalking_email_subject,skywalking_email_receiver,skywalking_dingtalk_url,skywalking_welink_url,skywalking_welink_uuid,
+    prom_dingtalk_url,prom_welink_url,prom_welink_uuid,deploy_dingtalk_url,deploy_welink_url,deploy_welink_uuid,
+    ansible_base_dir,tomcat_project_list,grafana_url,skywalking_ui_url,api_access_timeout);
+
+
+    $.ajax({
+        url:'/cmdb/index/audit/system/settings/change/',
+        data:{
+            external_url:external_url,
+            active_email_subject:active_email_subject,
+            verify_email_subject:verify_email_subject,
+            gitlab_url:gitlab_url,
+            gitlab_token:gitlab_token,
+            gitlab_job_name:gitlab_job_name,
+            gitlab_job_name_tomcat:gitlab_job_name_tomcat,
+            wf_email_subject:wf_email_subject,
+            skywalking_email_subject:skywalking_email_subject,
+            skywalking_email_receiver:skywalking_email_receiver,
+            skywalking_dingtalk_url:skywalking_dingtalk_url,
+            skywalking_welink_url:skywalking_welink_url,
+            skywalking_welink_uuid:skywalking_welink_uuid,
+            prom_dingtalk_url:prom_dingtalk_url,
+            prom_welink_url:prom_welink_url,
+            prom_welink_uuid:prom_welink_uuid,
+            deploy_dingtalk_url:deploy_dingtalk_url,
+            deploy_welink_url:deploy_welink_url,
+            deploy_welink_uuid:deploy_welink_uuid,
+            ansible_base_dir:ansible_base_dir,
+            tomcat_project_list:tomcat_project_list,
+            grafana_url:grafana_url,
+            skywalking_ui_url:skywalking_ui_url,
+            api_access_timeout:api_access_timeout,
+        },
+        type:'POST',
+        success:function (data) {
+            //window.parent.location.reload();
+            //$(body).html(data);
+            //var msg = JSON.parse(data);
+            var msg = data;
+            console.log(msg);
+            //alert(msg.status);
+            //window.parent.location.reload();
+            // alert 弹框提示
+            if (msg.code == '0'){
+                document.getElementById('alert_success').removeAttribute('style','display');
+                document.getElementById('alert_success').innerHTML = msg.status + div_alert_html;
+                }
+            else{
+                document.getElementById('alert_fail').removeAttribute('style','display');
+                document.getElementById('alert_fail').innerHTML = msg.status + div_alert_html;
+                };
+
+        },
+        error:function () {
+            //alert('服务器异常');
+            // alert 弹框提示
+            document.getElementById('alert_fail').removeAttribute('style','display');
+            document.getElementById('alert_fail').innerHTML = '服务器异常' + div_alert_html;
+        }
+    });
+
+}
+
+function refresh(){
+    location.reload();
+}
+
+
+</script>
+{% endblock %}

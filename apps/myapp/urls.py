@@ -23,6 +23,8 @@ urlpatterns = [
 
     # audit-------------------------------------------------------------------------------------------------------------
     url(r'^index/audit/oplog/list/(?P<page>\d*)', audit.oplog, ),
+    path('index/audit/system/settings/', audit.system_config, ),
+    path('index/audit/system/settings/change/', audit.system_config_change),
 
     # login-------------------------------------------------------------------------------------------------------------
 
@@ -46,22 +48,22 @@ urlpatterns = [
     path('index/table/user/form_add/', account.user_form_add, ),
     path('index/table/usergroup/form_add/', account.usergroup_form_add, ),
     # path('index/table/user/form_update/',account.userForm_update),
-    url(r'^index/table/user/form_update/userid=(?P<userid>\d*)', account.user_form_update,),
-    url(r'^index/table/user/form_change_password/username=(?P<username>\w+)', account.user_form_change_password,),
-    url(r'^index/table/user/form_get_profile/username=(?P<username>\w+)', account.user_form_get_profile,),
-    url(r'^index/table/usergroup/form_update/id=(?P<id>\d*)', account.usergroup_form_update,),
+    url(r'^index/table/user/form_update/userid=(?P<userid>\d*)', account.user_form_update, ),
+    url(r'^index/table/user/form_change_password/username=(?P<username>\w+)', account.user_form_change_password, ),
+    url(r'^index/table/user/form_get_profile/username=(?P<username>\w+)', account.user_form_get_profile, ),
+    url(r'^index/table/usergroup/form_update/id=(?P<id>\d*)', account.usergroup_form_update, ),
     path('index/table/user/add/', account.user_add, ),
     path('index/table/usergroup/add/', account.usergroup_add, ),
     url(r'^index/table/user/update/userid=(?P<userid>\d*)', account.user_update, ),
     url(r'^index/table/user/show_detail/userid=(?P<userid>\d*)', account.user_detail, ),
-    url(r'^index/table/user/change_password/username=(?P<username>\w+)', account.user_change_password,),
+    url(r'^index/table/user/change_password/username=(?P<username>\w+)', account.user_change_password, ),
     url(r'^index/table/usergroup/update/id=(?P<id>\d*)', account.usergroup_update, ),
     url(r'^index/table/usergroup/show_detail/id=(?P<id>\d*)', account.usergroup_detail, ),
     path('index/table/user/del/', account.user_del, ),
     path('index/table/user/resetPwd/', account.reset_password, ),
     path('index/table/usergroup/del/', account.usergroup_del, ),
     url(r'^index/table/user/search/', account.user_search, ),
-    url(r'^index/table/user/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)', account.user_search_result,),
+    url(r'^index/table/user/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)', account.user_search_result, ),
     url(r'^index/table/user/list/(?P<page>\d*)', account.user, ),
 
     # monitor-----------------------------------------------------------------------------------------------------------
@@ -122,12 +124,12 @@ urlpatterns = [
 
     path('index/deploy/sum/', deploy.deploy_sum, ),
     path('index/deploy/sum/yearly/', deploy.deploy_sum_yearly, ),
-    path('index/deploy/scripttype/list/', deploy.deploy_script_type, ),
-    path('index/deploy/scripttype/form_add/', deploy.deploy_script_type_form_add, ),
-    url(r'^index/deploy/scripttype/form_update/id=(?P<id>\d*)', deploy.deploy_script_type_form_update, ),
-    path('index/deploy/scripttype/add/', deploy.deploy_script_type_add, ),
-    url(r'^index/deploy/scripttype/update/id=(?P<id>\d*)', deploy.deploy_script_type_update, ),
-    path('index/deploy/scripttype/del/', deploy.deploy_script_type_del, ),
+    path('index/deploy/deploy-type/list/', deploy.deploy_type, ),
+    path('index/deploy/deploy-type/form_add/', deploy.deploy_type_form_add, ),
+    url(r'^index/deploy/deploy-type/form_update/id=(?P<id>\d*)', deploy.deploy_type_form_update, ),
+    path('index/deploy/deploy-type/add/', deploy.deploy_type_add, ),
+    url(r'^index/deploy/deploy-type/update/id=(?P<id>\d*)', deploy.deploy_type_update, ),
+    path('index/deploy/deploy-type/del/', deploy.deploy_type_del, ),
     url(r'^index/deploy/app/list/(?P<page>\d*)', deploy.deploy_app, ),
     url(r'^index/deploy/app/search/', deploy.deploy_app_search, ),
     url(r'^index/deploy/app/search_result/keyword=(?P<keyword>\w+)&page=(?P<page>\d+)',
@@ -149,6 +151,12 @@ urlpatterns = [
     # url(r'^index/wf/deploy/get_task_log/', deploy.get_task_log),
     # url(r'^index/wf/deploy/get_task_status/', deploy.get_task_status),
     url(r'^index/deploy/task/get_task_info/', deploy.get_task_info, ),
+    path('index/deploy/ansible-vars/list/', deploy.ansible_vars),
+    path('index/deploy/ansible-vars/form-add/', deploy.ansible_vars_form_add),
+    path('index/deploy/ansible-vars/add/', deploy.ansible_vars_add),
+    url(r'^index/deploy/ansible-vars/form-update/id=(?P<id>\d*)', deploy.ansible_vars_form_update),
+    url(r'^index/deploy/ansible-vars/update/id=(?P<id>\d*)', deploy.ansible_vars_update),
+    path('index/deploy/ansible-vars/del/', deploy.ansible_vars_del),
 
     # example-----------------------------------------------------------------------------------------------------------
 

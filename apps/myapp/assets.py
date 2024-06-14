@@ -633,11 +633,13 @@ def asset_form_add(request, *args, **kwargs):
     qs_admin = models.userInfo.objects.all()
     qs_env = models.AssetEnvType.objects.all()
     qs_os = models.AssetOsType.objects.all()
+    qs_ansible_vars = models.AnsibleVars.objects.all()
     msg = {'asset': qs, 'login_user': user_dict['user'], 'status': '',
            'device_type': qs_device_type, 'device_status': qs_device_status,
            'tag': qs_tag, 'business_unit': business_unit, 'idc': qs_idc,
            'admin': qs_admin, 'env_type': qs_env, 'os_type': qs_os,
-           'wf_count_pending': wf_dict['wf_count_pending'], }
+           'wf_count_pending': wf_dict['wf_count_pending'],
+           'ansible_vars': qs_ansible_vars, }
     return render_to_response('assets/asset_add.html', msg)
 
 
@@ -670,6 +672,7 @@ def asset_add(request, *args, **kwargs):
         username = request.POST.get('username', None)
         password = request.POST.get('password', None)
         external_ip = request.POST.get('external_ip', None)
+        ansible_vars_id = request.POST.get('ansible_vars', None)
         print(tag_list, )
         # required_filed = [ip, device_type_id, device_status_id, env_type_id, os_type_id, business_unit_id]
         required_filed = [ip, ]
@@ -686,7 +689,7 @@ def asset_add(request, *args, **kwargs):
                                                        sn=sn, manufactory=manufactory, model=model, bios=bios,
                                                        is_docker=is_docker, memo=memo, resource_size=resource_size,
                                                        disk_size=disk_size, username=username, password=password,
-                                                       external_ip=external_ip)
+                                                       external_ip=external_ip, ansible_vars_id=ansible_vars_id)
                 # 判断提交的标签是否包含空标签：当不含空标签，
                 if '' not in tag_list:
                     # 设置标签
@@ -814,6 +817,7 @@ def asset_form_update(request, *args, **kwargs):
     qs_device_status = models.AssetDeviceStatus.objects.all().exclude(id=qs.values('device_status')[0]['device_status'])
     qs_env_type = models.AssetEnvType.objects.all().exclude(id=qs.values('env_type')[0]['env_type'])
     qs_os_type = models.AssetOsType.objects.all().exclude(id=qs.values('os_type')[0]['os_type'])
+    qs_ansible_vars = models.AnsibleVars.objects.all().exclude(id=qs.values('ansible_vars')[0]['ansible_vars'])
     if qs.values_list('tag', flat=True)[0] is None:
         tag_list = models.AssetTag.objects.all()
     else:
@@ -826,7 +830,7 @@ def asset_form_update(request, *args, **kwargs):
            'device_type': qs_device_type, 'device_status': qs_device_status, 'env_type': qs_env_type,
            'os_type': qs_os_type,
            'tag': tag_list, 'business_unit': business_unit, 'idc': qs_idc, 'admin': admin,
-           'wf_count_pending': wf_dict['wf_count_pending'], }
+           'wf_count_pending': wf_dict['wf_count_pending'], 'ansible_vars': qs_ansible_vars}
     # print(msg)
     return render_to_response('assets/asset_update.html', msg)
 
@@ -865,6 +869,7 @@ def asset_update(request, *args, **kwargs):
         password = request.POST.get('password', None)
         external_ip = request.POST.get('external_ip', None)
         update_time = timezone.now()
+        ansible_vars_id = request.POST.get('ansible_vars', None)
         print(tag_list, )
         # required_filed = [ip, device_type_id, device_status_id, env_type_id, os_type_id, business_unit_id]
         required_filed = [ip, ]
@@ -876,7 +881,7 @@ def asset_update(request, *args, **kwargs):
                       cabinet_order=cabinet_order, idc_id=idc_id, admin_id=admin_id, hostname=hostname,
                       sn=sn, manufactory=manufactory, model=model, bios=bios, is_docker=is_docker, memo=memo,
                       resource_size=resource_size, disk_size=disk_size, username=username, password=password,
-                      external_ip=external_ip, update_time=update_time)
+                      external_ip=external_ip, update_time=update_time, ansible_vars_id=ansible_vars_id)
             # 判断提交的标签是否包含空标签：当不含空标签，
             if '' not in tag_list:
                 # 设置标签

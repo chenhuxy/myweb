@@ -6,7 +6,7 @@ from urllib import request, error
 import requests
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
 from django.shortcuts import render_to_response
-from myweb.settings import ZABBIX_URL, ZABBIX_USER, ZABBIX_PASSWORD
+# from myweb.settings import ZABBIX_URL, ZABBIX_USER, ZABBIX_PASSWORD
 
 import sys
 
