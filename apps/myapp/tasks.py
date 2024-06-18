@@ -1008,7 +1008,16 @@ def deploy_ansible_playbook(self, host_file, playbooks, deploy_id, deploy_type_i
 
     try:
         playbooks = [playbooks]
+        # Check if playbook files exist
+        missing_playbooks = [playbook for playbook in playbooks if
+                             not os.path.isfile(os.path.join(ansible_base_dir, playbook))]
+        if missing_playbooks:
+            raise FileNotFoundError(f"Playbook(s) not found: {', '.join(missing_playbooks)}")
+
+        # Initialize Ansible Runner
         ansible_runner = ansible_helper.AnsibleRunner(inventory_path)
+
+        # Execute playbook based on deploy type
         # 2024/6/7 增加重启
         # 发布服务
         if deploy_type_id == '1':
@@ -1031,6 +1040,11 @@ def deploy_ansible_playbook(self, host_file, playbooks, deploy_id, deploy_type_i
         logger.info(f"通知结果: {notify_result}")
 
         logger.info(f"阶段 deploy_ansible_playbook 完成，任务id： '{self.request.id}'")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found error: {e}")
+        models.deploy_list_detail.objects.filter(id=deploy_id).update(status="失败")
+        result = str(e)
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         # 更新任务状态
@@ -1085,6 +1099,8 @@ def deploy_stat(self, deploy_id, log_file_path):
                     if "An error occurred:" in item:
                         num += 1
                     if "No artifact found" in item:
+                        num += 1
+                    if "File not found error:" in item:
                         num += 1
 
                 task_status = '失败' if num > 0 else '成功'
