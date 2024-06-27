@@ -633,11 +633,13 @@ def asset_form_add(request, *args, **kwargs):
     qs_admin = models.userInfo.objects.all()
     qs_env = models.AssetEnvType.objects.all()
     qs_os = models.AssetOsType.objects.all()
+    qs_ansible_vars = models.AnsibleVars.objects.all()
     msg = {'asset': qs, 'login_user': user_dict['user'], 'status': '',
            'device_type': qs_device_type, 'device_status': qs_device_status,
            'tag': qs_tag, 'business_unit': business_unit, 'idc': qs_idc,
            'admin': qs_admin, 'env_type': qs_env, 'os_type': qs_os,
-           'wf_count_pending': wf_dict['wf_count_pending'], }
+           'wf_count_pending': wf_dict['wf_count_pending'],
+           'ansible_vars': qs_ansible_vars, }
     return render_to_response('assets/asset_add.html', msg)
 
 
@@ -670,6 +672,7 @@ def asset_add(request, *args, **kwargs):
         username = request.POST.get('username', None)
         password = request.POST.get('password', None)
         external_ip = request.POST.get('external_ip', None)
+        ansible_vars_id = request.POST.get('ansible_vars', None)
         print(tag_list, )
         # required_filed = [ip, device_type_id, device_status_id, env_type_id, os_type_id, business_unit_id]
         required_filed = [ip, ]
@@ -686,7 +689,7 @@ def asset_add(request, *args, **kwargs):
                                                        sn=sn, manufactory=manufactory, model=model, bios=bios,
                                                        is_docker=is_docker, memo=memo, resource_size=resource_size,
                                                        disk_size=disk_size, username=username, password=password,
-                                                       external_ip=external_ip)
+                                                       external_ip=external_ip, ansible_vars_id=ansible_vars_id)
                 # 判断提交的标签是否包含空标签：当不含空标签，
                 if '' not in tag_list:
                     # 设置标签
@@ -732,7 +735,11 @@ def asset_upload(request, *args, **kwargs):
 
             files = request.FILES.get('mf', None)
             # save_files = os.path.join("F:\\upload", files.name)
-            save_files = os.path.join("static/import", files.name)
+            # 240627 增加目录是否存在判断
+            import_dir = "static/import"
+            if not os.path.exists(import_dir):
+                os.makedirs(import_dir)
+            save_files = os.path.join(import_dir, files.name)
             print(files, type(files))
             with open(save_files, 'wb+') as f:
                 for line in files:
@@ -814,6 +821,7 @@ def asset_form_update(request, *args, **kwargs):
     qs_device_status = models.AssetDeviceStatus.objects.all().exclude(id=qs.values('device_status')[0]['device_status'])
     qs_env_type = models.AssetEnvType.objects.all().exclude(id=qs.values('env_type')[0]['env_type'])
     qs_os_type = models.AssetOsType.objects.all().exclude(id=qs.values('os_type')[0]['os_type'])
+    qs_ansible_vars = models.AnsibleVars.objects.all().exclude(id=qs.values('ansible_vars')[0]['ansible_vars'])
     if qs.values_list('tag', flat=True)[0] is None:
         tag_list = models.AssetTag.objects.all()
     else:
@@ -826,7 +834,7 @@ def asset_form_update(request, *args, **kwargs):
            'device_type': qs_device_type, 'device_status': qs_device_status, 'env_type': qs_env_type,
            'os_type': qs_os_type,
            'tag': tag_list, 'business_unit': business_unit, 'idc': qs_idc, 'admin': admin,
-           'wf_count_pending': wf_dict['wf_count_pending'], }
+           'wf_count_pending': wf_dict['wf_count_pending'], 'ansible_vars': qs_ansible_vars}
     # print(msg)
     return render_to_response('assets/asset_update.html', msg)
 
@@ -865,6 +873,7 @@ def asset_update(request, *args, **kwargs):
         password = request.POST.get('password', None)
         external_ip = request.POST.get('external_ip', None)
         update_time = timezone.now()
+        ansible_vars_id = request.POST.get('ansible_vars', None)
         print(tag_list, )
         # required_filed = [ip, device_type_id, device_status_id, env_type_id, os_type_id, business_unit_id]
         required_filed = [ip, ]
@@ -876,7 +885,7 @@ def asset_update(request, *args, **kwargs):
                       cabinet_order=cabinet_order, idc_id=idc_id, admin_id=admin_id, hostname=hostname,
                       sn=sn, manufactory=manufactory, model=model, bios=bios, is_docker=is_docker, memo=memo,
                       resource_size=resource_size, disk_size=disk_size, username=username, password=password,
-                      external_ip=external_ip, update_time=update_time)
+                      external_ip=external_ip, update_time=update_time, ansible_vars_id=ansible_vars_id)
             # 判断提交的标签是否包含空标签：当不含空标签，
             if '' not in tag_list:
                 # 设置标签
@@ -931,7 +940,10 @@ def asset_export(request, *args, **kwargs):
     current_time = datetime.now()
     formatted_time = current_time.strftime('%Y%m%d%H%M%S')
     # export_dir = "D:\\BaiduNetdiskWorkspace\myweb-master\static\export"
+    # 240627 增加目录是否存在判断
     export_dir = "static/export"
+    if not os.path.exists(export_dir):
+        os.makedirs(export_dir)
     file_name = "export_asset_" + formatted_time + ".xls"
     export_files = os.path.join(export_dir, file_name)
     # 数据写入excel
@@ -1021,24 +1033,34 @@ def asset_export(request, *args, **kwargs):
     for row_num in range(len(data_list)):
         excel_helper.write_excel(export_files, 'asset', row_num, data_list[row_num])
     # 下载导出的excel
-    url = EXTERNAL_URL + '/cmdb/static/export/' + file_name
+    # 数据库获取
+    external_url = models.SystemConfig.objects.filter(name='default').values('external_url')[0][
+        'external_url']
+    url = external_url + '/cmdb/static/export/' + file_name
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/91.0.4472.124 Safari/537.36 '
+    }
 
     try:
         webbrowser.open(url, new=0)
-    except webbrowser.Error:
+        print(f"File downloaded successfully and saved as {file_name}")
+    except webbrowser.Error as e:
         webbrowser.open(url, new=2)
+        print(f"Error downloading the file: {e}")
     """
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            with open(file_name, 'wb') as f:
-                f.write(response.content)
-            print("文件下载成功！")
-        else:
-            print("下载失败，状态码：", response.status_code)
-    except Exception as e:
-        print("下载失败：", e)
+        with requests.get(url, stream=True, headers=headers, timeout=30) as response:
+            response.raise_for_status()
+            with open(file_name, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+        print(f"File downloaded successfully and saved as {file_name}")
+    except requests.RequestException as e:
+        print(f"Error downloading the file: {e}")
     """
+
     msg = {'code': '0', 'status': '写入数据成功,id列表：' + json.dumps(array_id)}
     # print(msg)
 
