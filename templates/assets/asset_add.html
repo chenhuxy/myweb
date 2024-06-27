@@ -205,6 +205,18 @@
 
                     <div class="col-md-7">
                         <div class="form-group">
+                            <label for="single-select9">Ansible变量</label>
+                            <select id="single-select9" class="form-control" name="ansible_vars">
+                                <option value=""></option>
+                                {% for item in ansible_vars %}
+                                <option value={{item.id}}>{{item.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="form-group">
                             <label for="multi-select">标签</label>
                             <select id="multi-select" class="form-control" multiple="" name="tag">
                                 <option value="">None</option>

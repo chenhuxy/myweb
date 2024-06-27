@@ -16,23 +16,23 @@
                     <div class="card-body">
                             {% for item in deploy %}
 
-                            <!--<div class="col-md-7">
+                            <div class="col-md-7">
                                 <div class="form-group">
-                                    <label for="single-select" class="require">脚本类型</label>
-                                    <select id="single-select" class="form-control" name="unit">
-                                        {% for item in scriptType %}
-                                        <option value={{item.id}}>{{item.type}}</option>
+                                    <label for="single-select" class="require">发布类型</label>
+                                    <select id="single-select" class="form-control" name="deploy_type" onchange="deploytypeChange(this)">
+                                        {% for item in qs_deploy_type %}
+                                        <option value={{item.id}}>{{item.name}}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                            </div>-->
+                            </div>
 
-                            <div class="col-md-7">
+                            <!--<div class="col-md-7">
                                 <div class="form-group">
                                     <label for="scriptType" class="form-control-label require">脚本类型</label>
                                     <input type="text" id="scriptType" class="form-control" readonly value="python" name="scriptType">
                                 </div>
-                            </div>
+                            </div>-->
 
                             <div class="col-md-7">
                                 <div class="form-group">
@@ -55,8 +55,8 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-7">
-                                <div class="form-group">
+                            <div class="col-md-7" id="proj_tag">
+                                <div class="form-group" id="proj_tag_child">
                                     <label for="single-select-2" class="require">项目tag</label>
                                     <select id="single-select-2" class="form-control" name="tag">
                                         <option value=NULL>---请选择---</option>
@@ -96,6 +96,27 @@
 </div>
 {% endblock %}
 {% block javascript %}
-    <script>
-    </script>
+<script>
+    function deploytypeChange(arg){
+
+    var deploytype=$(arg).val();
+    console.log(deploytype);
+
+    // 1:服务发布
+    if (deploytype != 1) {
+        $('#proj_tag_child').remove();
+    }
+    else{
+        $('#proj_tag').append('<div class="form-group" id="proj_tag_child"> \
+                                    <label for="single-select-2" class="require">项目tag</label> \
+                                    <select id="single-select-2" class="form-control" name="tag"> \
+                                        <option value=NULL>---请选择---</option> \
+                                        {% for item in tags %} \
+                                        <option value={{item.name}}>{{item.name}}</option> \
+                                        {% endfor %} \
+                                    </select> \
+                                </div>');
+    };
+}
+</script>
 {% endblock %}

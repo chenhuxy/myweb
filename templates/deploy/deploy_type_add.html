@@ -2,25 +2,24 @@
 {% block content %}
 <div class="content">
 {% block formTitle %}
-    <form method="post" action="/cmdb/index/deploy/scripttype/update/id={{id}}">
+    <form method="post" action="/cmdb/index/deploy/deploy-type/add/">
 {% endblock %}
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <div class="card p-4">
+
                     <div class="card-header bg-light">
-                        更新脚本类型
-                        <label style="color: red;">{{ status }}</label>
+                        添加发布类型
+                        <label style="color: red;">{{status}}</label>
                     </div>
 
                     <div class="card-body">
 
                         <div class="col-md-7">
                             <div class="form-group">
-                                {% for item in scripttype %}
-                                <label for="scripttype" class="form-control-label require">脚本类型</label>
-                                <input type="text" id="scripttype" class="form-control" placeholder="脚本类型" name="scripttype" value={{ item.name }}>
-                                {% endfor %}
+                                <label for="deploy-type" class="form-control-label require">发布类型</label>
+                                <input type="text" id="deploy-type" class="form-control" placeholder="发布类型" name="deploy-type">
                             </div>
                         </div>
 
@@ -29,7 +28,9 @@
                     <div class="card-footer p-4">
                         <div class="row">
                             <div class="col-5">
-                                <button type="submit" class="btn btn-primary px-5"><i class="icon icon-check"></i> 更新</button>
+                                <button type="submit" class="btn btn-primary px-5">
+                                    <i class="icon icon-check"></i>  添加
+                                </button>
                             </div>
                             <div class="col-5">
                                 <a href="../list/" class="btn btn-outline-primary px-5">
@@ -43,12 +44,8 @@
             </div>
         </div>
     </div>
-{% block formFooter %}
-    </form>
-{% endblock %}
+    {% block formFooter %}
+        </form>
+    {% endblock %}
 </div>
-{% endblock %}
-{% block javascript %}
-    <script>
-    </script>
 {% endblock %}

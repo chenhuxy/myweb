@@ -1,4 +1,5 @@
-FROM centos:7
+#FROM centos:7
+FROM registry.cn-shanghai.aliyuncs.com/chenhuxy/centos:7
 RUN mkdir /myweb
 ADD . /myweb/
 #RUN yum install python3 python3-devel gcc -y --nogpgcheck \
