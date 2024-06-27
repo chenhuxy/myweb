@@ -735,7 +735,11 @@ def asset_upload(request, *args, **kwargs):
 
             files = request.FILES.get('mf', None)
             # save_files = os.path.join("F:\\upload", files.name)
-            save_files = os.path.join("static/import", files.name)
+            # 240627 增加目录是否存在判断
+            import_dir = "static/import"
+            if not os.path.exists(import_dir):
+                os.makedirs(import_dir)
+            save_files = os.path.join(import_dir, files.name)
             print(files, type(files))
             with open(save_files, 'wb+') as f:
                 for line in files:
@@ -936,7 +940,10 @@ def asset_export(request, *args, **kwargs):
     current_time = datetime.now()
     formatted_time = current_time.strftime('%Y%m%d%H%M%S')
     # export_dir = "D:\\BaiduNetdiskWorkspace\myweb-master\static\export"
+    # 240627 增加目录是否存在判断
     export_dir = "static/export"
+    if not os.path.exists(export_dir):
+        os.makedirs(export_dir)
     file_name = "export_asset_" + formatted_time + ".xls"
     export_files = os.path.join(export_dir, file_name)
     # 数据写入excel
@@ -1026,24 +1033,34 @@ def asset_export(request, *args, **kwargs):
     for row_num in range(len(data_list)):
         excel_helper.write_excel(export_files, 'asset', row_num, data_list[row_num])
     # 下载导出的excel
-    url = EXTERNAL_URL + '/cmdb/static/export/' + file_name
+    # 数据库获取
+    external_url = models.SystemConfig.objects.filter(name='default').values('external_url')[0][
+        'external_url']
+    url = external_url + '/cmdb/static/export/' + file_name
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/91.0.4472.124 Safari/537.36 '
+    }
 
     try:
         webbrowser.open(url, new=0)
-    except webbrowser.Error:
+        print(f"File downloaded successfully and saved as {file_name}")
+    except webbrowser.Error as e:
         webbrowser.open(url, new=2)
+        print(f"Error downloading the file: {e}")
     """
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            with open(file_name, 'wb') as f:
-                f.write(response.content)
-            print("文件下载成功！")
-        else:
-            print("下载失败，状态码：", response.status_code)
-    except Exception as e:
-        print("下载失败：", e)
+        with requests.get(url, stream=True, headers=headers, timeout=30) as response:
+            response.raise_for_status()
+            with open(file_name, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+        print(f"File downloaded successfully and saved as {file_name}")
+    except requests.RequestException as e:
+        print(f"Error downloading the file: {e}")
     """
+
     msg = {'code': '0', 'status': '写入数据成功,id列表：' + json.dumps(array_id)}
     # print(msg)
 
