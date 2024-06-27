@@ -51,7 +51,7 @@ services:
         condition: "service_healthy"
 
   myweb:
-    image: registry.cn-shanghai.aliyuncs.com/chenhuxy/myweb:3.0.1
+    image: registry.cn-shanghai.aliyuncs.com/chenhuxy/myweb:3.0.2
     environment:
       LANG: "en_US.utf8"
       #http_proxy: "http://1.1.1.1:3128"
