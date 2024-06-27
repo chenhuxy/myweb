@@ -6,10 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-light">
-                    <div class="card-header bg-light">
-                        发布列表
-                        <label style="color: red;">{{ status }}</label>
-                    </div>
+                    <div>发布类型</div>
 
                     <div class="alert alert-dismissible alert-success" style="display:none" id="alert_success">
 
@@ -25,26 +22,15 @@
                             <span aria-hidden="true" onclick="refresh()">&times;</span>
                         </button>
                     </div>
-
-
                 </div>
 
 
                 <div class="card-body">
-
                     <div class="title">
-                        <div class="title-search">
-                        <form action="/cmdb/index/deploy/task/search/" method="post" style="margin-top:-60px;">
-                            <div class="col-md-4" style="display:inline-block;float:right;margin-right:-15px">
-                                <label for="search"></label>
-                                <div class="input-group">
-                                    <input type="search" id="search" name="keyword" class="form-control" placeholder="项目名称或任务状态" onfocus="clearContent(this)" onblur="fillContent(this)">
-                                    <span class="input-group-btn">
-                                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> 搜索</button>
-                                    </span>
-                                </div>
-                            </div>
-                        </form>
+                        <div class="title-add">
+                            <a href="/cmdb/index/deploy/deploy-type/form_add/">
+                               <button class="btn btn-primary" style="margin-top:-20px;margin-bottom:4.5px"><i class="icon icon-plus"></i> 添加脚本类型</button>
+                            </a>
                         </div>
                     </div>
 
@@ -52,66 +38,35 @@
                         <table class="table table-hover table-bordered" id="tab">
                             <thead>
                             <tr>
-                                <!--<th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>-->
+                                <th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>
                                 <th>id</th>
-                                <th>项目名称</th>
-                                <th style="display:none">项目id</th>
-                                <th>发布tag</th>
-                                <th style="display:none">任务id</th>
-                                <th>任务状态</th>
-                                <th>发布时间</th>
-                                <th>类型</th>
+                                <th>脚本类型</th>
                                 <th>动作</th>
                             </tr>
                             </thead>
-                            <tbody  id="task_table">
-                            {% for item in deploy %}
-                            {% if item.status == "失败" %}
-                            <tr style="color: red">
-                            {% elif item.status == "已取消" %}
-                            <tr style="color: orange">
-                            {% else %}
+                            <tbody>
+                            {% for item in qs_deploy_type %}
                             <tr>
-                            {% endif %}
-                                <!--<td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>-->
+                                <td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>
                                 <td>{{item.id}}</td>
-                                <td>{{item.proj_name}}</td>
-                                <td style="display:none">{{item.proj_id}}</td>
-                                <td>{{ item.tag }}</td>
-                                <td style="display:none">{{ item.task_id }}</td>
-                                <!--{% if item.status == "失败" %}
-                                <td style="color: red">{{ item.status }}</td>
-                                {% elif item.status == "已取消" %}
-                                <td style="color: orange">{{ item.status }}</td>
-                                {% else %}
-                                <td>{{ item.status }}</td>
-                                {% endif %}-->
-                                <td>{{ item.status }}</td>
-                                <td>{{item.update_time}}</td>
-                                <td>{{item.type.name}}</td>
+                                <td>{{item.name}}</td>
                                 <td>
                                     <!--<button class="btn btn-primary" data-toggle="modal" data-target="#modal-2">更新</button>-->
-
-                                    <button class="btn btn-primary" data-toggle="modal" onclick="deploy_log(this)">
-                                        <i class="icon icon-info"></i> 查看日志
+                                    <button class="btn btn-primary" data-toggle="modal" onclick="update(this)">
+                                        <i class="fa fa-pencil-alt"></i> 更新
                                     </button>
-                                    <!--<button class="btn btn-secondary" data-toggle="modal" onclick="deploy_cancel(this)" id="deploy_cancel" disabled>
-                                        <i class="icon icon-close"></i> 取消发布
-                                    </button>-->
-                                    <!--<button class="btn btn-danger" data-toggle="modal" onclick="deploy_cancel(this)" id="deploy_cancel">
-                                        <i class="icon icon-close"></i> 取消发布
-                                    </button>-->
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#modal-del" onclick="setItemIdToDelete(this)">
+                                        <i class="fa fa-trash"></i> 删除
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
                             </tbody>
                         </table>
-                        <!--<span>
+                        <span>
                             <input type="checkbox" onclick="checkAll_1()" name="checkall"/>
-                            <button class="btn btn-secondary" data-toggle="modal" id="delAll" onclick="delAll()" style="padding:2px;margin-top:-10px;" disabled>
-                                <i class="fa fa-trash"></i> 全部删除
-                            </button>
-                        </span>-->
+                            <button class="btn btn-secondary" data-toggle="modal" id="delAll"  data-target="#modal-delAll" style="margin-top:-10px;" disabled><i class="fa fa-trash"></i> 全部删除</button>
+                        </span>
                         <span style="float: right;">
                             共有{{count}}条，
                             每页显示：
@@ -130,7 +85,6 @@
         </div>
     </div>
 </div>
-
 
 
 <div class="modal fade" id="modal-del" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -180,6 +134,7 @@
 </div>
 
 
+
 {% endblock %}
 {% block javascript %}
 <script>
@@ -190,107 +145,6 @@
 var div_alert_html = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true" onclick="refresh()">&times;</span></button>';
 var itemIdToDelete; // 用于存储要删除的项目的ID
 var trToDelete; // 删除的行
-
-
-// ajax轮询celery获取status
-
-$(function () {
-    function get_task_info(){
-
-        var tbody = document.getElementById('task_table');
-        var trArr = tbody.rows;
-        //console.log(tbody,trArr);
-
-        for(var i=0;i<trArr.length;i++){
-            var tr = trArr[i];
-            //var task_id = tr.cells[4].innerHTML;
-            var task_status = tr.cells[5].innerHTML;
-            var id = tr.cells[0].innerHTML;
-            //只是轮询执行中的任务
-            if (task_status == '执行中'){
-                //设置为可撤销状态
-                //document.getElementById('deploy_cancel').setAttribute("class", "btn btn-danger");
-                //document.getElementById('deploy_cancel').removeAttribute("disabled");
-                //$('#deploy_cancel').removeAttribute("disabled");
-                $.ajax({
-                    type:'POST',
-                    url:'/cmdb/index/deploy/task/get_task_info/',
-                    data:{
-                        //task_id:task_id,
-                        id:id,
-                    },
-                    async: false, //关掉异步方式，避免多个请求还会数据错乱
-                    success:function (result) {
-                        msg = JSON.parse(result);
-                        //console.log(msg);
-                        status = msg.status;
-                        id = msg.id;
-                        console.log(id,status);
-                        //window.parent.location.reload();
-                        tr.cells[5].innerHTML = status;
-
-                        if (status == '失败') {
-                            tr.style.color = "red";
-                        }else if (status == '已取消') {
-                            tr.style.color = "orange";
-                        };
-
-                        /*
-                        if (status != "执行中"){
-                            //设置取消可撤销状态
-                            document.getElementById('deploy_cancel').setAttribute("disabled", true);
-                            document.getElementById('deploy_cancel').setAttribute("class", "btn btn-secondary");
-                        };*/
-                    },
-                    error:function (e) {
-                        console.log(e.status);
-                    }
-                });
-            }else{
-
-
-            };
-
-        };
-
-
-
-    };
-
-    setInterval(function (){
-        get_task_info();
-    },10000);
-
-});　
-
-
-
-
-
-function deploy_log(obj){
-    //window.open ('deploy/deploy_log.html', 'newwindow', 'height=100, width=400, top=0, left=0,
-     //toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no')
-    //alert('null');
-    var tr = obj.parentNode.parentNode;
-    //var userid = tr.firstElementChild.innerHTML;
-    var id = tr.cells[0].innerHTML;
-    //alert(id);
-    location.href='/cmdb/index/deploy/task/log/id='+id;
-}
-
-
-function deploy_cancel(obj){
-    //window.open ('deploy/deploy_log.html', 'newwindow', 'height=100, width=400, top=0, left=0,
-     //toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no')
-    //alert('null');
-    var tr = obj.parentNode.parentNode;
-    //var userid = tr.firstElementChild.innerHTML;
-    var id = tr.cells[0].innerHTML;
-    var status = tr.cells[5].innerHTML;
-    //alert(id);
-    location.href='/cmdb/index/deploy/task/cancel/id='+id;
-}
-
 
 
 $(function () {
@@ -315,7 +169,7 @@ function clearContent(arg) {
 
 
 function fillContent(arg) {
-        arg.placeholder="项目名称或任务状态";
+        arg.placeholder="请输入用户名或邮箱搜索";
 }
 
 
@@ -335,6 +189,7 @@ function setItemIdToDelete(obj) {
 
 //function del(obj) {
 function del() {
+    var array_id = [];
     //var tr = obj.parentNode.parentNode;
     //var tbody = tr.parentNode;
     //var id = tr.firstElementChild.innerHTML;
@@ -345,6 +200,7 @@ function del() {
     //alert(id);
     console.log("Delete item with ID " + id);
     console.log(tr,tbody);
+    array_id.push(id);
 
     /*
     if (confirm("确定删除？")){
@@ -356,8 +212,8 @@ function del() {
     */
 
         $.ajax({
-            url:'/cmdb/index/assets/asset/del/',
-            data:{id:id},
+            url:'/cmdb/index/deploy/deploy-type/del/',
+            data:{id:JSON.stringify(array_id)},
             type:'POST',
             success:function (data) {
                 // 清除 itemIdToDelete，以防止意外删除其他项目
@@ -406,27 +262,15 @@ function del() {
 }
 
 
-
 function update(obj) {
     var tr = obj.parentNode.parentNode;
     //var userid = tr.firstElementChild.innerHTML;
     var id = tr.cells[1].innerHTML;
-    location.href='/cmdb/index/wf/wfbusiness/form_update/id='+id;
+    location.href='/cmdb/index/deploy/deploy-type/form_update/id='+id;
     //alert(userid);
 
 }
 
-
-/*
-function deploy(obj) {
-    var tr = obj.parentNode.parentNode;
-    //var userid = tr.firstElementChild.innerHTML;
-    var id = tr.cells[1].innerHTML;
-    location.href='/cmdb/index/wf/wfbusiness/form_deploy/id='+id;
-    //alert(userid);
-
-}
-*/
 
 function checkOne() {
     var checks = document.getElementsByName("checkone")
@@ -542,7 +386,7 @@ function delAll() {
     console.log(array_tbody);
 
     $.ajax({
-        url:'/cmdb/index/assets/asset/del-all/',
+        url:'/cmdb/index/deploy/deploy-type/del/',
         data:{id:JSON.stringify(array_id)},
         type:'POST',
         success:function (data) {
@@ -579,6 +423,7 @@ function delAll() {
     });
 
 }
+
 
 
 
@@ -642,9 +487,6 @@ window.onload=function(){
     }
 }
 前端搜索打开此条注释*/
-
-
-
 
 </script>
 {% endblock %}

@@ -6,7 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header bg-light">
-                    <div>脚本类型</div>
+                    <div>Ansible变量</div>
 
                     <div class="alert alert-dismissible alert-success" style="display:none" id="alert_success">
 
@@ -22,14 +22,16 @@
                             <span aria-hidden="true" onclick="refresh()">&times;</span>
                         </button>
                     </div>
+
                 </div>
+
 
 
                 <div class="card-body">
                     <div class="title">
-                        <div class="title-add">
-                            <a href="/cmdb/index/deploy/scripttype/form_add/">
-                               <button class="btn btn-primary" style="margin-top:-20px;margin-bottom:4.5px"><i class="icon icon-plus"></i> 添加脚本类型</button>
+                        <div class="title-add" style="display:inline-block;">
+                            <a href="/cmdb/index/deploy/ansible-vars/form-add/">
+                               <button class="btn btn-primary" style="margin-top:-20px;margin-bottom:4.5px"><i class="icon icon-plus"></i> 添加Ansible变量</button>
                             </a>
                         </div>
                     </div>
@@ -40,16 +42,22 @@
                             <tr>
                                 <th><input type="checkbox" onclick="checkAll_0()" name="checkall"/></th>
                                 <th>id</th>
-                                <th>脚本类型</th>
+                                <th>名称</th>
+                                <th>远程登录参数</th>
+                                <th>创建时间</th>
+                                <th>修改时间</th>
                                 <th>动作</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for item in scripttype %}
+                            {% for item in ansible_vars %}
                             <tr>
                                 <td><input type="checkbox" name="checkone" onclick="checkOne()"/></td>
                                 <td>{{item.id}}</td>
                                 <td>{{item.name}}</td>
+                                <td>{{item.vars}}</td>
+                                <td>{{item.create_time}}</td>
+                                <td>{{item.update_time}}</td>
                                 <td>
                                     <!--<button class="btn btn-primary" data-toggle="modal" data-target="#modal-2">更新</button>-->
                                     <button class="btn btn-primary" data-toggle="modal" onclick="update(this)">
@@ -65,7 +73,7 @@
                         </table>
                         <span>
                             <input type="checkbox" onclick="checkAll_1()" name="checkall"/>
-                            <button class="btn btn-secondary" data-toggle="modal" id="delAll"  data-target="#modal-delAll" style="margin-top:-10px;" disabled><i class="fa fa-trash"></i> 全部删除</button>
+                            <button class="btn btn-secondary" data-toggle="modal" id="delAll" data-target="#modal-delAll" style="margin-top:-10px;" disabled><i class="fa fa-trash"></i> 全部删除</button>
                         </span>
                         <span style="float: right;">
                             共有{{count}}条，
@@ -85,6 +93,8 @@
         </div>
     </div>
 </div>
+
+
 
 
 <div class="modal fade" id="modal-del" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -174,6 +184,7 @@ function fillContent(arg) {
 
 
 
+
 function refresh(){
     location.reload();
 }
@@ -185,6 +196,7 @@ function setItemIdToDelete(obj) {
     // 设置要删除的项目的ID
     itemIdToDelete = trToDelete.cells[1].innerHTML; // 这里替换为你实际的项目ID
 }
+
 
 
 //function del(obj) {
@@ -212,7 +224,7 @@ function del() {
     */
 
         $.ajax({
-            url:'/cmdb/index/deploy/scripttype/del/',
+            url:'/cmdb/index/deploy/ansible-vars/del/',
             data:{id:JSON.stringify(array_id)},
             type:'POST',
             success:function (data) {
@@ -266,7 +278,7 @@ function update(obj) {
     var tr = obj.parentNode.parentNode;
     //var userid = tr.firstElementChild.innerHTML;
     var id = tr.cells[1].innerHTML;
-    location.href='/cmdb/index/deploy/scripttype/form_update/id='+id;
+    location.href='/cmdb/index/deploy/ansible-vars/form-update/id='+id;
     //alert(userid);
 
 }
@@ -362,6 +374,9 @@ function checkAll_0() {
 
 
 
+
+
+
 function delAll() {
     var checks = document.getElementsByName("checkone");
     var array_id = [];
@@ -386,7 +401,7 @@ function delAll() {
     console.log(array_tbody);
 
     $.ajax({
-        url:'/cmdb/index/deploy/scripttype/del/',
+        url:'/cmdb/index/deploy/ansible-vars/del/',
         data:{id:JSON.stringify(array_id)},
         type:'POST',
         success:function (data) {
@@ -423,7 +438,6 @@ function delAll() {
     });
 
 }
-
 
 
 

@@ -7,8 +7,7 @@ import smtplib
 from email.mime.text import MIMEText
 import requests
 from django.shortcuts import HttpResponse
-
-from apps.myapp import models, common, page_helper
+from apps.myapp import models, common, page_helper, notify_helper
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
 from myweb.settings import *
 import time
@@ -17,113 +16,89 @@ from django.shortcuts import render_to_response
 
 # 2024/1/17 增加webhook告警
 def send_alert(request, *args, **kwargs):
-    # 将 JSON 数据解析为 Python 字典
-    data_dict = json.loads(request.body.decode())
-    # 打印原始信息
-    print("=" * 60)
-    print("data_dict：", data_dict, type(data_dict))
+    try:
+        # 将 JSON 数据解析为 Python 字典
+        data_dict = json.loads(request.body.decode())
+        print("=" * 60)
+        print("data_dict：", data_dict, type(data_dict))
 
-    for alert in data_dict:
-        alert_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(alert["startTime"]) / 1000))
-        formatted_content = """警告时间：%s \n\n警告类型：%s \n\n服务名称：%s \n\n规则名称：%s \n\n详细内容：%s""" % (
-            alert_time, alert["scope"], alert["name"], alert["ruleName"], alert["alarmMessage"])
-        print("formatted_content：", formatted_content)
+        ret_dict = {}
+        alert_sender = notify_helper.AlertSender()
 
-        # 发送邮件配置
-        msg = MIMEText(formatted_content, "plain", 'utf-8')
-        msg['Subject'] = SKYWALKING_EMAIL_SUBJECT
-        msg['From'] = EMAIL_SEND_FROM
-        msg['To'] = SKYWALKING_EMAIL_RECEIVER
+        for alert in data_dict:
+            alert_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(alert["startTime"]) / 1000))
+            formatted_content = """警告时间：%s \n\n警告类型：%s \n\n服务名称：%s \n\n规则名称：%s \n\n详细内容：%s""" % (
+                alert_time, alert["scope"], alert["name"], alert["ruleName"], alert["alarmMessage"])
+            print("formatted_content：", formatted_content)
 
-        # 判断是否使用tls ssl等加密
-        if EMAIL_USE_TLS:
-            # Initialize the SMTP connection
-            smtp = smtplib.SMTP(EMAIL_HOST, 587)  # Port 587 is typically used for TLS
-            # Secure the SMTP connection with TLS
-            smtp.starttls()
-        elif EMAIL_USE_SSL:
-            # Initialize the SMTP connection with SSL
-            smtp = smtplib.SMTP_SSL(EMAIL_HOST, 465)  # Port 465 is typically used for SSL
-        else:
-            # Initialize the SMTP connection without encryption
-            smtp = smtplib.SMTP(EMAIL_HOST)
+            # skywalking_dingtalk_url = SKYWALKING_DINGTALK_WEBHOOK_URL
+            # skywalking_welink_url = SKYWALKING_WELINK_WEBHOOK_URL
+            # skywalking_welink_uuid = SKYWALKING_WELINK_UUID
+            # skywalking_email_subject = SKYWALKING_EMAIL_SUBJECT
+            # skywalking_email_receiver = SKYWALKING_EMAIL_RECEIVER
+            # 数据库获取
+            skywalking_dingtalk_url = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_dingtalk_url')[0]['skywalking_dingtalk_url']
+            skywalking_welink_url = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_welink_url')[0]['skywalking_welink_url']
+            skywalking_welink_uuid = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_welink_uuid')[0]['skywalking_welink_uuid']
+            skywalking_email_subject = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_email_subject')[0]['skywalking_email_subject']
+            skywalking_email_receiver = models.SystemConfig.objects.filter(name='default').values(
+                'skywalking_email_receiver')[0]['skywalking_email_receiver']
 
-        # Log in to the SMTP server
-        smtp.login(user=EMAIL_HOST_USER, password=EMAIL_HOST_PASSWORD)
+            try:
+                # Email告警发送
+                email_msg = MIMEText(formatted_content, "plain", 'utf-8')
+                email_msg['Subject'] = skywalking_email_subject
+                email_msg['From'] = EMAIL_SEND_FROM
+                email_msg['To'] = ', '.join(skywalking_email_receiver)
+                ret_email = alert_sender.send_email(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, email_msg)
+                ret_dict["ret_email"] = ret_email
 
-        # webhook告警配置
-        '''
-        # 钉钉
-        data = {
-            "msgtype": "markdown",
-            "markdown": {
-                "title": "【Skywalking监控告警】 " + alert['name'],
-                "text": formatted_content
-            }
-        }
-        headers = {"Content-Type": "application/json"}
-        '''
-        # weLink
-        timestamp = time.time() * 1000
-        data = {
-            "messageType": "text",
-            "content": {
-                "text": formatted_content,
-            },
-            # "timeStamp": alert["startTime"],
-            "timeStamp": timestamp,
-            # 测试
-            # "uuid": SKYWALKING_WELINK_UUID,
-            # 生产
-            "uuid": SKYWALKING_WELINK_UUID,
-            "isAtAll": False
-        }
-        headers = {
-            "Content-Type": "application/json",
-            "Accept-Charset": "UTF-8"
-        }
+                '''
+                # 钉钉告警发送
+                ret_dingtalk = alert_sender.send_dingtalk(skywalking_dingtalk_url,
+                                                          f"【Skywalking监控告警】 {alert['name']}",
+                                                          formatted_content)
+                ret_dict["ret_dingtalk"] = ret_dingtalk.text
+                '''
 
-        try:
-            ret_dict = {}
-            # Email告警发送
-            # Send the email
-            ret_email = smtp.sendmail(msg['From'], msg['To'].split(','), msg.as_string())
-            # print(ret_email)
+                # weLink告警发送
+                ret_welink = alert_sender.send_welink(skywalking_welink_url, skywalking_welink_uuid,
+                                                      formatted_content)
+                ret_dict["ret_welink"] = ret_welink.text
 
-            # Quit the SMTP server
-            smtp.quit()
+                # 告警存入数据库
+                models.MonitorSkywalking.objects.create(
+                    scope=alert["scope"],
+                    name=alert["name"],
+                    ruleName=alert["ruleName"],
+                    alarmMessage=alert["alarmMessage"],
+                    startTime=alert_time
+                )
+            except Exception as alert_exception:
+                print(f"Error processing alert: {alert_exception}")
+                ret_dict["error"] = str(alert_exception)
+                continue
 
-            # webhook告警发送
-            '''
-            # 钉钉
-            ret_dingtalk = requests.post(SKYWALKING_DINGTALK_WEBHOOK_URL, json=data, headers=headers)
-            # print(ret_dingtalk.text)
-            '''
-            # weLink
-            ret_welink = requests.post(SKYWALKING_WELINK_WEBHOOK_URL, json=data, headers=headers)
-            # print(ret_welink.text)
-
-            # ret_dict["ret_dingtalk"] = ret_dingtalk.text
-            ret_dict["ret_email"] = ret_email
-            ret_dict["ret_welink"] = ret_welink.text
-
-            # 告警存入数据库
-            models.MonitorSkywalking.objects.create(scope=alert["scope"], name=alert["name"],
-                                                    ruleName=alert["ruleName"], alarmMessage=alert["alarmMessage"],
-                                                    startTime=alert_time)
-
-            return HttpResponse(json.dumps(ret_dict))
-        except Exception as e:
-            # print(e)
-            return HttpResponse(e)
+        return HttpResponse(json.dumps(ret_dict), content_type="application/json")
+    except Exception as e:
+        print(f"Error in send_alert: {e}")
+        return HttpResponse(json.dumps({"error": str(e)}), status=500, content_type="application/json")
 
 
 @custom_login_required
 def dashboard(request, *args, **kwargs):
     user_dict = request.session.get('is_login', None)
     wf_dict = request.session.get('wf', None)
+    # skywalking_ui_url = SKYWALKING_UI_URL
+    # 数据库获取
+    skywalking_ui_url = models.SystemConfig.objects.filter(name='default').values('skywalking_ui_url')[0][
+        'skywalking_ui_url']
     msg = {'login_user': user_dict['user'], 'wf_count_pending': wf_dict['wf_count_pending'],
-           'grafana_url': GRAFANA_URL, 'skywalking_ui_url': SKYWALKING_UI_URL}
+           'skywalking_ui_url': skywalking_ui_url}
     return render_to_response('monitor/skywalking_dashboard.html', msg)
 
 
@@ -144,5 +119,6 @@ def skywalking_alert(request, *args, **kwargs):
                'page': page_string, 'login_user': user_dict['user'],
                'wf_count_pending': wf_dict['wf_count_pending'], }
         return render_to_response('monitor/skywalking.html', msg)
-    except:
+    except Exception as e:
+        msg = str(e)
         return render_to_response('500.html', msg, status=500)

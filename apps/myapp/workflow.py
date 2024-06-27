@@ -19,13 +19,12 @@ from apps.myapp.gitlab_helper import GitTools
 import gitlab
 import paramiko, subprocess
 from django.core.cache import cache
-from myweb.settings import GITLAB_URL, GITLAB_TOKEN
 from django.contrib.auth.models import Group
 from apps.myapp import common
 from apps.myapp import page_helper
 from apps.myapp import json_helper
 from celery.result import AsyncResult
-from myweb.settings import SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PASSWORD, SSH_CMD, SSH_WORKDIR, API_SECRET
+from myweb.settings import *
 
 
 @custom_login_required
@@ -833,7 +832,20 @@ def wftype_change(request, *args, **kwargs):
             # print(proj_name)
             proj_id = deploy.values('proj_id')[0]['proj_id']
             # print(proj_id)
-            git_tools = gitlab.Gitlab(GITLAB_URL, GITLAB_TOKEN)
+
+            # ansible_base_dir = ANSIBLE_BASE_DIR
+            # gitlab_url = GITLAB_URL
+            # gitlab_token = GITLAB_TOKEN
+
+            # 数据库获取
+            ansible_base_dir = models.SystemConfig.objects.filter(name='default').values('ansible_base_dir')[0][
+                'ansible_base_dir']
+            gitlab_url = models.SystemConfig.objects.filter(name='default').values('gitlab_url')[0][
+                'gitlab_url']
+            gitlab_token = models.SystemConfig.objects.filter(name='default').values('gitlab_token')[0][
+                'gitlab_token']
+
+            git_tools = gitlab.Gitlab(gitlab_url, gitlab_token)
             proj = git_tools.projects.get(proj_id)
             # print(proj)
             branches = proj.branches.list()
