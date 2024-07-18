@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # coding:utf-8
 import json
+from datetime import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 
 from apps.myapp import common, page_helper
 from apps.myapp.auth_helper import custom_login_required, custom_permission_required
@@ -104,3 +105,47 @@ def system_config_change(request, *args, **kwargs):
                             status=404)
     except Exception as e:
         return JsonResponse({'status': '修改失败', 'code': '1', 'message': str(e)}, status=500)
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_oplogs')
+def oplog_search(request, *args, **kwargs):
+    start_time = request.POST.get('start_time')
+    end_time = request.POST.get('end_time')
+    page = '1'
+    print(start_time, type(start_time))
+    print(end_time, type(end_time))
+    is_empty = all([start_time, end_time])
+    if is_empty:
+        return redirect('/cmdb/index/audit/oplog/search_result/start_time=' + start_time + '&end_time=' + end_time + '&page=' + page)
+        # return redirect(reverse("account.search_result", kwargs={"keyword": keyword, "page": page}))
+    else:
+        return redirect('/cmdb/index/audit/oplog/list/')
+        # return redirect(reverse("account.user", kwargs={"page": page}))
+
+
+@custom_login_required
+@custom_permission_required('myapp.view_oplogs')
+def oplog_search_result(request, *args, **kwargs):
+    start_time = kwargs['start_time']
+    end_time = kwargs['end_time']
+    start_time_fmt = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+    end_time_fmt = datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
+    print(start_time_fmt, type(start_time_fmt))
+    print(end_time_fmt, type(end_time_fmt))
+    op_logs = models.OpLogs.objects.filter(re_time__range=(start_time_fmt, end_time_fmt))
+    print(op_logs)
+    count = op_logs.count()
+    user_dict = request.session.get('is_login', None)
+    wf_dict = request.session.get('wf', None)
+    page = common.try_int(kwargs['page'], 1)
+    # print(keyword, page)
+    perItem = common.try_int(request.COOKIES.get('page_num', 10), 10)
+    pageinfo = page_helper.pageinfo_search_by_time(page, count, perItem, start_time, end_time)
+    op_logs = op_logs[pageinfo.start:pageinfo.end]
+    page_string = page_helper.pager_oplog_list_search(request, page, pageinfo.pageCount, start_time, end_time)
+    msg = {'op_logs': op_logs, 'login_user': user_dict['user'], 'status': '操作成功',
+           'count': count, 'pageCount': pageinfo.pageCount, 'page': page_string,
+           'wf_count_pending': wf_dict['wf_count_pending'], }
+    # return render_to_response('user_search.html',msg)
+    return render_to_response('audit/oplog.html', msg)

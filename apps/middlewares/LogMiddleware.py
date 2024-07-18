@@ -4,10 +4,11 @@
 
 import json
 import time
+from datetime import datetime
 
 from django.utils.deprecation import MiddlewareMixin
 from apps.myapp.models import OpLogs
-from apps.myapp import encrypt_helper
+from apps.myapp import encrypt_helper, common
 
 
 class OpLog(MiddlewareMixin):
@@ -64,7 +65,7 @@ class OpLog(MiddlewareMixin):
 
         self.data.update(
             {
-                're_time': re_time,  # 请求时间
+                're_time': datetime.strptime(re_time, "%Y-%m-%d %H:%M:%S"),  # 请求时间
                 're_url': request.path,  # 请求url
                 're_method': re_method,  # 请求方法
                 're_ip': re_ip,  # 请求IP

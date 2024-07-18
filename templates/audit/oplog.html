@@ -11,7 +11,32 @@
 
 
                 <div class="card-body">
-
+                    <form action="/cmdb/index/audit/oplog/search/" method="post">
+                    <div class="row">
+                        <!--<form action="/cmdb/index/table/user/search/" method="post">-->
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label class="form-control-label require">开始时间</label>
+                                <input id="start_time" type=datetime-local class="form-control" name="start_time">
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="form-group">
+                                <label class="form-control-label require">结束时间</label>
+                                <input id="end_time" type=datetime-local class="form-control" name="end_time">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group" style="margin-top:30px;">
+                                <label class="form-control-label">     </label>
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> 搜索</button>
+                            </span>
+                            </div>
+                        </div>
+                        <!--</form>-->
+                    </div>
+                    </form>
 
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered" id="tab">
