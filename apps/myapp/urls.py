@@ -23,6 +23,8 @@ urlpatterns = [
 
     # audit-------------------------------------------------------------------------------------------------------------
     url(r'^index/audit/oplog/list/(?P<page>\d*)', audit.oplog, ),
+    url(r'^index/audit/oplog/search/', audit.oplog_search, ),
+    url(r'^index/audit/oplog/search_result/start_time=(?P<start_time>[\d\-T\:]+)&end_time=(?P<end_time>[\d\-T\:]+)&page=(?P<page>\d+)/$', audit.oplog_search_result, ),
     path('index/audit/system/settings/', audit.system_config, ),
     path('index/audit/system/settings/change/', audit.system_config_change),
 

@@ -26,7 +26,7 @@ class AnsibleVars(models.Model):
 # OpLogs----------------------------------------------------------------------------------------------------------------
 class OpLogs(models.Model):
     id = models.AutoField(primary_key=True)
-    re_time = models.CharField(max_length=32, verbose_name='请求时间')
+    re_time = models.DateTimeField(verbose_name='请求时间')
     re_user = models.CharField(max_length=32, verbose_name='请求用户')
     re_ip = models.CharField(max_length=32, verbose_name='请求IP')
     re_url = models.CharField(max_length=255, verbose_name='请求url')

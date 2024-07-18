@@ -108,38 +108,45 @@ def auth(request, *args, **kwargs):
         password = encrypt_helper.md5_encrypt(password_origin)
         # password = make_password(password_origin)
         # check = check_password(password_origin,password)
-        # 2024/5/17  判断用户是否已经被禁用
-        is_active = userInfo.objects.filter(username=username).values('is_active')[0]['is_active']
-        if is_active:
-            is_auth = authenticate(username=username, password=password_origin)
-            remember = request.POST.get('remember', None)
-            is_empty = all([username, password_origin])
-            # print(username, password_origin,remember,is_empty,user,type(user))
-            if is_empty:
-                if is_auth:
-                    request.session['is_login'] = {'user': username, 'pass': password, }
-                    # 2024/5/6 wf待办信息写入session
-                    wf_count_pending = wf_info.objects.filter(next_assignee=username).filter(
-                        flow_id__gte=0).filter(
-                        ~Q(status='已完成')).count()
-                    # print(wf_count_pending)
-                    request.session['wf'] = {'wf_count_pending': wf_count_pending, }
-                    obj = redirect('/cmdb/index/')
-                    if remember == 'on':
-                        obj.set_cookie('is_login', '{"user": username, "pass": password, }', 3600 * 24 * 7, )
-                        # obj.set_cookie('user',username,3600*24*7,)
-                        # obj.set_cookie('pass',password,3600*24*7,)
-                    return obj
-                    # result = {'status':'登录成功！'}
-                    # return render_to_response('index.html',result)
+        # 2024/7/17 判断用户是否存在
+        is_exist = userInfo.objects.filter(username=username)
+        print(is_exist)
+        if is_exist:
+            # 2024/5/17  判断用户是否已经被禁用
+            is_active = userInfo.objects.filter(username=username).values('is_active')[0]['is_active']
+            if is_active:
+                is_auth = authenticate(username=username, password=password_origin)
+                remember = request.POST.get('remember', None)
+                is_empty = all([username, password_origin])
+                # print(username, password_origin,remember,is_empty,user,type(user))
+                if is_empty:
+                    if is_auth:
+                        request.session['is_login'] = {'user': username, 'pass': password, }
+                        # 2024/5/6 wf待办信息写入session
+                        wf_count_pending = wf_info.objects.filter(next_assignee=username).filter(
+                            flow_id__gte=0).filter(
+                            ~Q(status='已完成')).count()
+                        # print(wf_count_pending)
+                        request.session['wf'] = {'wf_count_pending': wf_count_pending, }
+                        obj = redirect('/cmdb/index/')
+                        if remember == 'on':
+                            obj.set_cookie('is_login', '{"user": username, "pass": password, }', 3600 * 24 * 7, )
+                            # obj.set_cookie('user',username,3600*24*7,)
+                            # obj.set_cookie('pass',password,3600*24*7,)
+                        return obj
+                        # result = {'status':'登录成功！'}
+                        # return render_to_response('index.html',result)
+                    else:
+                        msg = {'status': '用户名密码错误！'}
+                        return render_to_response('account/login.html', msg, status=401)
                 else:
-                    msg = {'status': '用户名密码错误！'}
+                    msg = {'status': '用户名或密码不能为空！'}
                     return render_to_response('account/login.html', msg, status=401)
             else:
-                msg = {'status': '用户名或密码不能为空！'}
+                msg = {'status': '该用户已被禁用！'}
                 return render_to_response('account/login.html', msg, status=401)
         else:
-            msg = {'status': '该用户已被禁用！'}
+            msg = {'status': '该用户不存在！'}
             return render_to_response('account/login.html', msg, status=401)
     else:
         msg = {'status': '无效的请求，请使用post提交！'}
@@ -222,26 +229,27 @@ def forget_pass_send(request, *args, **kwargs):
         if email:
             is_exist = userInfo.objects.filter(email=email)
             print(is_exist)
-            is_active = userInfo.objects.filter(email=email).values('is_active')[0]['is_active']
-            print(is_active, type(is_active))
             # 判断用户邮箱是否存在
-            if not is_exist:
+            if is_exist:
+                is_active = userInfo.objects.filter(email=email).values('is_active')[0]['is_active']
+                print(is_active, type(is_active))
+                # 判断用户状态
+                if is_active:
+                    verify_code = token_helper.get_random_code()
+                    tasks.account_send_email_code.delay(email, verify_code)
+                    cache.set('verify_code', verify_code)
+                    cache.set('email', email)
+                    result = '邮件已发送！'
+                    msg = {'result': result, }
+                    return JsonResponse(msg, )
+                else:
+                    result = '该用户已经禁用！'
+                    msg = {'result': result}
+                    return JsonResponse(msg, status=500)
+            else:
                 result = '系统中该邮箱地址不存在！'
                 msg = {'result': result, }
                 return JsonResponse(msg, status=500)
-            # 判断用户状态
-            elif not is_active:
-                result = '该用户已经禁用！'
-                msg = {'result': result}
-                return JsonResponse(msg, status=500)
-            else:
-                verify_code = token_helper.get_random_code()
-                tasks.account_send_email_code.delay(email, verify_code)
-                cache.set('verify_code', verify_code)
-                cache.set('email', email)
-                result = '邮件已发送！'
-                msg = {'result': result, }
-                return JsonResponse(msg, )
         else:
             result = '请先输入邮箱地址！'
             msg = {'result': result, }
