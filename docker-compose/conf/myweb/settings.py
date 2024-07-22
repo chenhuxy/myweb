@@ -289,11 +289,11 @@ REST_FRAMEWORK = {
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = False  # 是否使用TLS安全传输协议(用于在两个通信应用程序之间提供保密性和数据完整性。)
 EMAIL_USE_SSL = False  # 是否使用SSL加密，qq企业邮箱要求使用
-EMAIL_HOST = 'xxx'  # 发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
+EMAIL_HOST = 'your-mail-server.com'  # 发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
 EMAIL_PORT = 25  # 发件箱的SMTP服务器端口
-EMAIL_HOST_USER = 'xxx'  # 发送邮件的邮箱用户名
-EMAIL_HOST_PASSWORD = 'xxx'  # 发送邮件的邮箱密码(这里使用的是授权码)
-EMAIL_SEND_FROM = 'xxx'  # 发送邮件的邮箱地址
+EMAIL_HOST_USER = 'your-mail-username'  # 发送邮件的邮箱用户名
+EMAIL_HOST_PASSWORD = 'your-mail-password'  # 发送邮件的邮箱密码(这里使用的是授权码)
+EMAIL_SEND_FROM = 'your-mail-addr'  # 发送邮件的邮箱地址
 
 # cache配置
 # pip install django-redis-cache(Python 3.7.3 (v3.7.3:ef4ec6ed12, Mar 25 2019, 22:22:05) [MSC v.1916 64 bit (
@@ -356,3 +356,65 @@ CHANNEL_LAYERS = {
 
 # secret
 API_SECRET = 'yYEtEMvGMVmCaxpOWIjOWjtvTk'
+
+# LDAP配置
+import ldap
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+
+# LDAP服务器的URL
+AUTH_LDAP_SERVER_URI = "ldap://your-ldap-server.com:389"
+
+# 绑定用户名和密码 (可选，如果你的LDAP服务器允许匿名访问的话)
+AUTH_LDAP_BIND_DN = "cn=admin,dc=example,dc=com"
+AUTH_LDAP_BIND_PASSWORD = "your-bind-password"
+
+# 定义搜索用户的基准DN和过滤器
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "ou=users,dc=example,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(uid=%(user)s)"
+)
+
+# 定义用户和组的映射
+#AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+#    "ou=groups,dc=example,dc=com",
+#    ldap.SCOPE_SUBTREE,
+#    "(objectClass=groupOfNames)"
+#)
+#AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    "ou=dev,dc=baidu,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(objectClass=groupOfNames)"
+)
+AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
+
+# 将LDAP属性映射到Django用户模型字段
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail"
+}
+
+# 定义用户在登录时自动创建/更新
+#AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+#    # "is_active": "cn=active,ou=groups,dc=example,dc=com",
+#    "is_active": True,  # 默认所有LDAP用户都激活
+#    "is_staff": "cn=staff,ou=groups,dc=example,dc=com",
+#    "is_superuser": "cn=superuser,ou=groups,dc=example,dc=com",
+#}
+
+# 如果LDAP用户的属性发生变化，是否更新Django用户
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+# 这个设置决定是否在 LDAP 认证过程中创建新的用户
+AUTH_LDAP_CREATE_USER = True  
+
+
+# 定义缓存DN
+AUTH_LDAP_CACHE_TIMEOUT = 3600
+
+# 激活LDAP认证后端
+AUTHENTICATION_BACKENDS = [
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]

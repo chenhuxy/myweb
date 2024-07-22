@@ -1,23 +1,21 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : localhost
+ Source Server         : 192.168.38.129
  Source Server Type    : MySQL
- Source Server Version : 50732
- Source Host           : localhost:3306
- Source Schema         : django_test
+ Source Server Version : 50742
+ Source Host           : 192.168.38.129:3306
+ Source Schema         : myweb
 
  Target Server Type    : MySQL
- Target Server Version : 50732
+ Target Server Version : 50742
  File Encoding         : 65001
 
- Date: 25/06/2021 17:11:03
+ Date: 18/07/2024 17:13:20
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
-
-use myweb;
 
 -- ----------------------------
 -- Table structure for myapp_userinfo
@@ -37,14 +35,14 @@ CREATE TABLE `myapp_userinfo`  (
   `date_joined` datetime(6) NOT NULL,
   `workflow_order` int(11) NOT NULL,
   `memo` longtext CHARACTER SET utf8 COLLATE utf8_general_ci,
+  `origin` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `username`(`username`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of myapp_userinfo
 -- ----------------------------
-INSERT INTO `myapp_userinfo` VALUES (1, 'pbkdf2_sha256$150000$SkU2hCdtfmjL$uzcXM/bHa+vBlw+vWqFGBFc9hqNOFQBYdXSv2JXNvf0=', '2021-06-25 16:34:34.182176', 1, 'admin', '', '', '', 1, 1, '2021-06-25 16:33:19.033686', 0, NULL);
-
+INSERT INTO `myapp_userinfo` VALUES (1, 'pbkdf2_sha256$120000$JT1Etz13KP5q$kfXVIxSM/LnIJxiO1+ASXb67+9BIBcGjIjjMMK3t8+I=', NULL, 1, 'admin-local', '', '', 'admin@localhost', 1, 1, '2024-07-18 17:12:28.938738', 0, NULL, 'local');
 
 SET FOREIGN_KEY_CHECKS = 1;

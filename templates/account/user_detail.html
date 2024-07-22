@@ -90,6 +90,13 @@
 
                         <div class="col-md-7">
                                 <div class="form-group">
+                                    <label class="form-control-label require">账号来源</label>
+                                    <input readonly type="text" class="form-control" value={{ item.origin }}>
+                                </div>
+                            </div>
+
+                        <div class="col-md-7">
+                                <div class="form-group">
                                     <label class="form-control-label">用户创建时间</label>
                                     <input readonly type="text" class="form-control" value={{ item.date_joined | date }}{{ item.date_joined | time:"H:i:s" }}>
                                 </div>
