@@ -46,6 +46,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils.crypto import get_random_string, salted_hmac
 from django.contrib.auth.decorators import permission_required
+from django_auth_ldap.backend import LDAPBackend
 
 ########################################################################################################################
 from django.shortcuts import render, render_to_response, HttpResponse
@@ -108,64 +109,103 @@ def auth(request, *args, **kwargs):
         password = encrypt_helper.md5_encrypt(password_origin)
         # password = make_password(password_origin)
         # check = check_password(password_origin,password)
-        # 2024/7/17 判断用户是否存在
-        is_exist = userInfo.objects.filter(username=username)
-        print(is_exist)
-        if is_exist:
-            # 2024/5/17  判断用户是否已经被禁用
-            is_active = userInfo.objects.filter(username=username).values('is_active')[0]['is_active']
-            if is_active:
-                is_auth = authenticate(username=username, password=password_origin)
-                remember = request.POST.get('remember', None)
-                is_empty = all([username, password_origin])
-                # print(username, password_origin,remember,is_empty,user,type(user))
-                if is_empty:
-                    if is_auth:
-                        request.session['is_login'] = {'user': username, 'pass': password, }
-                        # 2024/5/6 wf待办信息写入session
-                        wf_count_pending = wf_info.objects.filter(next_assignee=username).filter(
-                            flow_id__gte=0).filter(
-                            ~Q(status='已完成')).count()
-                        # print(wf_count_pending)
-                        request.session['wf'] = {'wf_count_pending': wf_count_pending, }
-                        obj = redirect('/cmdb/index/')
-                        if remember == 'on':
-                            obj.set_cookie('is_login', '{"user": username, "pass": password, }', 3600 * 24 * 7, )
-                            # obj.set_cookie('user',username,3600*24*7,)
-                            # obj.set_cookie('pass',password,3600*24*7,)
-                        return obj
-                        # result = {'status':'登录成功！'}
-                        # return render_to_response('index.html',result)
+        # 2024/7/19  增加用户来源验证
+        origin = request.POST.get('origin', None)
+        print(origin)
+        print(username, password_origin)
+        # 处理本地用户的认证
+        if origin == 'local':
+            # 加后缀
+            username = username + "-local"
+            # 2024/7/17 判断用户是否存在
+            is_exist = userInfo.objects.filter(username=username, origin=origin)
+            print(is_exist)
+            if is_exist:
+                # 2024/5/17  判断用户是否已经被禁用
+                is_active = userInfo.objects.filter(username=username, origin=origin).values('is_active')[0]['is_active']
+                if is_active:
+                    is_auth = authenticate(username=username, password=password_origin)
+                    remember = request.POST.get('remember', None)
+                    is_empty = all([username, password_origin])
+                    # print(username, password_origin,remember,is_empty,user,type(user))
+                    if is_empty:
+                        if is_auth:
+                            request.session['is_login'] = {'user': username, 'pass': password, }
+                            # 2024/5/6 wf待办信息写入session
+                            wf_count_pending = wf_info.objects.filter(next_assignee=username).filter(
+                                flow_id__gte=0).filter(
+                                ~Q(status='已完成')).count()
+                            # print(wf_count_pending)
+                            request.session['wf'] = {'wf_count_pending': wf_count_pending, }
+                            response = redirect('/cmdb/index/')
+                            if remember == 'on':
+                                response.set_cookie('is_login', '{"user": username, "pass": password, }',
+                                                    3600 * 24 * 7, )
+                                # obj.set_cookie('user',username,3600*24*7,)
+                                # obj.set_cookie('pass',password,3600*24*7,)
+                            return response
+                            # result = {'status':'登录成功！'}
+                            # return render_to_response('index.html',result)
+                        else:
+                            msg = {'status': '用户名密码错误！'}
+                            return render_to_response('account/login.html', msg, status=401)
                     else:
-                        msg = {'status': '用户名密码错误！'}
+                        msg = {'status': '用户名或密码不能为空！'}
                         return render_to_response('account/login.html', msg, status=401)
                 else:
-                    msg = {'status': '用户名或密码不能为空！'}
+                    msg = {'status': '该用户已被禁用！'}
                     return render_to_response('account/login.html', msg, status=401)
             else:
-                msg = {'status': '该用户已被禁用！'}
+                msg = {'status': '该用户不存在！'}
                 return render_to_response('account/login.html', msg, status=401)
+        elif origin == 'ldap':
+            # 处理LDAP用户的认证
+            ldap_backend = LDAPBackend()
+            is_auth = ldap_backend.authenticate(request, username=username, password=password_origin)
+            print(is_auth, type(is_auth))
+
+            if is_auth:
+                request.session['is_login'] = {'user': username, 'pass': password}
+                wf_count_pending = wf_info.objects.filter(next_assignee=username).filter(
+                    flow_id__gte=0).filter(~Q(status='已完成')).count()
+                request.session['wf'] = {'wf_count_pending': wf_count_pending}
+
+                # 更新账号来源为‘ldap’
+                user_info = userInfo.objects.filter(username=is_auth)
+                user_info.update(origin=origin)
+                response = redirect('/cmdb/index/')
+                remember = request.POST.get('remember', None)
+                if remember == 'on':
+                    response.set_cookie('is_login', f'{{"user": "{username}", "pass": "{password}"}}',
+                                        max_age=3600 * 24 * 7)
+                return response
+            else:
+                msg = {'status': '用户名密码错误！'}
+                return render(request, 'account/login.html', msg, status=401)
         else:
-            msg = {'status': '该用户不存在！'}
-            return render_to_response('account/login.html', msg, status=401)
+            msg = {'status': '无效的用户来源！'}
+            return render(request, 'account/login.html', msg, status=401)
     else:
         msg = {'status': '无效的请求，请使用post提交！'}
-    return render_to_response('account/login.html', msg, status=405)
+        return render_to_response('account/login.html', msg, status=405)
 
 
 def register(request, *args, **kwargs):
     msg = {'status': ''}
     if request.method == 'POST':
         username = request.POST.get('user', None)
+        username_new = username + "-local"
         password1 = request.POST.get('pwd1', None)
         password2 = request.POST.get('pwd2', None)
         email = request.POST.get('email', None)
         # group = userGroup.objects.filter(name="default")
         is_active = 0
+        # 增加本地用户标识
+        origin = "local"
         is_empty = all([username, password1, email])
         if is_empty:
             if password2 == password1:
-                is_exist = userInfo.objects.filter(username=username) | userInfo.objects.filter(email=email)
+                is_exist = userInfo.objects.filter(username=username_new, origin=origin) | userInfo.objects.filter(email=email, origin=origin)
                 if not is_exist:
                     '''
                     # 加载模板
@@ -186,7 +226,7 @@ def register(request, *args, **kwargs):
                     # queryset=userInfo.objects.create(username=username,password=password,
                     #                               email=email,is_active=is_active,)
                     # queryset.group.set(group)
-                    queryset = userInfo.objects.create(username=username, email=email, is_active=is_active, )
+                    queryset = userInfo.objects.create(username=username_new, email=email, is_active=is_active, origin=origin)
                     queryset.set_password(password2)  # 设置密码
                     queryset.save()  # 保存
                     msg = {'status': username + ',邮件已发送至' + email + ',请前往邮箱激活!'}
@@ -225,9 +265,11 @@ def forget_pass_send(request, *args, **kwargs):
         # 去除换行和空格
         email = request.POST.get('email').strip()
         print('email:', email, type(email))
+        # 增加本地用户标识
+        origin = "local"
         # 判断是否为空
         if email:
-            is_exist = userInfo.objects.filter(email=email)
+            is_exist = userInfo.objects.filter(email=email, origin=origin)
             print(is_exist)
             # 判断用户邮箱是否存在
             if is_exist:
@@ -269,6 +311,8 @@ def forget_pass_change(request, *args, **kwargs):
         # verify_code_confirm = cache.get('verify_code')
         required_field = [email, verify_code, password, password_confirm]
         print(required_field)
+        # 增加本地用户标识
+        origin = "local"
         if all(required_field):
             # 校验验证码所属邮箱是否对应
             print(cache.get(verify_code))
@@ -276,7 +320,7 @@ def forget_pass_change(request, *args, **kwargs):
                 if password == password_confirm:
                     # password = encrypt_helper.md5_encrypt(password2)
                     # userInfo.objects.filter(email=email).update(password=password,update_time=timezone.now())
-                    queryset = get_object_or_404(userInfo, email=email)
+                    queryset = get_object_or_404(userInfo, email=email, origin=origin)
                     queryset.set_password(password_confirm)  # 设置密码
                     queryset.save()  # 保存
                     status = '密码设置成功！'
@@ -530,6 +574,7 @@ def user_add(request, *args, **kwargs):
     qs_usergroup = Group.objects.all()
     if request.method == 'POST':
         username = request.POST.get('username', None)
+        username_new = username + "-local"
         email = request.POST.get('email', None)
         password_origin = request.POST.get('password', None)
         # password = encrypt_helper.md5_encrypt(password_origin)
@@ -545,17 +590,19 @@ def user_add(request, *args, **kwargs):
         memo = request.POST.get('memo', None)
         required_field = [username, password_origin, email, ]
         is_empty = all(required_field)
+        # 增加本地用户标识
+        origin = "local"
         if is_empty:
-            is_exist = userInfo.objects.filter(Q(username=username) | Q(email=email))
+            is_exist = userInfo.objects.filter(Q(username=username) | Q(email=email), origin=origin)
             print(is_exist)
             if not is_exist:
                 # queryset=userInfo.objects.create(username=username, password=password,
                 #     email=email,usertype=usertype_select,memo=memo,workflow_order=workflow_order,is_active=is_active,)
                 # queryset.group.set(group)
-                queryset = userInfo.objects.create(username=username, email=email, first_name=first_name,
+                queryset = userInfo.objects.create(username=username_new, email=email, first_name=first_name,
                                                    last_name=last_name,
                                                    is_superuser=is_superuser, is_staff=is_staff,
-                                                   workflow_order=workflow_order, is_active=is_active, memo=memo, )
+                                                   workflow_order=workflow_order, is_active=is_active, memo=memo, origin=origin)
                 '''
                 queryset.groups.set(group_list)  # 添加到组/角色
                 queryset.user_permissions.set(perm_list)  # set:批量增加，add：增加，remove：删除，clear：清除所有

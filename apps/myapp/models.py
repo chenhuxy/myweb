@@ -118,6 +118,7 @@ class userGroup(models.Model):
 class userInfo(AbstractUser):
     workflow_order = models.IntegerField('工作流编号', default=0, )
     memo = models.TextField('备注', blank=True, null=True)
+    origin = models.CharField('账号来源', max_length=128, null=True)
 
     class Meta:
         verbose_name = '用户'

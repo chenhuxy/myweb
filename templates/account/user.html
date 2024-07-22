@@ -65,6 +65,7 @@
                                 <th>修改时间</th>-->
                                 <th>激活状态</th>
                                 <th>是否超级管理员</th>
+                                <th>账号来源</th>
                                 <!--<th>工作流编号</th>-->
                                 <!--<th>备注</th>-->
                                 <th>动作</th>
@@ -98,6 +99,8 @@
                                 <td>{{item.update_time}}</td>-->
                                 <!--<td>{{item.workflow_order}}</td>-->
                                 <!--<td>{{ item.memo }}</td>-->
+                                <td>{{ item.origin }}</td>
+                               
                                 <td>
                                     <!--<button class="btn btn-primary" data-toggle="modal" data-target="#modal-2">更新</button>-->
                                     <button class="btn btn-primary" data-toggle="modal" onclick="show_detail(this)">
@@ -107,16 +110,15 @@
                                     <button class="btn btn-primary" data-toggle="modal" onclick="update(this)">
                                         <i class="fa fa-pencil-alt"></i> 更新
                                     </button>
-
                                     <button class="btn btn-primary" data-toggle="modal" data-target="#modal-resetPwd" onclick="setItemIdToReset(this)">
                                         <i class="fa fa-redo"></i> 重置密码
                                     </button>
-
                                     <!--<button class="btn btn-danger" data-toggle="modal" onclick="del(this)">-->
                                     <button class="btn btn-danger" data-toggle="modal" data-target="#modal-del" onclick="setItemIdToDelete(this)">
                                         <i class="fa fa-trash"></i> 删除
                                     </button>
                                 </td>
+
                             </tr>
                             {% endfor %}
                             </tbody>
