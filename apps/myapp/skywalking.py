@@ -19,8 +19,10 @@ def send_alert(request, *args, **kwargs):
     try:
         # 将 JSON 数据解析为 Python 字典
         data_dict = json.loads(request.body.decode())
+        # 打印开始分割符
         print("=" * 60)
-        print("data_dict：", data_dict, type(data_dict))
+        # 打印原始信息
+        print("data_dict：", data_dict, "type: ", type(data_dict))
 
         ret_dict = {}
         alert_sender = notify_helper.AlertSender()
@@ -31,12 +33,14 @@ def send_alert(request, *args, **kwargs):
                 alert_time, alert["scope"], alert["name"], alert["ruleName"], alert["alarmMessage"])
             print("formatted_content：", formatted_content)
 
+            # setttings 文件配置
             # skywalking_dingtalk_url = SKYWALKING_DINGTALK_WEBHOOK_URL
             # skywalking_welink_url = SKYWALKING_WELINK_WEBHOOK_URL
             # skywalking_welink_uuid = SKYWALKING_WELINK_UUID
             # skywalking_email_subject = SKYWALKING_EMAIL_SUBJECT
             # skywalking_email_receiver = SKYWALKING_EMAIL_RECEIVER
-            # 数据库获取
+
+            # 数据库获取配置
             skywalking_dingtalk_url = models.SystemConfig.objects.filter(name='default').values(
                 'skywalking_dingtalk_url')[0]['skywalking_dingtalk_url']
             skywalking_welink_url = models.SystemConfig.objects.filter(name='default').values(
@@ -49,28 +53,7 @@ def send_alert(request, *args, **kwargs):
                 'skywalking_email_receiver')[0]['skywalking_email_receiver']
 
             try:
-                # Email告警发送
-                email_msg = MIMEText(formatted_content, "plain", 'utf-8')
-                email_msg['Subject'] = skywalking_email_subject
-                email_msg['From'] = EMAIL_SEND_FROM
-                email_msg['To'] = ', '.join(skywalking_email_receiver)
-                ret_email = alert_sender.send_email(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, email_msg)
-                ret_dict["ret_email"] = ret_email
-
-                '''
-                # 钉钉告警发送
-                ret_dingtalk = alert_sender.send_dingtalk(skywalking_dingtalk_url,
-                                                          f"【Skywalking监控告警】 {alert['name']}",
-                                                          formatted_content)
-                ret_dict["ret_dingtalk"] = ret_dingtalk.text
-                '''
-
-                # weLink告警发送
-                ret_welink = alert_sender.send_welink(skywalking_welink_url, skywalking_welink_uuid,
-                                                      formatted_content)
-                ret_dict["ret_welink"] = ret_welink.text
-
-                # 告警存入数据库
+                # 告警信息存入数据库
                 models.MonitorSkywalking.objects.create(
                     scope=alert["scope"],
                     name=alert["name"],
@@ -78,11 +61,32 @@ def send_alert(request, *args, **kwargs):
                     alarmMessage=alert["alarmMessage"],
                     startTime=alert_time
                 )
+                # Email告警发送
+                ret_email = alert_sender.send_email(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD,
+                                                    skywalking_email_subject, EMAIL_SEND_FROM,
+                                                    skywalking_email_receiver, formatted_content)
+                ret_dict["ret_email"] = ret_email
+                print("ret_email：", ret_email)
+
+                '''
+                # 钉钉告警发送
+                ret_dingtalk = alert_sender.send_dingtalk(skywalking_dingtalk_url,
+                                                          f"【Skywalking监控告警】 {alert['name']}", formatted_content)
+                ret_dict["ret_dingtalk"] = ret_dingtalk
+                print("ret_dingtalk：", ret_dingtalk)
+                '''
+
+                # weLink告警发送
+                ret_welink = alert_sender.send_welink(skywalking_welink_url, skywalking_welink_uuid, formatted_content)
+                ret_dict["ret_welink"] = ret_welink
+                print("ret_welink：", ret_welink)
+
             except Exception as alert_exception:
                 print(f"Error processing alert: {alert_exception}")
                 ret_dict["error"] = str(alert_exception)
-                continue
-
+                # continue
+        # 打印结束分割符
+        print("=" * 60)
         return HttpResponse(json.dumps(ret_dict), content_type="application/json")
     except Exception as e:
         print(f"Error in send_alert: {e}")

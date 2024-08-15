@@ -17,7 +17,7 @@ class AlertSender:
         self.headers = {
             "Content-Type": "application/json",
             "Accept-Charset": "UTF-8"
-        },
+        }
         self.smtp = None
 
     def send_email(self, email_host, email_user, email_pass, subject, send_from, send_to, content):
@@ -25,7 +25,10 @@ class AlertSender:
             msg = MIMEText(content, "plain", 'utf-8')
             msg['Subject'] = subject
             msg['From'] = send_from
-            msg['To'] = send_to
+            # Ensure send_to is a list of email addresses
+            if isinstance(send_to, str):
+                send_to = [email.strip() for email in send_to.split(',')]
+            msg['To'] = ', '.join(send_to)  # 列表转换为字符串
 
             # 判断是否使用tls ssl等加密
             if EMAIL_USE_TLS:
@@ -44,7 +47,7 @@ class AlertSender:
             self.smtp.login(user=email_user, password=email_pass)
 
             # Send the email
-            self.smtp.sendmail(msg['From'], msg['To'].split(','), msg.as_string())
+            self.smtp.sendmail(msg['From'], send_to, msg.as_string())
 
             # Quit the SMTP server
             self.smtp.quit()
@@ -53,7 +56,7 @@ class AlertSender:
         except Exception as e:
             return str(e)
 
-    def send_welkin(self, url, uuid, content):
+    def send_welink(self, url, uuid, content):
         try:
             timestamp = int(time.time() * 1000)
             data = {

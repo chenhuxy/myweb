@@ -81,8 +81,10 @@ def send_alert(request, *args, **kwargs):
     try:
         # 将 JSON 数据解析为 Python 字典
         webhook_data_dict = json.loads(request.body.decode())
+        # 打印开始分割符
+        print("=" * 60)
         # 打印原始信息
-        print(f"webhook_data_dict: {webhook_data_dict}")
+        print(f"webhook_data_dict: {webhook_data_dict}, type: {type(webhook_data_dict)}")
 
         # 提取关键信息
         group_labels = webhook_data_dict.get('groupLabels', {})
@@ -94,6 +96,10 @@ def send_alert(request, *args, **kwargs):
         print(f"Group Labels: {group_labels}")
         print(f"Common Labels: {common_labels}")
         print(f"Common Annotations: {common_annotations}")
+        print(f"Alerts: {alerts}")
+
+        ret_dict = {}
+        alert_sender = notify_helper.AlertSender()
 
         for alert in alerts:
             alert_status = alert.get('status', '')
@@ -104,16 +110,17 @@ def send_alert(request, *args, **kwargs):
             generator_url = alert.get('generatorURL', '')
 
             # 打印或处理告警信息
-            print(f"Status: {alert_status}, Alert: {alert_labels}, Annotations: {alert_annotations}")
-            print(f"Starts At: {starts_at}, Ends At: {ends_at}, Generator URL: {generator_url}")
-            print("=" * 60)
+            print(f"Alert: {alert}")
+            print(f"Status: {alert_status}")
+            print(f"Labels: {alert_labels}")
+            print(f"Annotations: {alert_annotations}")
+            print(f"Starts At: {starts_at}")
+            print(f"Ends At: {ends_at}")
+            print(f"Generator URL: {generator_url}")
 
-            # 检查所有必需字段是否存在
-            required_labels = ['alertname', 'severity', 'instance']
-            for label in required_labels:
-                if label not in alert_labels:
-                    print(f"Missing required label: {label}")
-                    continue
+            # 格式化时间格式
+            starts_at = common.time_tz_fmt(starts_at)
+            ends_at = common.time_tz_fmt(ends_at)
 
             # 生成格式化内容
             formatted_content = f"告警状态： {alert_status.upper()}\n\n"
@@ -122,17 +129,19 @@ def send_alert(request, *args, **kwargs):
             formatted_content += f"实例地址： {alert_labels['instance']}\n\n"
             formatted_content += f"告警摘要： {alert_annotations.get('summary', '')}\n\n"
             formatted_content += f"告警详情： {alert_annotations.get('description', '')}\n\n"
-            formatted_content += f"触发时间： {common.time_tz_fmt(starts_at)}\n\n"
-            formatted_content += f"结束时间： {common.time_tz_fmt(ends_at)}\n\n"
+            formatted_content += f"触发时间： {starts_at}\n\n"
+            formatted_content += f"结束时间： {ends_at}\n\n"
             # formatted_content += f"Generator URL: {generator_url}"
 
             # 打印格式化后信息
-            print(f"formatted_content: {formatted_content}")
+            print(f"Formatted_content: {formatted_content}")
 
+            # settings文件获取配置
             # prom_dingtalk_url = PROM_DINGTALK_WEBHOOK_URL
             # prom_welink_url = PROM_WELINK_WEBHOOK_URL
             # prom_welink_uuid = PROM_WELINK_UUID
-            # 数据库获取
+
+            # 数据库获取配置
             prom_dingtalk_url = models.SystemConfig.objects.filter(name='default').values('prom_dingtalk_url')[0][
                 'prom_dingtalk_url']
             prom_welink_url = models.SystemConfig.objects.filter(name='default').values('prom_welink_url')[0][
@@ -141,8 +150,17 @@ def send_alert(request, *args, **kwargs):
                 'prom_welink_uuid']
 
             try:
-                ret_dict = {}
-                alert_sender = notify_helper.AlertSender()
+                # 告警信息存入数据库
+                models.MonitorPrometheus.objects.create(status=alert_status,
+                                                        alertname=alert_labels['alertname'],
+                                                        severity=alert_labels['severity'],
+                                                        instance=alert_labels['instance'],
+                                                        summary=alert_annotations.get('summary', ''),
+                                                        description=alert_annotations.get('description', ''),
+                                                        starts_at=starts_at,
+                                                        ends_at=ends_at
+                                                        )
+                # 发送告警信息
 
                 '''
                 # 钉钉
@@ -150,30 +168,20 @@ def send_alert(request, *args, **kwargs):
                                                           f"【Prometheus监控告警】 {alert_labels['alertname']}",
                                                           formatted_content
                                                           )
-                # print(ret_dingtalk.text)
+                # ret_dict["ret_dingtalk"] = ret_dingtalk
+                # print(f"ret_dingtalk: {ret_dingtalk}")
                 '''
 
                 # weLink
-                ret_welink = alert_sender.send_welkin(prom_welink_url, prom_welink_uuid, formatted_content)
-                # print(ret_welink.text)
-
-                # ret_dict["ret_dingtalk"] = ret_dingtalk.text
-                ret_dict["ret_welink"] = ret_welink.text
-
-                # 告警存入数据库
-                models.MonitorPrometheus.objects.create(status=alert_status,
-                                                        alertname=alert_labels['alertname'],
-                                                        severity=alert_labels['severity'],
-                                                        instance=alert_labels['instance'],
-                                                        summary=alert_annotations.get('summary', ''),
-                                                        description=alert_annotations.get('description', ''),
-                                                        starts_at=common.time_tz_fmt(starts_at),
-                                                        ends_at=common.time_tz_fmt(ends_at)
-                                                        )
+                ret_welink = alert_sender.send_welink(prom_welink_url, prom_welink_uuid, formatted_content)
+                ret_dict["ret_welink"] = ret_welink
+                print(f"ret_welink: {ret_welink}")
 
             except Exception as e:
                 print(f"Error processing alert: {e}")
-                continue
+                # continue
+        # 打印结束分割符
+        print("=" * 60)
         return HttpResponse(json.dumps(ret_dict), content_type="application/json")
     except Exception as e:
         print(f"Error in send_alert: {e}")
